@@ -1,10 +1,10 @@
-import type { Config } from "tailwindcss"
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  darkMode: "class", // enable class-based dark mode toggling
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
@@ -12,7 +12,7 @@ const config: Config = {
           DEFAULT: "#3A8EFF",   // Main brand blue (light mode)
           light: "#E6F0FF",
           dark: "#1F66CC",
-          darkmode: "#5A8DE0",  // Optional variant for dark mode use
+          darkmode: "#5A8DE0",
         },
         secondary: {
           DEFAULT: "#F97316",
@@ -27,10 +27,9 @@ const config: Config = {
           400: "#9CA3AF",
           500: "#6B7280",
           600: "#4B5563",
-          // Dark mode grays
-          700: "#1F2937",  // Dark background
-          800: "#111827",  // Darker background
-          900: "#0F172A",  // Darkest text
+          700: "#1F2937",
+          800: "#111827",
+          900: "#0F172A",
         },
         success: {
           DEFAULT: "#10B981",
@@ -42,10 +41,11 @@ const config: Config = {
         }
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["'Inter'", "ui-sans-serif", "system-ui", "sans-serif"],
       },
     },
   },
   plugins: [],
-}
-export default config
+};
+
+export default config;

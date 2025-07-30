@@ -112,6 +112,22 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+.grid-background {
+  background-size: 
+    calc(100vw / 12) calc(100vh / 12),
+    calc(100vw / 12) calc(100vh / 12);
+  background-image:
+    linear-gradient(to right, rgba(156, 163, 175, 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(156, 163, 175, 0.1) 1px, transparent 1px);
+  background-position: 0 0;
+}
+
+.dark .grid-background {
+  background-image:
+    linear-gradient(to right, rgba(75, 85, 99, 0.2) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(75, 85, 99, 0.2) 1px, transparent 1px);
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
