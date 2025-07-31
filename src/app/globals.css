@@ -142,4 +142,44 @@
   .group:hover, .cursor-pointer {
     cursor: pointer;
   }
+
+  /* Dropdown hover intent styles */
+  .hover-intent .dropdown-menu,
+  .group:hover .dropdown-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* Keep text darkened when hovering dropdown */
+  [data-hover="dropdown"]:hover button,
+  [data-hover="dropdown"].hover-intent button {
+    color: var(--foreground) !important;
+  }
+
+  /* Add a small gap above the dropdown to prevent accidental closing */
+  .dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+  
+  /* Add a visual connector between dropdown and button */
+  .group:hover .dropdown-connector {
+    opacity: 1;
+  }
+  
+  .dropdown-connector {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
 }
