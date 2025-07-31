@@ -46,27 +46,27 @@ export function Navbar() {
 
                     {/* Navigation Links - centered with flex-1 and reduced spacing */}
                     <nav className="hidden md:flex flex-1 items-center justify-center space-x-6">
-                        <Link href="/product" className="text-gray-600 hover:text-gray-900 font-small">
+                        <Link href="/product" className="text-gray-600 hover:text-gray-900 font-sm">
                             Product
                         </Link>
-                        <Link href="/resources" className="text-gray-600 hover:text-gray-900 font-small">
+                        <Link href="/resources" className="text-gray-600 hover:text-gray-900 font-sm">
                             Resources
                         </Link>
-                        <Link href="/pricing" className="text-gray-600 hover:text-gray-900 font-small">
+                        <Link href="/pricing" className="text-gray-600 hover:text-gray-900 font-sm">
                             Pricing
                         </Link>
                     </nav>
 
                     {/* Auth Buttons - reduced left margin */}
-                    <div className="hidden md:flex items-center space-x-2 pr-1">
+                    <div className="hidden md:flex items-center space-x-1 pr-1">
                         <Link 
                             href="/login"
-                            className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+                            className="text-sm text-gray-600 hover:text-gray-900 px-1.5 py-1"
                         >
-                            Log in
+                            Login
                         </Link>
                         <Link href="/signup">
-                            <Button variant="secondary" size="sm">
+                            <Button variant="secondary" size="sm" className="py-1 px-3 font-extrabold text-sm">
                                 Sign up
                             </Button>
                         </Link>
