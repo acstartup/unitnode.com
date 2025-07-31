@@ -24,21 +24,21 @@ export function Navbar() {
     return (
         <header
             className={cn(
-                "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-                isScrolled ? "bg-white/95 backdrop-blur-sm shadow-sm" : "bg-transparent"
+                "fixed left-1/2 -translate-x-1/2 top-0 z-50 transition-all duration-300 w-11/12 max-w-6xl mt-3 rounded-lg border border-gray-300 bg-white/95 backdrop-blur-sm shadow-sm",
+                isScrolled ? "bg-white/95" : "bg-white/95"
             )}
         >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="flex items-center h-16">
-                    {/* Logo - reduced right margin */}
-                    <div className="flex-shrink-0 ml-12">
+            <div className="px-3">
+                <div className="flex items-center h-13">
+                    {/* Logo - reduced padding */}
+                    <div className="flex-shrink-0 pl-1">
                         <Link href="/">
                             <Image
                                 src="/unitnode-full.svg"
                                 alt="UnitNode"
                                 width={130}
                                 height={30}
-                                className="h-8 w-auto"
+                                className="h-7 w-auto"
                                 priority
                             />
                         </Link>
@@ -58,7 +58,7 @@ export function Navbar() {
                     </nav>
 
                     {/* Auth Buttons - reduced left margin */}
-                    <div className="hidden md:flex items-center mr-14 space-x-2">
+                    <div className="hidden md:flex items-center space-x-2 pr-1">
                         <Link 
                             href="/login"
                             className="text-sm text-gray-600 hover:text-gray-900 font-medium"
