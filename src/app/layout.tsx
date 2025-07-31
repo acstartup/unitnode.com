@@ -12,6 +12,10 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "UnitNode.com",
   description: "Automating tasks for real estate property mangagement",
+  icons: {
+    icon: '/unitnode-icon.svg',
+    apple: '/unitnode-icon.svg',
+  },
 };
 
 export default function RootLayout({
