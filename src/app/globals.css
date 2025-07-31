@@ -135,4 +135,11 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Add pointer cursor to all clickable elements */
+  button, a, [role="button"], 
+  input[type="button"], input[type="submit"], input[type="reset"],
+  .group:hover, .cursor-pointer {
+    cursor: pointer;
+  }
 }
