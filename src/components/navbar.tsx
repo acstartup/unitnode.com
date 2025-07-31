@@ -58,14 +58,14 @@ export function Navbar() {
                             {/* Product Dropdown menu */}
                             <div className="absolute -left-10 top-full mt-1 w-68 rounded-lg bg-white shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
                                 <div className="py-0.5">
-                                    <a href="/property-manager" className="flex items-start px-3 py-1.5 hover:bg-gray-50 rounded-md m-0.5 transition-colors group/item">
-                                        <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-md flex items-center justify-center mr-2.5 transition-colors group-hover/item:bg-gray-200">
+                                    <a href="/login" className="flex items-start px-3 py-1.5 hover:bg-gray-50 rounded-md m-0.5 transition-colors group/item">
+                                        <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-md flex items-center justify-center mr-2.5 transition-colors group-hover/item:bg-gray-300">
                                             <Image
                                                 src="/pm-portal.svg"
                                                 alt="Property Management Portal"
                                                 width={20}
                                                 height={20}
-                                                className="transition-colors"
+                                                className="transition-colors "
                                             />
                                         </div>
                                         <div>
@@ -90,7 +90,7 @@ export function Navbar() {
                             <div className="absolute -left-10 top-full mt-1 w-45 rounded-lg bg-white shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-150 z-50">
                                 <div className="py-0.5">
                                     <a href="/blog" className="flex items-start px-3 py-1.5 hover:bg-gray-50 rounded-md m-0.5 transition-colors group/item">
-                                        <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-md flex items-center justify-center mr-2.5 transition-colors group-hover/item:bg-gray-200">
+                                        <div className="flex-shrink-0 w-9 h-9 bg-gray-100 rounded-md flex items-center justify-center mr-2.5 transition-colors group-hover/item:bg-gray-300">
                                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors group-hover/item:stroke-primary">
                                                 <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                                                 <path d="M7 7H17M7 12H17M7 17H12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
