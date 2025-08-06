@@ -12,7 +12,7 @@ export function Navbar() {
     // State to track if navbar should be transparent or solid
     const [isScrolled, setIsScrolled] = useState(false);
     // State for active dropdown
-    const [hoverTimeout, setHoverTimeout] = useState<number | null>(null);
+    const [hoverTimeout] = useState<number | null>(null);
     // Access modal functions
     const { openSignupModal } = useModal();
 

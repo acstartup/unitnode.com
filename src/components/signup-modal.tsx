@@ -10,8 +10,6 @@ interface SignupModalProps {
 }
 
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
-  if (!isOpen) return null;
-  
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [passwordBlurred, setPasswordBlurred] = useState(false);
@@ -42,6 +40,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       onClose();
     }
   };
+  
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-33 bg-black/33" onClick={handleBackdropClick}>
@@ -263,7 +263,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
             {/* Terms of service */}
             <p className="text-xs text-center text-gray-600 mt-4 font-medium">
-              By continuing, you agree to UnitNode's <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+              By continuing, you agree to UnitNode&apos;s <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
             </p>
 
             {/* OR divider */}
