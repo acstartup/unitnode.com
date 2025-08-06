@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -10,6 +10,23 @@ interface SignupModalProps {
 
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   if (!isOpen) return null;
+  
+  const [password, setPassword] = useState("");
+  const [requirements, setRequirements] = useState({
+    hasEightChars: false,
+    hasDigit: false,
+    hasLowercase: false,
+    hasUppercase: false
+  });
+  
+  useEffect(() => {
+    setRequirements({
+      hasEightChars: password.length >= 8,
+      hasDigit: /\d/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasUppercase: /[A-Z]/.test(password)
+    });
+  }, [password]);
   
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -77,27 +94,57 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               <input 
                 type="password" 
                 placeholder="Password" 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
               />
             </div>
 
             {/* Password requirements */}
             <div className="mb-8 pl-1">
-              <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
-                <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span className="font-medium">At least 6 characters</span>
+              <div className={`flex items-center gap-2 text-xs mb-1 ${requirements.hasEightChars ? "text-green-600" : "text-gray-600"}`}>
+                <input 
+                  type="radio" 
+                  className={`w-2.5 h-2.5 ${requirements.hasEightChars ? "accent-green-600" : ""}`} 
+                  checked={requirements.hasEightChars} 
+                  readOnly 
+                />
+                <span className={requirements.hasEightChars ? "font-bold" : "font-medium"}>
+                  At least 8 characters
+                </span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
-                <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span className="font-medium">One digit (0-9)</span>
+              <div className={`flex items-center gap-2 text-xs mb-1 ${requirements.hasDigit ? "text-green-600" : "text-gray-600"}`}>
+                <input 
+                  type="radio" 
+                  className={`w-2.5 h-2.5 ${requirements.hasDigit ? "accent-green-600" : ""}`} 
+                  checked={requirements.hasDigit} 
+                  readOnly 
+                />
+                <span className={requirements.hasDigit ? "font-bold" : "font-medium"}>
+                  One digit (0-9)
+                </span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
-                <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span className="font-medium">One lowercase letter (a-z)</span>
+              <div className={`flex items-center gap-2 text-xs mb-1 ${requirements.hasLowercase ? "text-green-600" : "text-gray-600"}`}>
+                <input 
+                  type="radio" 
+                  className={`w-2.5 h-2.5 ${requirements.hasLowercase ? "accent-green-600" : ""}`} 
+                  checked={requirements.hasLowercase} 
+                  readOnly 
+                />
+                <span className={requirements.hasLowercase ? "font-bold" : "font-medium"}>
+                  One lowercase letter (a-z)
+                </span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-gray-600">
-                <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span className="font-medium">One uppercase letter (A-Z)</span>
+              <div className={`flex items-center gap-2 text-xs ${requirements.hasUppercase ? "text-green-600" : "text-gray-600"}`}>
+                <input 
+                  type="radio" 
+                  className={`w-2.5 h-2.5 ${requirements.hasUppercase ? "accent-green-600" : ""}`} 
+                  checked={requirements.hasUppercase} 
+                  readOnly 
+                />
+                <span className={requirements.hasUppercase ? "font-bold" : "font-medium"}>
+                  One uppercase letter (A-Z)
+                </span>
               </div>
             </div>
 
