@@ -14,7 +14,7 @@ export function Navbar() {
     // State for active dropdown
     const [hoverTimeout] = useState<number | null>(null);
     // Access modal functions
-    const { openSignupModal } = useModal();
+    const { openSignupModal, openLoginModal } = useModal();
 
     // Handle scroll events to change navbar appearance
     useEffect(() => {
@@ -164,12 +164,12 @@ export function Navbar() {
 
                     {/* Auth Buttons - reduced left margin */}
                     <div className="hidden md:flex items-center space-x-1 pr-4">
-                        <Link 
-                            href="/login"
-                            className="text-sm text-gray-600 hover:text-gray-900 px-1.5 py-1"
+                        <button
+                            onClick={openLoginModal}
+                            className="text-sm text-gray-600 hover:text-gray-900 px-1.5 py-1 bg-transparent border-none cursor-pointer"
                         >
                             Login
-                        </Link>
+                        </button>
                         <Button 
                             variant="secondary" 
                             size="sm" 
