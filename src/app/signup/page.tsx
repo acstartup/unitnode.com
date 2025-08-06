@@ -21,7 +21,7 @@ export default function SignupPage() {
           <h1 className="text-2xl font-bold mb-2">Create your UnitNode account</h1>
           
           {/* Sign in link */}
-          <p className="text-sm text-gray-600 mb-8">
+          <p className="text-sm text-gray-600 mb-8 font-medium">
             Already have an account? <a href="#" className="text-primary hover:underline">Sign in</a>
           </p>
 
@@ -32,7 +32,7 @@ export default function SignupPage() {
               <input 
                 type="text" 
                 placeholder="Company Name" 
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
               />
             </div>
             
@@ -41,7 +41,7 @@ export default function SignupPage() {
               <input 
                 type="email" 
                 placeholder="Company Email" 
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
               />
             </div>
 
@@ -50,7 +50,7 @@ export default function SignupPage() {
               <input 
                 type="password" 
                 placeholder="Password" 
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
               />
             </div>
 
@@ -58,29 +58,29 @@ export default function SignupPage() {
             <div className="mb-8 pl-1">
               <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
                 <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span>At least 6 characters</span>
+                <span className="font-medium">At least 6 characters</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
                 <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span>One digit (0-9)</span>
+                <span className="font-medium">One digit (0-9)</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
                 <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span>One lowercase letter (a-z)</span>
+                <span className="font-medium">One lowercase letter (a-z)</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-600">
                 <input type="radio" className="w-2.5 h-2.5" disabled />
-                <span>One uppercase letter (A-Z)</span>
+                <span className="font-medium">One uppercase letter (A-Z)</span>
               </div>
             </div>
 
             {/* Continue button */}
             <button className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm">
-              <span className="font-bold">Continue</span>
+              <span className="font-medium">Continue</span>
             </button>
 
             {/* Terms of service */}
-            <p className="text-xs text-center text-gray-600 mt-4">
+            <p className="text-xs text-center text-gray-600 mt-4 font-medium">
               By continuing, you agree to UnitNode's <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
             </p>
 
@@ -94,7 +94,7 @@ export default function SignupPage() {
             {/* Continue with Google */}
             <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm">
               <Image src="/google.svg" alt="Google" width={18} height={18} />
-              Continue with Google
+              <span className="font-medium">Continue with Google</span>
             </button>
           </div>
         </div>
