@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   if (!isOpen) return null;
   
   const [password, setPassword] = useState("");
+  const [passwordBlurred, setPasswordBlurred] = useState(false);
   const [requirements, setRequirements] = useState({
     hasEightChars: false,
     hasDigit: false,
@@ -96,53 +98,138 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 placeholder="Password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onFocus={() => setPasswordBlurred(false)}
+                onBlur={() => setPasswordBlurred(true)}
                 className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
               />
             </div>
 
             {/* Password requirements */}
             <div className="mb-8 pl-1">
-              <div className={`flex items-center gap-2 text-xs mb-1 ${requirements.hasEightChars ? "text-green-600" : "text-gray-600"}`}>
-                <input 
-                  type="radio" 
-                  className={`w-2.5 h-2.5 ${requirements.hasEightChars ? "accent-green-600" : ""}`} 
-                  checked={requirements.hasEightChars} 
-                  readOnly 
-                />
-                <span className={requirements.hasEightChars ? "font-bold" : "font-medium"}>
+              <div className={cn(
+                "flex items-center gap-2 text-xs mb-1 transition-all duration-300",
+                requirements.hasEightChars 
+                  ? "text-green-600" 
+                  : passwordBlurred 
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}>
+                <div className="flex items-center justify-center w-4 h-4">
+                  {requirements.hasEightChars ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-green-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  ) : passwordBlurred ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-red-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  ) : (
+                    <div className="w-2.5 h-2.5 rounded-full border border-gray-400"></div>
+                  )}
+                </div>
+                <span className={cn(
+                  "transition-all duration-300",
+                  requirements.hasEightChars 
+                    ? "font-bold animate-in fade-in" 
+                    : "font-medium"
+                )}>
                   At least 8 characters
                 </span>
               </div>
-              <div className={`flex items-center gap-2 text-xs mb-1 ${requirements.hasDigit ? "text-green-600" : "text-gray-600"}`}>
-                <input 
-                  type="radio" 
-                  className={`w-2.5 h-2.5 ${requirements.hasDigit ? "accent-green-600" : ""}`} 
-                  checked={requirements.hasDigit} 
-                  readOnly 
-                />
-                <span className={requirements.hasDigit ? "font-bold" : "font-medium"}>
+              
+              <div className={cn(
+                "flex items-center gap-2 text-xs mb-1 transition-all duration-300",
+                requirements.hasDigit 
+                  ? "text-green-600" 
+                  : passwordBlurred 
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}>
+                <div className="flex items-center justify-center w-4 h-4">
+                  {requirements.hasDigit ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-green-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  ) : passwordBlurred ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-red-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  ) : (
+                    <div className="w-2.5 h-2.5 rounded-full border border-gray-400"></div>
+                  )}
+                </div>
+                <span className={cn(
+                  "transition-all duration-300",
+                  requirements.hasDigit 
+                    ? "font-bold animate-in fade-in" 
+                    : "font-medium"
+                )}>
                   One digit (0-9)
                 </span>
               </div>
-              <div className={`flex items-center gap-2 text-xs mb-1 ${requirements.hasLowercase ? "text-green-600" : "text-gray-600"}`}>
-                <input 
-                  type="radio" 
-                  className={`w-2.5 h-2.5 ${requirements.hasLowercase ? "accent-green-600" : ""}`} 
-                  checked={requirements.hasLowercase} 
-                  readOnly 
-                />
-                <span className={requirements.hasLowercase ? "font-bold" : "font-medium"}>
+              
+              <div className={cn(
+                "flex items-center gap-2 text-xs mb-1 transition-all duration-300",
+                requirements.hasLowercase 
+                  ? "text-green-600" 
+                  : passwordBlurred 
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}>
+                <div className="flex items-center justify-center w-4 h-4">
+                  {requirements.hasLowercase ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-green-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  ) : passwordBlurred ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-red-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  ) : (
+                    <div className="w-2.5 h-2.5 rounded-full border border-gray-400"></div>
+                  )}
+                </div>
+                <span className={cn(
+                  "transition-all duration-300",
+                  requirements.hasLowercase 
+                    ? "font-bold animate-in fade-in" 
+                    : "font-medium"
+                )}>
                   One lowercase letter (a-z)
                 </span>
               </div>
-              <div className={`flex items-center gap-2 text-xs ${requirements.hasUppercase ? "text-green-600" : "text-gray-600"}`}>
-                <input 
-                  type="radio" 
-                  className={`w-2.5 h-2.5 ${requirements.hasUppercase ? "accent-green-600" : ""}`} 
-                  checked={requirements.hasUppercase} 
-                  readOnly 
-                />
-                <span className={requirements.hasUppercase ? "font-bold" : "font-medium"}>
+              
+              <div className={cn(
+                "flex items-center gap-2 text-xs transition-all duration-300",
+                requirements.hasUppercase 
+                  ? "text-green-600" 
+                  : passwordBlurred 
+                    ? "text-red-600"
+                    : "text-gray-600"
+              )}>
+                <div className="flex items-center justify-center w-4 h-4">
+                  {requirements.hasUppercase ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5 text-green-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  ) : passwordBlurred ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3 text-red-600 transition-transform duration-300 animate-in zoom-in" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                  ) : (
+                    <div className="w-2.5 h-2.5 rounded-full border border-gray-400"></div>
+                  )}
+                </div>
+                <span className={cn(
+                  "transition-all duration-300",
+                  requirements.hasUppercase 
+                    ? "font-bold animate-in fade-in" 
+                    : "font-medium"
+                )}>
                   One uppercase letter (A-Z)
                 </span>
               </div>
