@@ -265,7 +265,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
             {/* Continue button */}
             <button className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm">
-              <span className="font-medium">Continue</span>
+              <span className="font-bold">Continue</span>
             </button>
 
             {/* Terms of service */}

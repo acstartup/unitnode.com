@@ -30,7 +30,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-33 bg-black/70" onClick={handleBackdropClick}>
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-33 bg-black/33" onClick={handleBackdropClick}>
       {/* Grey rectangle with rounded corners */}
       <div className="relative w-[1000px] h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex animate-in fade-in duration-300">
         {/* Close button */}
@@ -45,7 +45,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </button>
         
         {/* Left side - logo and text */}
-        <div className="flex-1 flex flex-col items-center pt-12">
+        <div className="flex-1 flex flex-col items-center pt-28">
           {/* UnitNode icon */}
           <div className="mb-5">
             <Image 
@@ -57,7 +57,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </div>
           
           {/* Login text */}
-          <h1 className="text-2xl font-bold mb-2">Log in to UnitNode</h1>
+          <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
           
           {/* Sign up link */}
           <p className="text-sm text-gray-600 mb-8 font-medium">
@@ -114,7 +114,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
             {/* Login button */}
             <button className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm">
-              <span className="font-medium">Log in</span>
+              <span className="font-bold">Log in</span>
             </button>
 
             {/* OR divider */}
