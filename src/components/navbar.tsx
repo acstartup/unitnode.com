@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Button } from "@/components/button";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useModal } from "@/components/modal-provider";
 
 // Navbar component for site navigation
 export function Navbar() {
@@ -12,6 +13,8 @@ export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     // State for active dropdown
     const [hoverTimeout, setHoverTimeout] = useState<number | null>(null);
+    // Access modal functions
+    const { openSignupModal } = useModal();
 
     // Handle scroll events to change navbar appearance
     useEffect(() => {
@@ -167,11 +170,14 @@ export function Navbar() {
                         >
                             Login
                         </Link>
-                        <Link href="/signup">
-                            <Button variant="secondary" size="sm" className="py-1 px-3 font-extrabold text-sm">
-                                Sign up
-                            </Button>
-                        </Link>
+                        <Button 
+                            variant="secondary" 
+                            size="sm" 
+                            className="py-1 px-3 font-extrabold text-sm"
+                            onClick={openSignupModal}
+                        >
+                            Sign up
+                        </Button>
                     </div>
 
                     {/* Mobile menu button - hidden on desktop */}
@@ -198,6 +204,7 @@ export function Navbar() {
                     </div>
                 </div>
             </div>
+
         </header>
     );
 }

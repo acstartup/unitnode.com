@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GridBackground } from "@/components/grid-background";
+import { ModalProvider } from "@/components/modal-provider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,7 +34,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GridBackground />
-          {children}
+          <ModalProvider>
+            {children}
+          </ModalProvider>
         </ThemeProvider>
       </body>
     </html>

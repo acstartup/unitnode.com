@@ -1,10 +1,37 @@
-import Image from "next/image";
+"use client";
 
-export default function SignupPage() {
+import Image from "next/image";
+import { useState } from "react";
+
+interface SignupModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function SignupModal({ isOpen, onClose }: SignupModalProps) {
+  if (!isOpen) return null;
+  
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
-    <div className="h-screen overflow-hidden flex items-center justify-center">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-33 bg-black/33" onClick={handleBackdropClick}>
       {/* Grey rectangle with rounded corners */}
-      <div className="w-[1000px] h-[700px] border-2 border-grey-700 rounded-4xl bg-transparent flex">
+      <div className="relative w-[1000px] h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex animate-in fade-in duration-300">
+        {/* Close button */}
+        <button 
+          onClick={onClose} 
+          className="absolute top-4 right-4 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+        
         {/* Left side - logo and text */}
         <div className="flex-1 flex flex-col items-center pt-12">
           {/* UnitNode icon */}
