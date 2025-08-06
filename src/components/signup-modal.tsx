@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import { useModal } from "@/components/modal-provider";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [email, setEmail] = useState("");
   const [passwordBlurred, setPasswordBlurred] = useState(false);
   const [emailBlurred, setEmailBlurred] = useState(false);
+  const { openLoginModal } = useModal();
   const [requirements, setRequirements] = useState({
     hasEightChars: false,
     hasDigit: false,
@@ -75,7 +77,12 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
           
           {/* Sign in link */}
           <p className="text-sm text-gray-600 mb-8 font-medium">
-            Already have an account? <a href="#" className="text-primary hover:underline">Sign in</a>
+            Already have an account? <button 
+              onClick={() => {
+                onClose();
+                openLoginModal();
+              }} 
+              className="text-primary hover:underline font-medium bg-transparent border-none p-0">Sign in</button>
           </p>
 
           {/* Form inputs */}
