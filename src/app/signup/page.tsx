@@ -4,9 +4,100 @@ export default function SignupPage() {
   return (
     <div className="h-screen overflow-hidden flex items-center justify-center">
       {/* Grey rectangle with rounded corners */}
-      <div className="w-[1100px] h-[700px] border-2 border-gray-300 rounded-4xl bg-transparent flex">
-        {/* Left side - empty for now */}
-        <div className="flex-1"></div>
+      <div className="w-[1000px] h-[700px] border-2 border-grey-700 rounded-4xl bg-transparent flex">
+        {/* Left side - logo and text */}
+        <div className="flex-1 flex flex-col items-center pt-12">
+          {/* UnitNode icon */}
+          <div className="mb-5">
+            <Image 
+              src="/unitnode-icon.svg"
+              alt="UnitNode Icon"
+              width={40}
+              height={40}
+            />
+          </div>
+          
+          {/* Create account text */}
+          <h1 className="text-2xl font-bold mb-2">Create your UnitNode account</h1>
+          
+          {/* Sign in link */}
+          <p className="text-sm text-gray-600 mb-8">
+            Already have an account? <a href="#" className="text-primary hover:underline">Sign in</a>
+          </p>
+
+          {/* Form inputs */}
+          <div className="w-[380px]">
+            {/* Company Name input */}
+            <div className="mb-4">
+              <input 
+                type="text" 
+                placeholder="Company Name" 
+                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+              />
+            </div>
+            
+            {/* Company Email input */}
+            <div className="mb-4">
+              <input 
+                type="email" 
+                placeholder="Company Email" 
+                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+              />
+            </div>
+
+            {/* Password input */}
+            <div className="mb-2">
+              <input 
+                type="password" 
+                placeholder="Password" 
+                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm"
+              />
+            </div>
+
+            {/* Password requirements */}
+            <div className="mb-8 pl-1">
+              <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
+                <input type="radio" className="w-2.5 h-2.5" disabled />
+                <span>At least 6 characters</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
+                <input type="radio" className="w-2.5 h-2.5" disabled />
+                <span>One digit (0-9)</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-600 mb-1">
+                <input type="radio" className="w-2.5 h-2.5" disabled />
+                <span>One lowercase letter (a-z)</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-600">
+                <input type="radio" className="w-2.5 h-2.5" disabled />
+                <span>One uppercase letter (A-Z)</span>
+              </div>
+            </div>
+
+            {/* Continue button */}
+            <button className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm">
+              <span className="font-bold">Continue</span>
+            </button>
+
+            {/* Terms of service */}
+            <p className="text-xs text-center text-gray-600 mt-4">
+              By continuing, you agree to UnitNode's <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+            </p>
+
+            {/* OR divider */}
+            <div className="flex items-center my-4">
+              <div className="flex-1 h-px bg-gray-300"></div>
+              <div className="px-4 text-xs text-gray-500">OR</div>
+              <div className="flex-1 h-px bg-gray-300"></div>
+            </div>
+
+            {/* Continue with Google */}
+            <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm">
+              <Image src="/google.svg" alt="Google" width={18} height={18} />
+              Continue with Google
+            </button>
+          </div>
+        </div>
         
         {/* Right side - Hong Kong image */}
         <div className="flex-1 flex justify-center items-center p-2">
