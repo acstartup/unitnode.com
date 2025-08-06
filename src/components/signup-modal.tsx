@@ -13,13 +13,20 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   if (!isOpen) return null;
   
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
   const [passwordBlurred, setPasswordBlurred] = useState(false);
+  const [emailBlurred, setEmailBlurred] = useState(false);
   const [requirements, setRequirements] = useState({
     hasEightChars: false,
     hasDigit: false,
     hasLowercase: false,
     hasUppercase: false
   });
+  
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
   
   useEffect(() => {
     setRequirements({
@@ -87,8 +94,22 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               <input 
                 type="email" 
                 placeholder="Company Email" 
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setEmailBlurred(false)}
+                onBlur={() => setEmailBlurred(true)}
+                className={cn(
+                  "w-full px-4 py-2.5 rounded-2xl bg-gray-100 border focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium transition-colors",
+                  emailBlurred && !isValidEmail(email) && email.length > 0
+                    ? "border-red-500 border-2"
+                    : "border-gray-300"
+                )}
               />
+              {emailBlurred && !isValidEmail(email) && email.length > 0 && (
+                <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
+                  Please enter a valid email address
+                </p>
+              )}
             </div>
 
             {/* Password input */}
