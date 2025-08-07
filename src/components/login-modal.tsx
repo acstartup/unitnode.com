@@ -30,9 +30,9 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-33 bg-black/33" onClick={handleBackdropClick}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10" onClick={handleBackdropClick}>
       {/* Grey rectangle with rounded corners */}
-      <div className="relative w-[1000px] h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex animate-in fade-in duration-300">
+      <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
         {/* Close button */}
         <button 
           onClick={onClose} 
@@ -45,7 +45,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </button>
         
         {/* Left side - logo and text */}
-        <div className="flex-1 flex flex-col items-center pt-28">
+        <div className="flex-1 flex flex-col items-center pt-12 md:pt-28 px-4 pb-8 md:pb-0">
           {/* UnitNode icon */}
           <div className="mb-5">
             <Image 
@@ -70,7 +70,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </p>
 
           {/* Form inputs */}
-          <div className="w-[380px]">
+          <div className="w-full max-w-[380px]">
             {/* Email input */}
             <div className="mb-4">
               <input 
@@ -133,13 +133,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </div>
         
         {/* Right side - San Francisco image */}
-        <div className="flex-1 flex justify-center items-center p-2">
+        <div className="hidden md:flex flex-1 justify-center items-center p-2">
           <div className="relative w-full h-full">
             <Image 
               src="/san-fran.jpg"
               alt="San Francisco skyline"
               fill
               className="object-cover rounded-3xl"
+              priority
             />
           </div>
         </div>
