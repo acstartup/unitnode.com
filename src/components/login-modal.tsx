@@ -40,6 +40,13 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
     }
   };
   
+  // Force reset state when modal is closed
+  useEffect(() => {
+    if (!isOpen) {
+      // Reset any state if needed when modal is closed
+    }
+  }, [isOpen]);
+  
   if (!isOpen) return null;
 
   return (
@@ -48,8 +55,11 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
       <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
         {/* Close button */}
         <button 
-          onClick={onClose} 
-          className="absolute top-4 right-4 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }} 
+          className="absolute top-4 right-4 z-20 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>

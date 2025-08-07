@@ -26,7 +26,6 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [errorMessage, setErrorMessage] = useState("");
   const [countdown, setCountdown] = useState(60);
   const [countdownActive, setCountdownActive] = useState(false);
-  const [redirectCountdown, setRedirectCountdown] = useState(5);
   const { openLoginModal, setSavedCredentials } = useModal();
   const [requirements, setRequirements] = useState({
     hasEightChars: false,
@@ -67,25 +66,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     };
   }, [countdownActive, countdown]);
   
-  // Countdown timer for redirect after successful verification
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    
-    if (signupSuccess && redirectCountdown > 0) {
-      timer = setInterval(() => {
-        setRedirectCountdown((prev) => prev - 1);
-      }, 1000);
-    } else if (signupSuccess && redirectCountdown === 0) {
-      // Auto redirect to login with credentials
-      setSavedCredentials(email, password);
-      onClose();
-      openLoginModal(email, password);
-    }
-    
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [signupSuccess, redirectCountdown, onClose, openLoginModal, email, password, setSavedCredentials]);
+  // No automatic redirect - removed as requested
   
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -103,7 +84,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         {/* Verification Code Step */}
         {showVerificationStep && (
           <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
-            <div className="mb-5 relative w-full">
+            <div className="relative w-full mb-5">
               <div className="flex justify-center">
                 <Image 
                   src="/unitnode-logo.png"
@@ -113,15 +94,6 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   priority
                 />
               </div>
-              <button
-                onClick={onClose}
-                className="absolute top-0 right-0 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                  <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-              </button>
             </div>
             <h2 className="text-2xl font-bold mb-2 text-center">Verify Your Email</h2>
             <p className="text-gray-600 text-center mb-6 max-w-md">
@@ -132,7 +104,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             <div className="w-full max-w-xs mb-6">
               <input
                 type="text"
-                placeholder="6-digit code"
+                placeholder="000000"
                 value={verificationCode}
                 onChange={(e) => {
                   // Only allow numbers and limit to 6 digits
@@ -140,8 +112,11 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   setVerificationCode(value);
                   if (verificationError) setVerificationError("");
                 }}
-                className="w-full px-4 py-3 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl font-medium tracking-widest"
+                className="w-full px-4 py-3 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl font-medium tracking-widest letter-spacing-2"
                 maxLength={6}
+                autoFocus
+                inputMode="numeric"
+                pattern="[0-9]*"
               />
               
               {verificationError && (
@@ -246,8 +221,11 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         {signupSuccess && (
           <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
             <button
-              onClick={onClose}
-              className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100 z-20"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -261,18 +239,18 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               </svg>
             </div>
             <h2 className="text-2xl font-bold mb-2 text-center">Account Created Successfully!</h2>
-            <p className="text-gray-600 text-center mb-2 max-w-md">
+            <p className="text-gray-600 text-center mb-6 max-w-md">
               Your email has been verified and your account is now ready to use.
-            </p>
-            <p className="text-gray-500 text-center mb-6 max-w-md">
-              Redirecting to login in <span className="font-bold text-black">{redirectCountdown}</span> seconds...
             </p>
             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
               <button 
                 onClick={() => {
                   setSavedCredentials(email, password);
                   onClose();
-                  openLoginModal(email, password);
+                  // Add a small delay before opening the login modal
+                  setTimeout(() => {
+                    openLoginModal(email, password);
+                  }, 100);
                 }}
                 className="py-2.5 px-4 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm flex-1"
               >
@@ -284,7 +262,6 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   setSignupSuccess(false);
                   setShowVerificationStep(false);
                   setVerificationCode("");
-                  setRedirectCountdown(5);
                 }}
                 className="py-2.5 px-4 bg-gray-100 text-gray-800 rounded-full font-medium hover:bg-gray-200 transition-colors text-sm border border-gray-300 flex-1"
               >
@@ -293,10 +270,13 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </div>
           </div>
         )}
-        {/* Close button */}
+        {/* Close button - always visible */}
         <button 
-          onClick={onClose} 
-          className="absolute top-4 right-4 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }} 
+          className="absolute top-4 right-4 z-20 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>

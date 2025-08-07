@@ -65,6 +65,11 @@ export function ModalProvider({ children }: { children: ReactNode }) {
     setIsLoginModalOpen(false);
     // Reset prefill flag when closing
     setPrefillLogin(false);
+    // Also reset saved credentials
+    setSavedCredentialsState({
+      email: '',
+      password: ''
+    });
   };
   
   const setSavedCredentials = (email: string, password: string) => {
