@@ -1,20 +1,33 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/modal-provider";
 
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
+  prefill?: boolean;
+  prefillEmail?: string;
+  prefillPassword?: string;
 }
 
-export function LoginModal({ isOpen, onClose }: LoginModalProps) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = "", prefillPassword = "" }: LoginModalProps) {
+  const [email, setEmail] = useState(prefillEmail);
+  const [password, setPassword] = useState(prefillPassword);
   const [emailBlurred, setEmailBlurred] = useState(false);
   const { openSignupModal } = useModal();
+  
+  // Update state when prefill props change
+  useEffect(() => {
+    if (prefill && prefillEmail) {
+      setEmail(prefillEmail);
+    }
+    if (prefill && prefillPassword) {
+      setPassword(prefillPassword);
+    }
+  }, [prefill, prefillEmail, prefillPassword]);
   
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;

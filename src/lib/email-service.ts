@@ -78,7 +78,7 @@ export async function sendVerificationEmail(
       <div style="padding: 20px;">
         <h2>Verify Your Email Address</h2>
         <p>Hello,</p>
-        <p>Thank you for signing up with <span style="color: #F5A623; font-weight: bold;">UnitNode</span>. To complete your registration, please enter the verification code below:</p>
+        <p>Thank you for signing up with <span style="font-weight: bold;">UnitNode</span>. To complete your registration, please enter the verification code below:</p>
         
         <div style="background-color: #f8f9fa; padding: 20px; text-align: center; margin: 20px 0; font-size: 28px; font-weight: bold; letter-spacing: 5px;">
           ${verificationCode}
@@ -91,14 +91,14 @@ export async function sendVerificationEmail(
         </div>
         
         <p>Thank you,</p>
-        <p>The <span style="color: #F5A623; font-weight: bold;">UnitNode</span> Team</p>
+        <p>The <span style="font-weight: bold;">UnitNode</span> Team</p>
       </div>
       
       <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
       
       <div style="color: #666; font-size: 12px; padding: 0 20px 20px;">
-        <p><span style="color: #F5A623; font-weight: bold;">UnitNode</span> - Automating Property Management</p>
-        <p>unitnode.com | contact.unitnode@gmail.com</p>
+        <p><span style="font-weight: bold;">UnitNode</span> - Automating Property Management</p>
+        <p><span style="color: #000;">unitnode.com | support@unitnode.com</span></p>
       </div>
     </div>
   `;
