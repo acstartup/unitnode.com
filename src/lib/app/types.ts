@@ -16,6 +16,8 @@ export interface User {
   name: string;
   email: string;
   role: 'admin' | 'property_manager' | 'tenant';
+  emailVerified?: Date;
+  isActive?: boolean;
 }
 
 // Tenant types

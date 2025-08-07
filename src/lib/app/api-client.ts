@@ -46,6 +46,39 @@ export const apiClient = {
       // This is a placeholder - will be implemented later
       return { success: true };
     },
+    signup: async (email: string, password: string, companyName: string) => {
+      try {
+        const response = await fetch('/api/auth/send-verification', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, companyName }),
+        });
+        
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Signup error:', error);
+        return { 
+          success: false, 
+          message: 'Failed to send verification email. Please try again.' 
+        };
+      }
+    },
+    verifyEmail: async (token: string) => {
+      try {
+        const response = await fetch(`/api/auth/verify-email?token=${token}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Email verification error:', error);
+        return { 
+          success: false, 
+          message: 'Failed to verify email. The link may be expired or invalid.' 
+        };
+      }
+    },
   },
   
   // Properties methods

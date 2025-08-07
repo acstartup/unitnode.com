@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/modal-provider";
+import { apiClient } from "@/lib/app/api-client";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -13,8 +14,13 @@ interface SignupModalProps {
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [companyName, setCompanyName] = useState("");
   const [passwordBlurred, setPasswordBlurred] = useState(false);
   const [emailBlurred, setEmailBlurred] = useState(false);
+  const [companyNameBlurred, setCompanyNameBlurred] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const { openLoginModal } = useModal();
   const [requirements, setRequirements] = useState({
     hasEightChars: false,
@@ -49,6 +55,39 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10" onClick={handleBackdropClick}>
       {/* Grey rectangle with rounded corners */}
       <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
+        
+        {signupSuccess && (
+          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-center">Verification Email Sent</h2>
+            <p className="text-gray-600 text-center mb-6 max-w-md">
+              We've sent a verification email to <span className="font-medium">{email}</span>. 
+              Please check your inbox and click the verification link to complete your signup.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+              <button 
+                onClick={() => {
+                  onClose();
+                  openLoginModal();
+                }}
+                className="py-2.5 px-4 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm flex-1"
+              >
+                <span className="font-bold">Go to Login</span>
+              </button>
+              <button 
+                onClick={onClose}
+                className="py-2.5 px-4 bg-gray-100 text-gray-800 rounded-full font-medium hover:bg-gray-200 transition-colors text-sm border border-gray-300 flex-1"
+              >
+                <span className="font-bold">Close</span>
+              </button>
+            </div>
+          </div>
+        )}
         {/* Close button */}
         <button 
           onClick={onClose} 
@@ -92,8 +131,22 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               <input 
                 type="text" 
                 placeholder="Company Name" 
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                onFocus={() => setCompanyNameBlurred(false)}
+                onBlur={() => setCompanyNameBlurred(true)}
+                className={cn(
+                  "w-full px-4 py-2.5 rounded-2xl bg-gray-100 border focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium transition-colors",
+                  companyNameBlurred && companyName.length === 0
+                    ? "border-red-500 border-2"
+                    : "border-gray-300"
+                )}
               />
+              {companyNameBlurred && companyName.length === 0 && (
+                <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
+                  Company name is required
+                </p>
+              )}
             </div>
             
             {/* Company Email input */}
@@ -264,9 +317,68 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </div>
 
             {/* Continue button */}
-            <button className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm">
-              <span className="font-bold">Continue</span>
+            <button 
+              onClick={async () => {
+                // Validate form
+                if (!isValidEmail(email)) {
+                  setEmailBlurred(true);
+                  return;
+                }
+                
+                if (companyName.length === 0) {
+                  setCompanyNameBlurred(true);
+                  return;
+                }
+                
+                if (!requirements.hasEightChars || !requirements.hasDigit || 
+                    !requirements.hasLowercase || !requirements.hasUppercase) {
+                  setPasswordBlurred(true);
+                  return;
+                }
+                
+                setIsSubmitting(true);
+                setErrorMessage("");
+                
+                try {
+                  const result = await apiClient.auth.signup(email, password, companyName);
+                  
+                  if (result.success) {
+                    setSignupSuccess(true);
+                  } else {
+                    setErrorMessage(result.message || "Failed to create account. Please try again.");
+                  }
+                } catch (error) {
+                  console.error("Signup error:", error);
+                  setErrorMessage("An unexpected error occurred. Please try again.");
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }}
+              disabled={isSubmitting}
+              className={cn(
+                "w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium transition-colors text-sm",
+                isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:bg-black/90"
+              )}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="font-bold">Sending...</span>
+                </div>
+              ) : (
+                <span className="font-bold">Continue</span>
+              )}
             </button>
+            
+            {/* Error message */}
+            {errorMessage && (
+              <p className="text-red-500 text-xs mt-2 text-center animate-in fade-in">
+                {errorMessage}
+              </p>
+            )}
 
             {/* Terms of service */}
             <p className="text-xs text-center text-gray-600 mt-4 font-medium">
