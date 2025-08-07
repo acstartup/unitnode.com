@@ -74,31 +74,31 @@ export async function sendVerificationEmail(
   const subject = 'Verify Your Email Address';
   
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #000000;">
       <div style="padding: 20px;">
-        <h2>Verify Your Email Address</h2>
-        <p>Hello,</p>
-        <p>Thank you for signing up with <span style="font-weight: bold;">UnitNode</span>. To complete your registration, please enter the verification code below:</p>
+        <h2 style="color: #000000;">Verify Your Email Address</h2>
+        <p style="color: #000000;">Hello,</p>
+        <p style="color: #000000;">Thank you for signing up with <span style="font-weight: bold; color: #000000;">UnitNode</span>. To complete your registration, please enter the verification code below:</p>
         
-        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; margin: 20px 0; font-size: 28px; font-weight: bold; letter-spacing: 5px;">
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; margin: 20px 0; font-size: 28px; font-weight: bold; letter-spacing: 5px; color: #000000;">
           ${verificationCode}
         </div>
         
-        <div style="border-left: 4px solid #f0f0f0; padding: 10px; background-color: #f8f9fa; margin: 20px 0;">
-          <p style="margin: 0; font-weight: bold;">Important:</p>
-          <p style="margin: 5px 0 0 0;">This code is valid for 60 seconds and can only be used once.</p>
-          <p style="margin: 5px 0 0 0;">If you didn't request this code, you can safely ignore this email.</p>
+        <div style="border-left: 4px solid #f0f0f0; padding: 10px; background-color: #f8f9fa; margin: 20px 0; color: #000000;">
+          <p style="margin: 0; font-weight: bold; color: #000000;">Important:</p>
+          <p style="margin: 5px 0 0 0; color: #000000;">This code is valid for 5 minutes and can only be used once.</p>
+          <p style="margin: 5px 0 0 0; color: #000000;">If you didn't request this code, you can safely ignore this email.</p>
         </div>
         
-        <p>Thank you,</p>
-        <p>The <span style="font-weight: bold;">UnitNode</span> Team</p>
+        <p style="color: #000000;">Thank you,</p>
+        <p style="color: #000000;">The <span style="font-weight: bold; color: #000000;">UnitNode</span> Team</p>
       </div>
       
       <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
       
-      <div style="color: #666; font-size: 12px; padding: 0 20px 20px;">
-        <p><span style="font-weight: bold;">UnitNode</span> - Automating Property Management</p>
-        <p><span style="color: #000;">unitnode.com | support@unitnode.com</span></p>
+      <div style="font-size: 12px; padding: 0 20px 20px; color: #000000;">
+        <p style="color: #000000;"><span style="font-weight: bold; color: #000000;">UnitNode</span> - Automating Property Management</p>
+        <p style="color: #000000;">unitnode.com | support@unitnode.com</p>
       </div>
     </div>
   `;

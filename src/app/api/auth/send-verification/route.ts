@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendVerificationEmail } from '@/lib/email-service';
+import { createUser, findUserByEmail } from '@/lib/user-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -10,6 +11,62 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, message: 'Email is required' },
         { status: 400 }
+      );
+    }
+
+    if (!password) {
+      return NextResponse.json(
+        { success: false, message: 'Password is required' },
+        { status: 400 }
+      );
+    }
+
+    // Check if user already exists
+    const existingUser = await findUserByEmail(email);
+    
+    if (existingUser) {
+      // If user exists but email is not verified, allow resending verification
+      if (!existingUser.emailVerified) {
+        // Send verification email with 6-digit code
+        const verificationCode = await sendVerificationEmail(
+          email,
+          name || existingUser.name,
+          companyName || existingUser.companyName
+        );
+
+        if (!verificationCode) {
+          return NextResponse.json(
+            { success: false, message: 'Failed to send verification email' },
+            { status: 500 }
+          );
+        }
+
+        return NextResponse.json({
+          success: true,
+          message: 'Verification email sent successfully'
+        });
+      } else {
+        // If email is already verified, don't allow signup
+        return NextResponse.json(
+          { success: false, message: 'Email already registered' },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Create new user with unverified email
+    try {
+      await createUser({
+        email,
+        password,
+        name,
+        companyName
+      });
+    } catch (dbError) {
+      console.error('Error creating user:', dbError);
+      return NextResponse.json(
+        { success: false, message: 'Failed to create user account' },
+        { status: 500 }
       );
     }
 
@@ -26,9 +83,6 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-
-    // In a real application, you would create a user record in your database
-    // with isActive: false and emailVerified: null
     
     return NextResponse.json({
       success: true,

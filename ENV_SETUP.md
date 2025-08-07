@@ -21,8 +21,8 @@ INFOBIP_FROM_EMAIL=your-email@example.com
 NEXTAUTH_SECRET=your_nextauth_secret
 NEXTAUTH_URL=http://localhost:3000
 
-# Database (if needed)
-DATABASE_URL=your_database_connection_string
+# Database (required)
+DATABASE_URL=postgresql://username:password@localhost:5432/unitnode
 
 # Email verification
 EMAIL_VERIFICATION_TOKEN_SECRET=your_email_verification_token_secret
@@ -65,12 +65,43 @@ When deploying to production:
 2. Ensure all other environment variables are properly set in your production environment
 3. Never commit the `.env` file to version control
 
+## Database Setup
+
+The application uses PostgreSQL for the database. Follow these steps to set up your database:
+
+1. Install PostgreSQL if you haven't already: [https://www.postgresql.org/download/](https://www.postgresql.org/download/)
+2. Create a new database for the application:
+
+```bash
+createdb unitnode
+```
+
+3. Update the `DATABASE_URL` in your `.env` file with your PostgreSQL connection string:
+
+```
+DATABASE_URL=postgresql://username:password@localhost:5432/unitnode
+```
+
+Replace `username` and `password` with your PostgreSQL credentials.
+
+4. Run the Prisma migrations to set up your database schema:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+5. If you need to reset your database during development:
+
+```bash
+npx prisma migrate reset
+```
+
 ## Verifying Setup
 
-After setting up your environment variables, restart your development server for the changes to take effect.
+After setting up your environment variables and database, restart your development server for the changes to take effect.
 
 ```bash
 npm run dev
 ```
 
-The email verification flow should now work correctly with your Infobip account.
+The email verification flow should now work correctly with your Infobip account and user accounts will be properly stored in the database.
