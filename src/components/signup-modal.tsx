@@ -15,12 +15,17 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [passwordBlurred, setPasswordBlurred] = useState(false);
   const [emailBlurred, setEmailBlurred] = useState(false);
   const [companyNameBlurred, setCompanyNameBlurred] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showVerificationStep, setShowVerificationStep] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [countdown, setCountdown] = useState(60);
+  const [countdownActive, setCountdownActive] = useState(false);
   const { openLoginModal } = useModal();
   const [requirements, setRequirements] = useState({
     hasEightChars: false,
@@ -43,6 +48,24 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     });
   }, [password]);
   
+  // Countdown timer for verification code
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (countdownActive && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setCountdownActive(false);
+      setCountdown(60);
+    }
+    
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [countdownActive, countdown]);
+  
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -56,6 +79,128 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       {/* Grey rectangle with rounded corners */}
       <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
         
+        {/* Verification Code Step */}
+        {showVerificationStep && (
+          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+            <div className="mb-5">
+              <Image 
+                src="/unitnode-logo.png"
+                alt="UnitNode"
+                width={150}
+                height={40}
+                priority
+              />
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-center">Verify Your Email</h2>
+            <p className="text-gray-600 text-center mb-6 max-w-md">
+              We've sent a verification code to <span className="font-medium">{email}</span>. 
+              Please enter the 6-digit code below:
+            </p>
+            
+            <div className="w-full max-w-xs mb-6">
+              <input
+                type="text"
+                placeholder="6-digit code"
+                value={verificationCode}
+                onChange={(e) => {
+                  // Only allow numbers and limit to 6 digits
+                  const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                  setVerificationCode(value);
+                  if (verificationError) setVerificationError("");
+                }}
+                className="w-full px-4 py-3 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl font-medium tracking-widest"
+                maxLength={6}
+              />
+              
+              {verificationError && (
+                <p className="text-red-500 text-xs mt-1 text-center animate-in fade-in">
+                  {verificationError}
+                </p>
+              )}
+              
+              <div className="text-center mt-2 text-sm text-gray-500">
+                Code expires in {countdown} seconds
+              </div>
+            </div>
+            
+            <div className="flex flex-col w-full gap-3 max-w-xs">
+              <button
+                onClick={async () => {
+                  if (verificationCode.length !== 6) {
+                    setVerificationError("Please enter a valid 6-digit code");
+                    return;
+                  }
+                  
+                  setIsSubmitting(true);
+                  
+                  try {
+                    const result = await apiClient.auth.verifyCode(verificationCode);
+                    
+                    if (result.success) {
+                      setSignupSuccess(true);
+                      setShowVerificationStep(false);
+                    } else {
+                      setVerificationError(result.message || "Invalid verification code");
+                    }
+                  } catch (error) {
+                    setVerificationError("An error occurred. Please try again.");
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting || verificationCode.length !== 6}
+                className={cn(
+                  "py-2.5 px-4 bg-black text-white rounded-full font-medium transition-colors text-sm w-full",
+                  (isSubmitting || verificationCode.length !== 6) ? "opacity-70 cursor-not-allowed" : "hover:bg-black/90"
+                )}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="font-bold">Verifying...</span>
+                  </div>
+                ) : (
+                  <span className="font-bold">Verify Code</span>
+                )}
+              </button>
+              
+              <button
+                onClick={async () => {
+                  if (!countdownActive) {
+                    setIsSubmitting(true);
+                    
+                    try {
+                      const result = await apiClient.auth.signup(email, password, companyName);
+                      
+                      if (result.success) {
+                        setCountdown(60);
+                        setCountdownActive(true);
+                      } else {
+                        setVerificationError(result.message || "Failed to resend code");
+                      }
+                    } catch (error) {
+                      setVerificationError("An error occurred. Please try again.");
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                  }
+                }}
+                disabled={isSubmitting || countdownActive}
+                className={cn(
+                  "py-2.5 px-4 bg-transparent text-gray-600 rounded-full font-medium transition-colors text-sm w-full",
+                  (isSubmitting || countdownActive) ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
+                )}
+              >
+                {countdownActive ? `Resend code in ${countdown}s` : "Resend code"}
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Success Message */}
         {signupSuccess && (
           <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
@@ -64,10 +209,9 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2 text-center">Verification Email Sent</h2>
+            <h2 className="text-2xl font-bold mb-2 text-center">Account Created Successfully!</h2>
             <p className="text-gray-600 text-center mb-6 max-w-md">
-              We've sent a verification email to <span className="font-medium">{email}</span>. 
-              Please check your inbox and click the verification link to complete your signup.
+              Your email has been verified and your account is now ready to use.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
               <button 
@@ -343,7 +487,10 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   const result = await apiClient.auth.signup(email, password, companyName);
                   
                   if (result.success) {
-                    setSignupSuccess(true);
+                    // Show verification code step instead of success message
+                    setShowVerificationStep(true);
+                    setCountdown(60);
+                    setCountdownActive(true);
                   } else {
                     setErrorMessage(result.message || "Failed to create account. Please try again.");
                   }

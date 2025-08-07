@@ -1,4 +1,4 @@
-import { EmailVerificationPayload, generateVerificationUrl } from './auth-utils';
+import { EmailVerificationPayload, generateVerificationCode } from './auth-utils';
 
 // Infobip API key and base URL should be stored in environment variables
 const INFOBIP_API_KEY = process.env.INFOBIP_API_KEY || '';
@@ -60,48 +60,56 @@ export async function sendEmail({ to, subject, html, text }: SendEmailOptions): 
 }
 
 /**
- * Send verification email to user
+ * Send verification email to user with 6-digit code
  */
 export async function sendVerificationEmail(
   email: string, 
-  token: string, 
   name?: string,
   companyName?: string
-): Promise<boolean> {
-  const verificationUrl = generateVerificationUrl(token);
+): Promise<string> {
+  const verificationCode = generateVerificationCode(email, companyName, name);
   const displayName = name || 'there';
   const company = companyName || 'your company';
   
-  const subject = 'Verify your email address for UnitNode';
+  const subject = 'Verify Your Email Address';
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #000; padding: 20px; text-align: center;">
-        <img src="https://unitnode.com/unitnode-full.svg" alt="UnitNode" style="max-width: 200px;">
-      </div>
-      <div style="padding: 20px; border: 1px solid #eee; border-top: none;">
-        <h2>Verify your email address</h2>
-        <p>Hi ${displayName},</p>
-        <p>Thank you for registering ${company} with UnitNode. Please verify your email address by clicking the button below:</p>
-        <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 30px; font-weight: bold;">Verify Email Address</a>
+      <div style="padding: 20px;">
+        <h2>Verify Your Email Address</h2>
+        <p>Hello,</p>
+        <p>Thank you for signing up with <span style="color: #F5A623; font-weight: bold;">UnitNode</span>. To complete your registration, please enter the verification code below:</p>
+        
+        <div style="background-color: #f8f9fa; padding: 20px; text-align: center; margin: 20px 0; font-size: 28px; font-weight: bold; letter-spacing: 5px;">
+          ${verificationCode}
         </div>
-        <p>This link will expire in 24 hours.</p>
-        <p>If you didn't create an account with UnitNode, you can safely ignore this email.</p>
-        <p>Best regards,<br>The UnitNode Team</p>
+        
+        <div style="border-left: 4px solid #f0f0f0; padding: 10px; background-color: #f8f9fa; margin: 20px 0;">
+          <p style="margin: 0; font-weight: bold;">Important:</p>
+          <p style="margin: 5px 0 0 0;">This code is valid for 60 seconds and can only be used once.</p>
+          <p style="margin: 5px 0 0 0;">If you didn't request this code, you can safely ignore this email.</p>
+        </div>
+        
+        <p>Thank you,</p>
+        <p>The <span style="color: #F5A623; font-weight: bold;">UnitNode</span> Team</p>
       </div>
-      <div style="padding: 15px; text-align: center; font-size: 12px; color: #666;">
-        <p>If the button doesn't work, copy and paste this URL into your browser:</p>
-        <p style="word-break: break-all;">${verificationUrl}</p>
+      
+      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+      
+      <div style="color: #666; font-size: 12px; padding: 0 20px 20px;">
+        <p><span style="color: #F5A623; font-weight: bold;">UnitNode</span> - Automating Property Management</p>
+        <p>unitnode.com | contact.unitnode@gmail.com</p>
       </div>
     </div>
   `;
-
-  return sendEmail({
+  
+  const emailSent = await sendEmail({
     to: email,
     subject,
     html
   });
+  
+  return emailSent ? verificationCode : '';
 }
 
 /**

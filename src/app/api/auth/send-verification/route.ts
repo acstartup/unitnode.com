@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { generateEmailVerificationToken } from '@/lib/auth-utils';
 import { sendVerificationEmail } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, name, companyName } = body;
+    const { email, name, companyName, password } = body;
 
     if (!email) {
       return NextResponse.json(
@@ -14,22 +13,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate a verification token
-    const token = generateEmailVerificationToken({ 
-      email, 
-      name, 
-      companyName 
-    });
-
-    // Send verification email
-    const emailSent = await sendVerificationEmail(
+    // Send verification email with 6-digit code
+    const verificationCode = await sendVerificationEmail(
       email,
-      token,
       name,
       companyName
     );
 
-    if (!emailSent) {
+    if (!verificationCode) {
       return NextResponse.json(
         { success: false, message: 'Failed to send verification email' },
         { status: 500 }

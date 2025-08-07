@@ -53,7 +53,7 @@ export const apiClient = {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ email, companyName }),
+          body: JSON.stringify({ email, password, companyName }),
         });
         
         const data = await response.json();
@@ -66,16 +66,23 @@ export const apiClient = {
         };
       }
     },
-    verifyEmail: async (token: string) => {
+    verifyCode: async (code: string) => {
       try {
-        const response = await fetch(`/api/auth/verify-email?token=${token}`);
+        const response = await fetch('/api/auth/verify-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ code }),
+        });
+        
         const data = await response.json();
         return data;
       } catch (error) {
-        console.error('Email verification error:', error);
+        console.error('Code verification error:', error);
         return { 
           success: false, 
-          message: 'Failed to verify email. The link may be expired or invalid.' 
+          message: 'Failed to verify code. The code may be expired or invalid.' 
         };
       }
     },
