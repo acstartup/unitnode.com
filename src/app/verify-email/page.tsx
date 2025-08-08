@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function VerifyEmail() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
@@ -82,7 +82,7 @@ export default function VerifyEmail() {
         console.error('Error extracting data from token:', error);
       }
     }
-  }, [token, searchParams]);
+  }, [token, searchParams, setPassword]);
 
   useEffect(() => {
     if (!token) {
@@ -109,17 +109,23 @@ export default function VerifyEmail() {
           // Store user info for login
           if (data.email) {
             // Store credentials in localStorage for login form to use
-            const loginData = {
+            const loginData: {
+              email: string;
+              timestamp: number;
+              password?: string;
+            } = {
               email: data.email,
               timestamp: Date.now() // Add timestamp for expiry check
             };
             
             // Add password if available
             if (password) {
-              loginData['password'] = password;
+              loginData.password = password;
             }
             
             localStorage.setItem('unitnode_login_prefill', JSON.stringify(loginData));
+            // Set a flag to auto-open the login modal after redirect
+            localStorage.setItem('unitnode_open_login_modal', 'true');
           }
           
           // Start countdown for redirect
@@ -153,7 +159,7 @@ export default function VerifyEmail() {
     };
 
     verifyEmail();
-  }, [token, router]);
+  }, [token, router, password]);
 
   return (
     <div className="min-h-screen bg-black/33 flex flex-col items-center justify-center p-4">
@@ -198,17 +204,23 @@ export default function VerifyEmail() {
               onClick={() => {
                 // Ensure the email is saved for login prefill when clicking this button too
                 if (email) {
-                  const loginData = {
+                  const loginData: {
+                    email: string;
+                    timestamp: number;
+                    password?: string;
+                  } = {
                     email: email,
                     timestamp: Date.now()
                   };
                   
                   // Add password if available
                   if (password) {
-                    loginData['password'] = password;
+                    loginData.password = password;
                   }
                   
                   localStorage.setItem('unitnode_login_prefill', JSON.stringify(loginData));
+                  // Set a flag to auto-open the login modal after redirect
+                  localStorage.setItem('unitnode_open_login_modal', 'true');
                 }
               }}
               className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
@@ -269,5 +281,19 @@ export default function VerifyEmail() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmail() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-black/33 flex flex-col items-center justify-center p-4">
+        <div className="w-[95%] max-w-[500px] bg-white rounded-4xl border-2 border-grey-700 shadow-lg p-8 animate-in fade-in duration-300 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
+        </div>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

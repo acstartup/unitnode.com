@@ -4,6 +4,7 @@
 const API_BASE_URL = '/api';
 
 // Generic fetch function with error handling
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 async function fetchWithAuth<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -133,7 +134,7 @@ export const apiClient = {
       // This is a placeholder - will be implemented later
       return [];
     },
-    getById: async (id: string) => {
+    getById: async (_: string) => {
       // This is a placeholder - will be implemented later
       return null;
     },
@@ -141,7 +142,7 @@ export const apiClient = {
   
   // Units methods
   units: {
-    getByPropertyId: async (propertyId: string) => {
+    getByPropertyId: async (_: string) => {
       // This is a placeholder - will be implemented later
       return [];
     },
@@ -149,7 +150,7 @@ export const apiClient = {
   
   // Tenants methods
   tenants: {
-    getByUnitId: async (unitId: string) => {
+    getByUnitId: async (_: string) => {
       // This is a placeholder - will be implemented later
       return [];
     },

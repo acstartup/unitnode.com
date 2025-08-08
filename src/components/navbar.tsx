@@ -165,7 +165,7 @@ export function Navbar() {
                     {/* Auth Buttons - reduced left margin */}
                     <div className="hidden md:flex items-center space-x-1 pr-4">
                         <button
-                            onClick={openLoginModal}
+                            onClick={() => openLoginModal()}
                             className="text-sm text-gray-600 hover:text-gray-900 px-1.5 py-1 bg-transparent border-none cursor-pointer"
                         >
                             Login

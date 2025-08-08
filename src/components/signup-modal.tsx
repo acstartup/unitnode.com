@@ -97,7 +97,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </div>
             <h2 className="text-2xl font-bold mb-2 text-center">Verify Your Email</h2>
             <p className="text-gray-600 text-center mb-6 max-w-md">
-              We've sent a verification code to <span className="font-medium">{email}</span>. 
+              We&apos;ve sent a verification code to <span className="font-medium">{email}</span>. 
               Please enter the 6-digit code below:
             </p>
             
@@ -149,7 +149,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                     } else {
                       setVerificationError(result.message || "Invalid verification code");
                     }
-                  } catch (error) {
+                  } catch (/* eslint-disable-line @typescript-eslint/no-unused-vars */_) {
                     setVerificationError("An error occurred. Please try again.");
                   } finally {
                     setIsSubmitting(false);
@@ -188,7 +188,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                       } else {
                         setVerificationError(result.message || "Failed to resend code");
                       }
-                    } catch (error) {
+                    } catch (/* eslint-disable-line @typescript-eslint/no-unused-vars */_) {
                       setVerificationError("An error occurred. Please try again.");
                     } finally {
                       setIsSubmitting(false);
@@ -241,7 +241,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             <h2 className="text-2xl font-bold mb-3 text-center">Check Your Email</h2>
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 max-w-md">
               <p className="text-gray-700 mb-2">
-                We've sent a verification link to <span className="font-medium">{email}</span>
+                We&apos;ve sent a verification link to <span className="font-medium">{email}</span>
               </p>
               <p className="text-gray-700">
                 Please check your inbox and click the link to complete your registration.
@@ -274,7 +274,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               </button>
             </div>
             <p className="text-gray-500 text-xs text-center mt-4">
-              Didn't receive an email? Check your spam folder or <button 
+              Didn&apos;t receive an email? Check your spam folder or <button 
                 onClick={() => {
                   // Reset the modal state to show the signup form again
                   setSignupSuccess(false);

@@ -1,4 +1,4 @@
-import { EmailVerificationPayload, generateVerificationCode, generateEmailVerificationToken, generateVerificationUrl } from './auth-utils';
+import { generateVerificationCode, generateEmailVerificationToken, generateVerificationUrl } from './auth-utils';
 
 // Infobip API key and base URL should be stored in environment variables
 const INFOBIP_API_KEY = process.env.INFOBIP_API_KEY || '';
@@ -68,7 +68,10 @@ export async function sendVerificationCode(
   companyName?: string
 ): Promise<string> {
   const verificationCode = generateVerificationCode(email, companyName, name);
+  // These variables are prepared for future template usage
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const displayName = name || 'there';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const company = companyName || 'your company';
   
   const subject = 'Your Login Verification Code';
@@ -125,7 +128,10 @@ export async function sendVerificationEmail(
   const token = generateEmailVerificationToken({ email, name, companyName, password });
   const verificationUrl = generateVerificationUrl(token);
   
+  // These variables are prepared for future template usage
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const displayName = name || 'there';
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const company = companyName || 'your company';
   
   const subject = 'Verify Your Email Address';

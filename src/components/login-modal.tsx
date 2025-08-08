@@ -131,7 +131,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
             </div>
             <h2 className="text-2xl font-bold mb-2 text-center">Two-Factor Authentication</h2>
             <p className="text-gray-600 text-center mb-6 max-w-md">
-              We've sent a verification code to <span className="font-medium">{email}</span>. 
+              We&apos;ve sent a verification code to <span className="font-medium">{email}</span>. 
               Please enter the 6-digit code below:
             </p>
             

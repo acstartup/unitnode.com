@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/navbar";
 import { TypingAnimation } from "@/components/typing-animation";
+import { AutoLoginOpener } from "@/components/auto-login-opener";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         - Additional options: pb-10 px-4 (padding bottom and horizontal)
       */}
       <Navbar />
+      <AutoLoginOpener />
       
       {/* Hero section with typing animation */}
       {/* 

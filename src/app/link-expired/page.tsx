@@ -109,6 +109,10 @@ export default function LinkExpired() {
                 
                 <Link 
                   href="/"
+                  onClick={() => {
+                    // Set a flag to auto-open the login modal after redirect
+                    localStorage.setItem('unitnode_open_login_modal', 'true');
+                  }}
                   className="w-full mx-auto block py-2.5 bg-gray-100 text-gray-800 rounded-full font-medium hover:bg-gray-200 transition-colors text-sm border border-gray-300 text-center"
                 >
                   <span className="font-bold">Back to Login</span>
@@ -119,7 +123,7 @@ export default function LinkExpired() {
             <>
               <div className="bg-green-50 border border-green-100 rounded-xl p-4 mb-6">
                 <p className="text-gray-700 mb-2">
-                  We've sent a new verification link to <span className="font-medium">{email}</span>
+                  We&apos;ve sent a new verification link to <span className="font-medium">{email}</span>
                 </p>
                 <p className="text-gray-700">
                   Please check your inbox and click the link to complete your registration.
@@ -128,6 +132,10 @@ export default function LinkExpired() {
               
               <Link 
                 href="/"
+                onClick={() => {
+                  // Set a flag to auto-open the login modal after redirect
+                  localStorage.setItem('unitnode_open_login_modal', 'true');
+                }}
                 className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
               >
                 <span className="font-bold">Back to Login</span>

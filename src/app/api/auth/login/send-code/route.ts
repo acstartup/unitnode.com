@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sendVerificationCode } from '@/lib/email-service';
-import { findUserByEmail, validateCredentials } from '@/lib/user-service';
+import { validateCredentials } from '@/lib/user-service';
 
 export async function POST(request: NextRequest) {
   try {
