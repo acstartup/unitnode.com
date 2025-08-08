@@ -38,6 +38,35 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
     }
   }, [prefill, prefillEmail, prefillPassword]);
   
+  // Check for saved credentials from email verification
+  useEffect(() => {
+    if (isOpen) {
+      try {
+        const savedPrefill = localStorage.getItem('unitnode_login_prefill');
+        if (savedPrefill) {
+          const prefillData = JSON.parse(savedPrefill);
+          
+          // Check if the prefill data is recent (within the last 5 minutes)
+          const isRecent = Date.now() - prefillData.timestamp < 5 * 60 * 1000;
+          
+          if (isRecent && prefillData.email) {
+            setEmail(prefillData.email);
+            
+            // Set password if available
+            if (prefillData.password) {
+              setPassword(prefillData.password);
+            }
+            
+            // Clear the saved data after using it once
+            localStorage.removeItem('unitnode_login_prefill');
+          }
+        }
+      } catch (error) {
+        console.error('Error reading saved login credentials:', error);
+      }
+    }
+  }, [isOpen]);
+  
   // Countdown timer for verification code
   useEffect(() => {
     let timer: NodeJS.Timeout;

@@ -46,6 +46,7 @@ export interface EmailVerificationPayload {
   email: string;
   name?: string;
   companyName?: string;
+  password?: string; // Optional password for login prefill
 }
 
 /**

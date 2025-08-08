@@ -13,6 +13,76 @@ export default function VerifyEmail() {
   const [verificationState, setVerificationState] = useState<'loading' | 'success' | 'error'>('loading');
   const [errorMessage, setErrorMessage] = useState('');
   const [countdown, setCountdown] = useState(5);
+  const [email, setEmail] = useState<string | null>(null);
+  const [password, setPassword] = useState<string | null>(null);
+  const [resending, setResending] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
+
+  // Function to resend verification email
+  const resendVerificationEmail = async () => {
+    if (!email) return;
+    
+    try {
+      setResending(true);
+      setResendSuccess(false);
+      
+      const response = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        setResendSuccess(true);
+      } else {
+        console.error('Failed to resend verification email:', data.message);
+      }
+    } catch (error) {
+      console.error('Error resending verification email:', error);
+    } finally {
+      setResending(false);
+    }
+  };
+
+  // Extract email and password from token or URL params
+  useEffect(() => {
+    if (token) {
+      try {
+        // The token is a JWT - we can extract the payload without verifying
+        // This is just to get the email for resending, actual verification happens on the server
+        const parts = token.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          if (payload.email) {
+            setEmail(payload.email);
+          }
+          
+          // Check if password was included in the token payload
+          if (payload.password) {
+            setPassword(payload.password);
+          }
+        }
+        
+        // Also check URL for password parameter (for cases where we don't want to include it in the JWT)
+        const passwordParam = searchParams.get('p');
+        if (passwordParam) {
+          try {
+            // Decode the base64 password
+            const decodedPassword = atob(passwordParam);
+            setPassword(decodedPassword);
+          } catch (e) {
+            console.error('Error decoding password parameter:', e);
+          }
+        }
+      } catch (error) {
+        console.error('Error extracting data from token:', error);
+      }
+    }
+  }, [token, searchParams]);
 
   useEffect(() => {
     if (!token) {
@@ -36,6 +106,22 @@ export default function VerifyEmail() {
         if (response.ok && data.success) {
           setVerificationState('success');
           
+          // Store user info for login
+          if (data.email) {
+            // Store credentials in localStorage for login form to use
+            const loginData = {
+              email: data.email,
+              timestamp: Date.now() // Add timestamp for expiry check
+            };
+            
+            // Add password if available
+            if (password) {
+              loginData['password'] = password;
+            }
+            
+            localStorage.setItem('unitnode_login_prefill', JSON.stringify(loginData));
+          }
+          
           // Start countdown for redirect
           let seconds = 5;
           const timer = setInterval(() => {
@@ -50,8 +136,14 @@ export default function VerifyEmail() {
           
           return () => clearInterval(timer);
         } else {
-          setVerificationState('error');
-          setErrorMessage(data.message || 'Failed to verify email');
+          // Check if the token is expired
+          if (data.message && data.message.toLowerCase().includes('expired')) {
+            // Redirect to expired link page
+            router.push('/link-expired');
+          } else {
+            setVerificationState('error');
+            setErrorMessage(data.message || 'Failed to verify email');
+          }
         }
       } catch (error) {
         console.error('Error verifying email:', error);
@@ -103,6 +195,22 @@ export default function VerifyEmail() {
             </p>
             <Link 
               href="/"
+              onClick={() => {
+                // Ensure the email is saved for login prefill when clicking this button too
+                if (email) {
+                  const loginData = {
+                    email: email,
+                    timestamp: Date.now()
+                  };
+                  
+                  // Add password if available
+                  if (password) {
+                    loginData['password'] = password;
+                  }
+                  
+                  localStorage.setItem('unitnode_login_prefill', JSON.stringify(loginData));
+                }
+              }}
               className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
             >
               <span className="font-bold">Go to Login</span>
@@ -131,11 +239,25 @@ export default function VerifyEmail() {
                 <span className="font-bold">Go to Login</span>
               </Link>
               <button
-                onClick={() => window.location.reload()}
+                onClick={resendVerificationEmail}
+                disabled={resending || !email}
                 className="w-full mx-auto block py-2.5 bg-gray-100 text-gray-800 rounded-full font-medium hover:bg-gray-200 transition-colors text-sm border border-gray-300"
               >
-                <span className="font-bold">Try Again</span>
+                {resending ? (
+                  <div className="flex items-center justify-center">
+                    <div className="animate-spin mr-2 h-4 w-4 border-b-2 border-gray-800"></div>
+                    <span className="font-bold">Sending...</span>
+                  </div>
+                ) : (
+                  <span className="font-bold">Resend Email</span>
+                )}
               </button>
+              
+              {resendSuccess && (
+                <p className="text-green-500 text-xs mt-2 text-center animate-in fade-in">
+                  Verification email sent! Please check your inbox.
+                </p>
+              )}
             </div>
           </div>
         )}

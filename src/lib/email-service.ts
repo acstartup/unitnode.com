@@ -122,7 +122,7 @@ export async function sendVerificationEmail(
   password?: string
 ): Promise<string> {
   // Generate a verification token
-  const token = generateEmailVerificationToken({ email, name, companyName });
+  const token = generateEmailVerificationToken({ email, name, companyName, password });
   const verificationUrl = generateVerificationUrl(token);
   
   const displayName = name || 'there';

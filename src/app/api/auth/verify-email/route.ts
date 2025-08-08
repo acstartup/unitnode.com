@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: 'Email verified successfully',
-      email: payload.email
+      email: payload.email,
+      name: user.name,
+      companyName: user.companyName
     });
   } catch (error) {
     console.error('Error verifying email:', error);
