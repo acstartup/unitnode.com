@@ -232,29 +232,34 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2 text-center">Account Created Successfully!</h2>
-            <p className="text-gray-600 text-center mb-6 max-w-md">
-              Your email has been verified and your account is now ready to use.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
+            <h2 className="text-2xl font-bold mb-3 text-center">Check Your Email</h2>
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 max-w-md">
+              <p className="text-gray-700 mb-2">
+                We've sent a verification link to <span className="font-medium">{email}</span>
+              </p>
+              <p className="text-gray-700">
+                Please check your inbox and click the link to complete your registration.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 w-full max-w-xs">
               <button 
                 onClick={() => {
-                  setSavedCredentials(email, password);
+                  // Close the signup modal and open login modal with prefilled credentials
                   onClose();
-                  // Add a small delay before opening the login modal
+                  setSavedCredentials(email, password);
                   setTimeout(() => {
                     openLoginModal(email, password);
                   }, 100);
                 }}
-                className="py-2.5 px-4 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm flex-1"
+                className="py-2.5 px-4 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm w-full"
               >
-                <span className="font-bold">Login Now</span>
+                <span className="font-bold">Go to Login</span>
               </button>
               <button 
                 onClick={() => {
@@ -263,11 +268,21 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   setShowVerificationStep(false);
                   setVerificationCode("");
                 }}
-                className="py-2.5 px-4 bg-gray-100 text-gray-800 rounded-full font-medium hover:bg-gray-200 transition-colors text-sm border border-gray-300 flex-1"
+                className="py-2.5 px-4 bg-transparent text-primary hover:underline font-medium text-sm w-full text-center"
               >
-                <span className="font-bold">Back to Signup</span>
+                Back to signup form
               </button>
             </div>
+            <p className="text-gray-500 text-xs text-center mt-4">
+              Didn't receive an email? Check your spam folder or <button 
+                onClick={() => {
+                  // Reset the modal state to show the signup form again
+                  setSignupSuccess(false);
+                  setShowVerificationStep(false);
+                  setVerificationCode("");
+                }} 
+                className="text-primary hover:underline font-medium bg-transparent border-none p-0 text-xs">try again</button>.
+            </p>
           </div>
         )}
         {/* Close button - always visible */}
@@ -528,10 +543,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   const result = await apiClient.auth.signup(email, password, companyName);
                   
                   if (result.success) {
-                    // Show verification code step instead of success message
-                    setShowVerificationStep(true);
-                    setCountdown(60);
-                    setCountdownActive(true);
+                    // Show success message - user needs to check email for verification link
+                    setSignupSuccess(true);
                   } else {
                     setErrorMessage(result.message || "Failed to create account. Please try again.");
                   }
@@ -557,7 +570,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   <span className="font-bold">Sending...</span>
                 </div>
               ) : (
-                <span className="font-bold">Continue</span>
+              <span className="font-bold">Continue</span>
               )}
             </button>
             

@@ -37,11 +37,50 @@ async function fetchWithAuth<T>(
 export const apiClient = {
   // Auth methods
   auth: {
-    login: async (email: string, password: string) => {
-      // This is a placeholder - will be implemented later
-      console.log('Login attempt with:', email);
-      return { success: true };
+    // Step 1: Send login credentials and get verification code
+    loginSendCode: async (email: string, password: string) => {
+      try {
+        const response = await fetch('/api/auth/login/send-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email, password }),
+        });
+        
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Login error:', error);
+        return { 
+          success: false, 
+          message: 'Failed to authenticate. Please check your credentials and try again.' 
+        };
+      }
     },
+    
+    // Step 2: Verify the 2FA code and complete login
+    loginVerifyCode: async (code: string, email: string) => {
+      try {
+        const response = await fetch('/api/auth/login/verify-code', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ code, email }),
+        });
+        
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error('Code verification error:', error);
+        return { 
+          success: false, 
+          message: 'Failed to verify code. The code may be expired or invalid.' 
+        };
+      }
+    },
+    
     logout: async () => {
       // This is a placeholder - will be implemented later
       return { success: true };

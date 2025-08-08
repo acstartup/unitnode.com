@@ -27,14 +27,15 @@ export async function POST(request: NextRequest) {
     if (existingUser) {
       // If user exists but email is not verified, allow resending verification
       if (!existingUser.emailVerified) {
-        // Send verification email with 6-digit code
-        const verificationCode = await sendVerificationEmail(
+        // Send verification email with link
+        const verificationToken = await sendVerificationEmail(
           email,
           name || existingUser.name,
-          companyName || existingUser.companyName
+          companyName || existingUser.companyName,
+          password
         );
 
-        if (!verificationCode) {
+        if (!verificationToken) {
           return NextResponse.json(
             { success: false, message: 'Failed to send verification email' },
             { status: 500 }
@@ -70,14 +71,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send verification email with 6-digit code
-    const verificationCode = await sendVerificationEmail(
+    // Send verification email with link
+    const verificationToken = await sendVerificationEmail(
       email,
       name,
-      companyName
+      companyName,
+      password
     );
 
-    if (!verificationCode) {
+    if (!verificationToken) {
       return NextResponse.json(
         { success: false, message: 'Failed to send verification email' },
         { status: 500 }
@@ -86,7 +88,7 @@ export async function POST(request: NextRequest) {
     
     return NextResponse.json({
       success: true,
-      message: 'Verification email sent successfully'
+      message: 'Verification email sent successfully. Please check your inbox to complete registration.'
     });
   } catch (error) {
     console.error('Error sending verification email:', error);
