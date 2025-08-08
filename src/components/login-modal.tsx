@@ -317,13 +317,6 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
               </a>
             </div>
 
-            {/* Error message */}
-            {errorMessage && (
-              <p className="text-red-500 text-xs mt-2 mb-4 text-center animate-in fade-in">
-                {errorMessage}
-              </p>
-            )}
-            
             {/* Login button */}
             <button 
               onClick={async () => {
@@ -381,6 +374,13 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                 <span className="font-bold">Log in</span>
               )}
             </button>
+
+            {/* Error message */}
+            {errorMessage && (
+              <p className="text-red-500 text-xs mt-2 text-center animate-in fade-in">
+                {errorMessage}
+              </p>
+            )}
 
             {/* OR divider */}
             <div className="flex items-center my-4">
