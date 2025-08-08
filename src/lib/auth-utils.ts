@@ -74,7 +74,7 @@ export function verifyEmailVerificationToken(token: string): EmailVerificationPa
  * Generate the verification URL to be sent in emails
  */
 export function generateVerificationUrl(token: string): string {
-  const baseUrl = process.env.SITE_URL || 'http://localhost:3000';
+  const baseUrl = process.env.SITE_URL || 'https://unitnode.com';
   return `${baseUrl}/verify-email?token=${token}`;
 }
 

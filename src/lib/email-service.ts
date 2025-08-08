@@ -131,54 +131,33 @@ export async function sendVerificationEmail(
   const subject = 'Verify Your Email Address';
   
   const html = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #000000; background-color: #ffffff;">
-      <div style="text-align: center; padding: 30px 20px 20px;">
-        <img src="https://unitnode.com/unitnode-logo.png" alt="UnitNode" style="max-width: 180px; height: auto;" />
-      </div>
-      
-      <div style="padding: 0 30px 30px;">
-        <div style="background-color: #f9f9f9; border-radius: 12px; padding: 30px; border: 1px solid #eaeaea;">
-          <h2 style="color: #000000; font-size: 22px; margin-top: 0;">Confirm Your Email Address</h2>
-          
-          <p style="color: #000000; font-size: 16px; line-height: 1.5;">Hello${name ? ' ' + name : ''},</p>
-          
-          <p style="color: #000000; font-size: 16px; line-height: 1.5;">Thank you for signing up with <span style="font-weight: bold; color: #000000;">UnitNode</span>. You're just one step away from accessing your account.</p>
-          
-          <p style="color: #000000; font-size: 16px; line-height: 1.5;">Please click the button below to verify your email address:</p>
-          
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${verificationUrl}" style="background-color: #000000; color: #ffffff; padding: 14px 35px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block; font-size: 16px;">
-              Verify My Email
-            </a>
-          </div>
-          
-          <p style="color: #555555; font-size: 14px;">If the button above doesn't work, you can copy and paste this link into your browser:</p>
-          
-          <div style="background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 6px; padding: 12px; margin: 15px 0; word-break: break-all;">
-            <a href="${verificationUrl}" style="color: #3366cc; font-size: 14px; text-decoration: none; word-break: break-all;">
-              ${verificationUrl}
-            </a>
-          </div>
-          
-          <div style="background-color: #f0f7ff; border-left: 4px solid #3366cc; padding: 15px; margin: 25px 0; color: #000000;">
-            <p style="margin: 0; font-weight: bold; color: #000000; font-size: 15px;">Important:</p>
-            <p style="margin: 8px 0 0 0; color: #000000; font-size: 14px;">• This link is valid for 24 hours and can only be used once.</p>
-            <p style="margin: 5px 0 0 0; color: #000000; font-size: 14px;">• If you didn't create an account, you can safely ignore this email.</p>
-          </div>
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; color: #000000;">
+      <div style="padding: 20px;">
+        <h2 style="color: #000000; margin-top: 0;">Verify Your Email Address</h2>
+        <p style="color: #000000;">Hello${name ? ' ' + name : ''},</p>
+        <p style="color: #000000;">Thank you for signing up with <span style="font-weight: bold; color: #000000;">UnitNode</span>. Please click the button below to verify your email address:</p>
+        
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}" style="background-color: #000000; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block; font-size: 16px;">
+            Verify My Email
+          </a>
         </div>
         
-        <div style="margin-top: 30px; text-align: center;">
-          <p style="color: #000000; margin-bottom: 5px;">Thank you,</p>
-          <p style="color: #000000; font-weight: bold; margin-top: 0;">The UnitNode Team</p>
+        <div style="border-left: 4px solid #f0f0f0; padding: 10px; background-color: #f8f9fa; margin: 20px 0; color: #000000;">
+          <p style="margin: 0; font-weight: bold; color: #000000;">Important:</p>
+          <p style="margin: 5px 0 0 0; color: #000000;">• This link is valid for 24 hours and can only be used once.</p>
+          <p style="margin: 5px 0 0 0; color: #000000;">• If you didn't create an account, you can safely ignore this email.</p>
         </div>
+        
+        <p style="color: #000000; margin-top: 25px;">Thank you,</p>
+        <p style="color: #000000;">The <span style="font-weight: bold; color: #000000;">UnitNode</span> Team</p>
       </div>
       
-      <div style="border-top: 1px solid #eaeaea; padding: 20px; text-align: center; background-color: #f9f9f9;">
-        <p style="color: #666666; font-size: 13px; margin: 0 0 8px 0;"><span style="font-weight: bold;">UnitNode</span> - Automating Property Management</p>
-        <p style="color: #666666; font-size: 13px; margin: 0;">
-          <a href="https://unitnode.com" style="color: #3366cc; text-decoration: none;">unitnode.com</a> | 
-          <a href="mailto:support@unitnode.com" style="color: #3366cc; text-decoration: none;">support@unitnode.com</a>
-        </p>
+      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+      
+      <div style="font-size: 12px; padding: 0 20px 20px; color: #000000;">
+        <p style="color: #000000;"><span style="font-weight: bold; color: #000000;">UnitNode</span> - Automating Property Management</p>
+        <p style="color: #000000;">unitnode.com | support@unitnode.com</p>
       </div>
     </div>
   `;
