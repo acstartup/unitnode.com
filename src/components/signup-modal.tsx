@@ -33,6 +33,10 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     hasLowercase: false,
     hasUppercase: false
   });
+  // Google completion step
+  const [isGoogleCompleteStep, setIsGoogleCompleteStep] = useState(false);
+  const [googleEmail, setGoogleEmail] = useState('');
+  const [googleCompleteSuccess, setGoogleCompleteSuccess] = useState(false);
   
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -67,7 +71,21 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   }, [countdownActive, countdown]);
   
   // No automatic redirect - removed as requested
-  
+  // Detect if we should show Google completion step
+  useEffect(() => {
+    try {
+      const mode = localStorage.getItem('unitnode_signup_mode');
+      const emailFromStore = localStorage.getItem('unitnode_signup_email') || '';
+      if (mode === 'google_complete') {
+        setIsGoogleCompleteStep(true);
+        setGoogleEmail(emailFromStore);
+        // Clear one-time flags
+        localStorage.removeItem('unitnode_signup_mode');
+        localStorage.removeItem('unitnode_signup_email');
+      }
+    } catch {}
+  }, []);
+
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -81,6 +99,153 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       {/* Grey rectangle with rounded corners */}
       <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
         
+        {/* Google Completion Step */}
+        {isGoogleCompleteStep && (
+          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+            <div className="relative w-full mb-5">
+              <div className="flex justify-center">
+                <Image 
+                  src="/unitnode-logo.png"
+                  alt="UnitNode"
+                  width={150}
+                  height={40}
+                  priority
+                />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-center">Complete your signup</h2>
+            <p className="text-gray-600 text-center mb-6 max-w-md">
+              Welcome
+              {googleEmail ? (
+                <span className="font-bold">, {googleEmail}</span>
+              ) : null}
+              . Enter your company name to finish.
+            </p>
+
+            <div className="w-full max-w-[380px]">
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Company Name"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  onFocus={() => setCompanyNameBlurred(false)}
+                  onBlur={() => setCompanyNameBlurred(true)}
+                  className={cn(
+                    "w-full px-4 py-2.5 rounded-2xl bg-gray-100 border focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium transition-colors",
+                    companyNameBlurred && companyName.length === 0
+                      ? "border-red-500 border-2"
+                      : "border-gray-300"
+                  )}
+                  autoFocus
+                />
+                {companyNameBlurred && companyName.length === 0 && (
+                  <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
+                    Company name is required
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={async () => {
+                  if (companyName.trim().length === 0) {
+                    setCompanyNameBlurred(true);
+                    return;
+                  }
+                  setIsSubmitting(true);
+                  setErrorMessage("");
+                  try {
+                    const res = await fetch('/api/auth/google/complete', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email: googleEmail, companyName: companyName.trim() }),
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                      // Show success overlay inside modal
+                      setIsGoogleCompleteStep(false);
+                      setGoogleCompleteSuccess(true);
+                    } else {
+                      setErrorMessage(data.message || 'Failed to save company name');
+                    }
+                  } catch {
+                    setErrorMessage('An error occurred. Please try again.');
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting}
+                className={cn(
+                  "w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium transition-colors text-sm",
+                  isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:bg-black/90"
+                )}
+              >
+                {isSubmitting ? 'Saving...' : 'Finish'}
+              </button>
+
+              {/* Error message */}
+              {errorMessage && (
+                <p className="text-red-500 text-xs mt-2 text-center animate-in fade-in">{errorMessage}</p>
+              )}
+
+              <button
+                onClick={() => setIsGoogleCompleteStep(false)}
+                className="py-2.5 px-4 bg-transparent text-primary hover:underline font-medium text-sm w-full text-center mt-2"
+              >
+                Back
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Google Completion Success */}
+        {googleCompleteSuccess && (
+          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setGoogleCompleteSuccess(false);
+              }}
+              className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100 z-20"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-3 text-center">All set!</h2>
+            <p className="text-gray-700 mb-6 text-center max-w-md">Your company has been saved. You can now log in to your account.</p>
+            <div className="flex flex-col gap-3 w-full max-w-xs">
+              <button 
+                onClick={() => {
+                  // Close signup modal and open login modal
+                  onClose();
+                  setTimeout(() => {
+                    openLoginModal();
+                  }, 100);
+                }}
+                className="py-2.5 px-4 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm w-full"
+              >
+                <span className="font-bold">Go to Login</span>
+              </button>
+              <button 
+                onClick={() => {
+                  // Return to the signup form
+                  setGoogleCompleteSuccess(false);
+                }}
+                className="py-2.5 px-4 bg-transparent text-primary hover:underline font-medium text-sm w-full text-center"
+              >
+                Back to signup form
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Verification Code Step */}
         {showVerificationStep && (
           <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
@@ -594,7 +759,13 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </div>
 
             {/* Continue with Google */}
-            <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm">
+            <button
+              onClick={() => {
+                // preserve flow as signup state
+                window.location.href = '/api/auth/google/start?state=signup';
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm"
+            >
               <Image src="/google.svg" alt="Google" width={18} height={18} />
               <span className="font-medium">Continue with Google</span>
             </button>

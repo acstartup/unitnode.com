@@ -27,6 +27,12 @@ DATABASE_URL=postgresql://username:password@localhost:5432/unitnode
 # Email verification
 EMAIL_VERIFICATION_TOKEN_SECRET=your_email_verification_token_secret
 SITE_URL=http://localhost:3000
+
+  # Google OAuth
+  GOOGLE_CLIENT_ID=your_google_client_id
+  GOOGLE_CLIENT_SECRET=your_google_client_secret
+  # Optional: set explicitly; otherwise falls back to `${SITE_URL}/api/auth/google/callback`
+  # GOOGLE_REDIRECT_URI=http://localhost:3000/api/auth/google/callback
 ```
 
 ## Setting Up Infobip
