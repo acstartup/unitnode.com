@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/modal-provider";
+import { apiClient } from "@/lib/app/api-client";
 
 interface SignupModalProps {
   isOpen: boolean;
@@ -13,9 +14,19 @@ interface SignupModalProps {
 export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
   const [passwordBlurred, setPasswordBlurred] = useState(false);
   const [emailBlurred, setEmailBlurred] = useState(false);
-  const { openLoginModal } = useModal();
+  const [companyNameBlurred, setCompanyNameBlurred] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showVerificationStep, setShowVerificationStep] = useState(false);
+  const [verificationError, setVerificationError] = useState("");
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [countdown, setCountdown] = useState(60);
+  const [countdownActive, setCountdownActive] = useState(false);
+  const { openLoginModal, setSavedCredentials } = useModal();
   const [requirements, setRequirements] = useState({
     hasEightChars: false,
     hasDigit: false,
@@ -37,6 +48,26 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
     });
   }, [password]);
   
+  // Countdown timer for verification code
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    
+    if (countdownActive && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    } else if (countdown === 0) {
+      setCountdownActive(false);
+      setCountdown(60);
+    }
+    
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [countdownActive, countdown]);
+  
+  // No automatic redirect - removed as requested
+  
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       onClose();
@@ -46,13 +77,221 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-33 bg-black/33" onClick={handleBackdropClick}>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10" onClick={handleBackdropClick}>
       {/* Grey rectangle with rounded corners */}
-      <div className="relative w-[1000px] h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex animate-in fade-in duration-300">
-        {/* Close button */}
+      <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
+        
+        {/* Verification Code Step */}
+        {showVerificationStep && (
+          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+            <div className="relative w-full mb-5">
+              <div className="flex justify-center">
+                <Image 
+                  src="/unitnode-logo.png"
+                  alt="UnitNode"
+                  width={150}
+                  height={40}
+                  priority
+                />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-center">Verify Your Email</h2>
+            <p className="text-gray-600 text-center mb-6 max-w-md">
+              We&apos;ve sent a verification code to <span className="font-medium">{email}</span>. 
+              Please enter the 6-digit code below:
+            </p>
+            
+            <div className="w-full max-w-xs mb-6">
+              <input
+                type="text"
+                placeholder="000000"
+                value={verificationCode}
+                onChange={(e) => {
+                  // Only allow numbers and limit to 6 digits
+                  const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                  setVerificationCode(value);
+                  if (verificationError) setVerificationError("");
+                }}
+                className="w-full px-4 py-3 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl font-medium tracking-widest letter-spacing-2"
+                maxLength={6}
+                autoFocus
+                inputMode="numeric"
+                pattern="[0-9]*"
+              />
+              
+              {verificationError && (
+                <p className="text-red-500 text-xs mt-1 text-center animate-in fade-in">
+                  {verificationError}
+                </p>
+              )}
+              
+              <div className="text-center mt-2 text-sm text-gray-500">
+                Code expires in {countdown} seconds
+              </div>
+            </div>
+            
+            <div className="flex flex-col w-full gap-3 max-w-xs">
+              <button
+                onClick={async () => {
+                  if (verificationCode.length !== 6) {
+                    setVerificationError("Please enter a valid 6-digit code");
+                    return;
+                  }
+                  
+                  setIsSubmitting(true);
+                  
+                  try {
+                    const result = await apiClient.auth.verifyCode(verificationCode);
+                    
+                    if (result.success) {
+                      setSignupSuccess(true);
+                      setShowVerificationStep(false);
+                    } else {
+                      setVerificationError(result.message || "Invalid verification code");
+                    }
+                  } catch (/* eslint-disable-line @typescript-eslint/no-unused-vars */_) {
+                    setVerificationError("An error occurred. Please try again.");
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting || verificationCode.length !== 6}
+                className={cn(
+                  "py-2.5 px-4 bg-black text-white rounded-full font-medium transition-colors text-sm w-full",
+                  (isSubmitting || verificationCode.length !== 6) ? "opacity-70 cursor-not-allowed" : "hover:bg-black/90"
+                )}
+              >
+                {isSubmitting ? (
+                  <div className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="font-bold">Verifying...</span>
+                  </div>
+                ) : (
+                  <span className="font-bold">Verify Code</span>
+                )}
+              </button>
+              
+              <button
+                onClick={async () => {
+                  if (!countdownActive) {
+                    setIsSubmitting(true);
+                    
+                    try {
+                      const result = await apiClient.auth.signup(email, password, companyName);
+                      
+                      if (result.success) {
+                        setCountdown(60);
+                        setCountdownActive(true);
+                      } else {
+                        setVerificationError(result.message || "Failed to resend code");
+                      }
+                    } catch (/* eslint-disable-line @typescript-eslint/no-unused-vars */_) {
+                      setVerificationError("An error occurred. Please try again.");
+                    } finally {
+                      setIsSubmitting(false);
+                    }
+                  }
+                }}
+                disabled={isSubmitting || countdownActive}
+                className={cn(
+                  "py-2.5 px-4 bg-transparent text-gray-600 rounded-full font-medium transition-colors text-sm w-full",
+                  (isSubmitting || countdownActive) ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
+                )}
+              >
+                {countdownActive ? `Resend code in ${countdown}s` : "Resend code"}
+              </button>
+              
+              <button
+                onClick={() => {
+                  // Go back to signup form
+                  setShowVerificationStep(false);
+                }}
+                className="py-2.5 px-4 bg-transparent text-primary hover:underline font-medium text-sm w-full text-center"
+              >
+                Back to signup
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {/* Success Message */}
+        {signupSuccess && (
+          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="absolute top-4 right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100 z-20"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-3 text-center">Check Your Email</h2>
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 max-w-md">
+              <p className="text-gray-700 mb-2">
+                We&apos;ve sent a verification link to <span className="font-medium">{email}</span>
+              </p>
+              <p className="text-gray-700">
+                Please check your inbox and click the link to complete your registration.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 w-full max-w-xs">
+              <button 
+                onClick={() => {
+                  // Close the signup modal and open login modal with prefilled credentials
+                  onClose();
+                  setSavedCredentials(email, password);
+                  setTimeout(() => {
+                    openLoginModal(email, password);
+                  }, 100);
+                }}
+                className="py-2.5 px-4 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm w-full"
+              >
+                <span className="font-bold">Go to Login</span>
+              </button>
+              <button 
+                onClick={() => {
+                  // Reset the modal state to show the signup form again
+                  setSignupSuccess(false);
+                  setShowVerificationStep(false);
+                  setVerificationCode("");
+                }}
+                className="py-2.5 px-4 bg-transparent text-primary hover:underline font-medium text-sm w-full text-center"
+              >
+                Back to signup form
+              </button>
+            </div>
+            <p className="text-gray-500 text-xs text-center mt-4">
+              Didn&apos;t receive an email? Check your spam folder or <button 
+                onClick={() => {
+                  // Reset the modal state to show the signup form again
+                  setSignupSuccess(false);
+                  setShowVerificationStep(false);
+                  setVerificationCode("");
+                }} 
+                className="text-primary hover:underline font-medium bg-transparent border-none p-0 text-xs">try again</button>.
+            </p>
+          </div>
+        )}
+        {/* Close button - always visible */}
         <button 
-          onClick={onClose} 
-          className="absolute top-4 right-4 z-10 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
+          onClick={(e) => {
+            e.stopPropagation();
+            onClose();
+          }} 
+          className="absolute top-4 right-4 z-20 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -61,7 +300,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         </button>
         
         {/* Left side - logo and text */}
-        <div className="flex-1 flex flex-col items-center pt-12">
+        <div className="flex-1 flex flex-col items-center pt-12 px-4 pb-8 md:pb-0">
           {/* UnitNode icon */}
           <div className="mb-5">
             <Image 
@@ -86,14 +325,28 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
           </p>
 
           {/* Form inputs */}
-          <div className="w-[380px]">
+          <div className="w-full max-w-[380px]">
             {/* Company Name input */}
             <div className="mb-4">
               <input 
                 type="text" 
                 placeholder="Company Name" 
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                onFocus={() => setCompanyNameBlurred(false)}
+                onBlur={() => setCompanyNameBlurred(true)}
+                className={cn(
+                  "w-full px-4 py-2.5 rounded-2xl bg-gray-100 border focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium transition-colors",
+                  companyNameBlurred && companyName.length === 0
+                    ? "border-red-500 border-2"
+                    : "border-gray-300"
+                )}
               />
+              {companyNameBlurred && companyName.length === 0 && (
+                <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
+                  Company name is required
+                </p>
+              )}
             </div>
             
             {/* Company Email input */}
@@ -264,9 +517,69 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </div>
 
             {/* Continue button */}
-            <button className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm">
+            <button 
+              onClick={async () => {
+                // Validate form
+                if (!isValidEmail(email)) {
+                  setEmailBlurred(true);
+                  return;
+                }
+                
+                if (companyName.length === 0) {
+                  setCompanyNameBlurred(true);
+                  return;
+                }
+                
+                if (!requirements.hasEightChars || !requirements.hasDigit || 
+                    !requirements.hasLowercase || !requirements.hasUppercase) {
+                  setPasswordBlurred(true);
+                  return;
+                }
+                
+                setIsSubmitting(true);
+                setErrorMessage("");
+                
+                try {
+                  const result = await apiClient.auth.signup(email, password, companyName);
+                  
+                  if (result.success) {
+                    // Show success message - user needs to check email for verification link
+                    setSignupSuccess(true);
+                  } else {
+                    setErrorMessage(result.message || "Failed to create account. Please try again.");
+                  }
+                } catch (error) {
+                  console.error("Signup error:", error);
+                  setErrorMessage("An unexpected error occurred. Please try again.");
+                } finally {
+                  setIsSubmitting(false);
+                }
+              }}
+              disabled={isSubmitting}
+              className={cn(
+                "w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium transition-colors text-sm",
+                isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:bg-black/90"
+              )}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="font-bold">Sending...</span>
+                </div>
+              ) : (
               <span className="font-bold">Continue</span>
+              )}
             </button>
+            
+            {/* Error message */}
+            {errorMessage && (
+              <p className="text-red-500 text-xs mt-2 text-center animate-in fade-in">
+                {errorMessage}
+              </p>
+            )}
 
             {/* Terms of service */}
             <p className="text-xs text-center text-gray-600 mt-4 font-medium">
@@ -289,13 +602,14 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         </div>
         
         {/* Right side - Hong Kong image */}
-        <div className="flex-1 flex justify-center items-center p-2">
+        <div className="hidden md:flex flex-1 justify-center items-center p-2">
           <div className="relative w-full h-full">
             <Image 
               src="/Hong-Kong-EarnestTse-Shutterstock.webp"
               alt="Hong Kong skyline"
               fill
               className="object-cover rounded-3xl"
+              priority
             />
           </div>
         </div>
