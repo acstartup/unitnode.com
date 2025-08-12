@@ -96,16 +96,25 @@ export async function GET(request: NextRequest) {
       });
       // If the user has a company name already, we can send them to login modal opener
       const hasCompany = Boolean(updated.companyName);
-      const next = hasCompany
-        ? '/?unitnode_open_login_modal=true'
-        : `/?unitnode_open_signup_modal=google_complete&email=${encodeURIComponent(userInfo.email)}`;
+      if (hasCompany) {
+        const params = new URLSearchParams({
+          id: updated.id,
+          email: updated.email,
+          role: updated.role,
+        });
+        if (updated.name) params.set('name', updated.name);
+        if (updated.companyName) params.set('companyName', updated.companyName);
+        const next = `/auth/google/login-success?${params.toString()}`;
+        return NextResponse.redirect(new URL(next, url.origin));
+      }
+      const next = `/?unitnode_open_signup_modal=google_complete&email=${encodeURIComponent(userInfo.email)}`;
       return NextResponse.redirect(new URL(next, url.origin));
     }
 
     // If no user, create a minimal record with a random hashed password to satisfy schema
     const randomPassword = randomUUID();
     const hashed = await bcrypt.hash(randomPassword, 10);
-    await prisma.user.create({
+    const created = await prisma.user.create({
       data: {
         email: userInfo.email,
         password: hashed,

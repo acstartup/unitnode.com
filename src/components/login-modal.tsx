@@ -419,7 +419,12 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
             </div>
 
             {/* Continue with Google */}
-            <button className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm">
+            <button
+              onClick={() => {
+                window.location.href = '/api/auth/google/start?state=login';
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm"
+            >
               <Image src="/google.svg" alt="Google" width={18} height={18} />
               <span className="font-medium">Continue with Google</span>
             </button>
