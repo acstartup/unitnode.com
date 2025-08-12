@@ -20,6 +20,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [emailBlurred, setEmailBlurred] = useState(false);
   const [companyNameBlurred, setCompanyNameBlurred] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [showVerificationStep, setShowVerificationStep] = useState(false);
   const [verificationError, setVerificationError] = useState("");
   const [signupSuccess, setSignupSuccess] = useState(false);
@@ -538,16 +539,54 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </div>
 
             {/* Password input */}
-            <div className="mb-2">
+            <div className="mb-2 relative">
               <input 
-                type="password" 
+                type={showPassword ? "text" : "password"}
                 placeholder="Password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => setPasswordBlurred(false)}
                 onBlur={() => setPasswordBlurred(true)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-600 hover:text-gray-800"
+              >
+                {showPassword ? (
+                  // Eye-off (simple)
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <line x1="4" y1="4" x2="20" y2="20" />
+                  </svg>
+                ) : (
+                  // Eye (simple)
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                )}
+              </button>
             </div>
 
             {/* Password requirements */}
