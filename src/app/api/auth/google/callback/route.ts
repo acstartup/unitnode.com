@@ -114,7 +114,7 @@ export async function GET(request: NextRequest) {
     // If no user, create a minimal record with a random hashed password to satisfy schema
     const randomPassword = randomUUID();
     const hashed = await bcrypt.hash(randomPassword, 10);
-    const created = await prisma.user.create({
+    await prisma.user.create({
       data: {
         email: userInfo.email,
         password: hashed,
