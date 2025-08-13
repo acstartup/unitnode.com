@@ -133,7 +133,7 @@
     @apply border-border outline-ring/50;
   }
   html, body {
-    @apply bg-background text-foreground overflow-hidden h-full;
+    @apply bg-background text-foreground min-h-screen overflow-auto;
   }
   
   /* Add pointer cursor to all clickable elements */

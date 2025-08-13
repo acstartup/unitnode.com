@@ -105,11 +105,11 @@ export function Navbar() {
                             </button>
                             
                             {/* Resources Dropdown menu */}
-                            <div className="dropdown-menu absolute -left-13 top-full mt-5 w-48 rounded-lg bg-white/60 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div className="dropdown-menu absolute -left-13 top-full mt-5 w-54 rounded-lg bg-white/60 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                                 {/* Invisible area to prevent dropdown from closing when moving mouse */}
                                 <div className="absolute h-5 -top-5 left-0 right-0"></div>
                                 <div className="py-0.5">
-                                    <a href="/blog" className="flex items-start px-3.5 py-1.5 rounded-md m-0.5 transition-colors group/item">
+                                    <a href="/updates" className="flex items-start px-3.5 py-1.5 rounded-md m-0.5 transition-colors group/item">
                                         <div className="flex-shrink-0 w-10 h-10 bg-gray-100 rounded-md flex items-center justify-center mr-2.5 transition-colors group-hover/item:bg-gray-300">
                                             <svg width="21" height="21" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-colors group-hover/item:stroke-primary">
                                                 <path d="M19 3H5C3.89543 3 3 3.89543 3 5V19C3 20.1046 3.89543 21 5 21H19C20.1046 21 21 20.1046 21 19V5C21 3.89543 20.1046 3 19 3Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
@@ -117,7 +117,7 @@ export function Navbar() {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="font-medium text-sm">Blog</div>
+                                            <div className="font-medium text-sm">UnitNode Updates</div>
                                             <div className="text-sm text-gray-500 transition-all group-hover/item:text-gray-700">Latest updates</div>
                                         </div>
                                     </a>
