@@ -150,10 +150,10 @@
     visibility: visible !important;
   }
   
-  /* Keep dropdown trigger text white on hover */
+  /* Let dropdown trigger text color follow utility classes (e.g., hover:text-black) */
   [data-hover="dropdown"]:hover button,
   [data-hover="dropdown"].hover-intent button {
-    color: white !important;
+    color: inherit;
   }
 
   /* Add a small gap above the dropdown to prevent accidental closing */

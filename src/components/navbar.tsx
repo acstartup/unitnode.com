@@ -36,13 +36,15 @@ export function Navbar() {
         };
     }, [hoverTimeout]);
 
-    return (
-        <header
-            className={cn(
-                "fixed left-1/2 -translate-x-1/2 top-0 z-50 transition-all duration-300 w-11/12 max-w-6xl mt-3 rounded-lg border border-white/40 bg-white/20 backdrop-blur-md shadow-xs",
-                isScrolled ? "bg-white/30" : "bg-white/20"
-            )}
-        >
+		return (
+			<header
+				className={cn(
+					"fixed left-1/2 -translate-x-1/2 top-0 z-50 transition-all duration-300 w-11/12 max-w-6xl mt-3",
+					isScrolled
+					? "opacity-100 translate-y-0 pointer-events-auto rounded-lg border border-black/10 bg-white/80 backdrop-blur-md shadow-xs"
+						: "opacity-100 translate-y-0 pointer-events-auto bg-transparent border-none"
+				)}
+			>
             <div className="px-3">
                 <div className="flex items-center h-13">
                     {/* Logo - reduced padding */}
@@ -94,15 +96,15 @@ export function Navbar() {
                             </div>
                         </div>
                     */}   
-                        {/* Resources Dropdown */}
+						{/* Resources Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-white/60 group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className="text-black/60 hover:text-black group-hover:text-black focus:text-black font-sm flex items-center gap-1 cursor-pointer relative">
                                 Resources
                                 <span className="dropdown-connector"></span>
                             </button>
                             
                             {/* Resources Dropdown menu */}
-                            <div className="dropdown-menu absolute -left-13 top-full mt-5 w-54 rounded-lg bg-white/60 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div className="dropdown-menu absolute -left-13 top-full mt-5 w-54 rounded-lg bg-white/80 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                                 {/* Invisible area to prevent dropdown from closing when moving mouse */}
                                 <div className="absolute h-5 -top-5 left-0 right-0"></div>
                                 <div className="py-0.5">
@@ -115,7 +117,7 @@ export function Navbar() {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="font-medium text-sm">Updates</div>
+                                            <div className="font-medium text-sm text-black/80 group-hover/item:text-black">Updates</div>
                                             <div className="text-sm text-gray-500 transition-all group-hover/item:text-gray-700">Late updates</div>
                                         </div>
                                     </a>
@@ -123,15 +125,15 @@ export function Navbar() {
                             </div>
                         </div>
 
-                        {/* Help Dropdown */}
+						{/* Help Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-white/60 group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className="text-black/60 hover:text-black group-hover:text-black focus:text-black font-sm flex items-center gap-1 cursor-pointer relative">
                                 Help
                                 <span className="dropdown-connector"></span>
                             </button>
                             
                             {/* Help Dropdown Menu*/}
-                            <div className="dropdown-menu absolute -left-20 top-full mt-5 w-52 rounded-lg bg-white/60 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
+                            <div className="dropdown-menu absolute -left-20 top-full mt-5 w-52 rounded-lg bg-white/80 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                                 {/* Invisible area to prevent dropdown from closing when moving mouse */}
                                 <div className="absolute h-5 -top-5 left-0 right-0"></div>
                                 <div className="py-0.5">
@@ -144,7 +146,7 @@ export function Navbar() {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="font-medium text-sm">Support</div>
+                                            <div className="font-medium text-sm text-black/80 group-hover/item:text-black">Support</div>
                                             <div className="text-sm text-gray-500 transition-all group-hover/item:text-gray-700">Browse by articles</div>
                                         </div>
                                     </a>
@@ -160,7 +162,7 @@ export function Navbar() {
                                             </svg>
                                         </div>
                                         <div>
-                                            <div className="font-medium text-sm">Contact</div>
+                                            <div className="font-medium text-sm text-black/80 group-hover/item:text-black">Contact</div>
                                             <div className="text-sm text-gray-500 transition-all group-hover/item:text-gray-700">Get support</div>
                                         </div>
                                     </a>
@@ -168,7 +170,7 @@ export function Navbar() {
                             </div>
                         </div>
                     
-                        <Link href="/pricing" className="text-white/60 hover:text-white font-sm">
+						<Link href="/pricing" className="text-black/60 hover:text-black font-sm">
                             Pricing
                         </Link>
                     </nav>

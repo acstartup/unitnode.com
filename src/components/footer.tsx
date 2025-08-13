@@ -5,8 +5,8 @@ import Link from "next/link";
 
 export function Footer() {
 	return (
-		<footer className="relative z-10 bg-white text-black border-t border-black/10">
-			<div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+		<footer className="relative z-10 bg-white text-black">
+			<div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
 				<div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 py-10">
 					{/* Left: logo + address + socials */}
 					<div className="flex-1 min-w-0">

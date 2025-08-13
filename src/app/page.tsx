@@ -1,13 +1,12 @@
 import { Navbar } from "@/components/navbar";
+import Image from "next/image";
 import { TypingAnimation } from "@/components/typing-animation";
 import { AutoLoginOpener } from "@/components/auto-login-opener";
-import { ImageBackground } from "@/components/image-background";
 import { Footer } from "@/components/footer";
 
 export default function Home() {
   return (
-    <div className="relative z-10 min-h-screen overflow-visible">
-      <ImageBackground />
+    <div className="relative z-10 min-h-screen overflow-visible bg-white">
       {/* 
         Container options:
         - Current: h-screen overflow-hidden (prevents scrolling)
@@ -26,6 +25,10 @@ export default function Home() {
         - py-10: Vertical padding
       */}
       <section className="relative z-10 flex flex-col items-center justify-center min-h-[calc(100vh-40px)]">
+        {/* Image behind the header only (not a global background) */}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-6xl h-[72vh] rounded-2xl overflow-hidden border border-black/10 z-0">
+          <Image src="/image4.png" alt="Hero background" fill priority className="object-cover" />
+        </div>
         <div className="flex items-center gap-1.5 mb-6 px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-white text-xs border border-white/40 shadow-xs">
           <span className="relative flex h-1.5 w-1.5">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
