@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/button";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/modal-provider";
 
@@ -15,6 +16,7 @@ export function Navbar() {
     const [hoverTimeout] = useState<number | null>(null);
     // Access modal functions
     const { openSignupModal, openLoginModal } = useModal();
+    const pathname = usePathname();
 
     // Handle scroll events to change navbar appearance
     useEffect(() => {
@@ -98,7 +100,10 @@ export function Navbar() {
                     */}   
 						{/* Resources Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-black/60 hover:text-black group-hover:text-black focus:text-black font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className={cn(
+                                "font-sm flex items-center gap-1 cursor-pointer relative",
+                                pathname?.startsWith("/updates") ? "text-black" : "text-black/60 hover:text-black group-hover:text-black focus:text-black"
+                            )}>
                                 Resources
                                 <span className="dropdown-connector"></span>
                             </button>
