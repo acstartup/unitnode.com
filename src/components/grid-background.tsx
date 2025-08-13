@@ -17,7 +17,7 @@ export function GridBackground({ className }: GridBackgroundProps) {
   if (!mounted) return null;
   
   return (
-    <div className={cn("fixed inset-0 z-[-1]", className)}>
+    <div className={cn("fixed inset-0 z-[-2]", className)}>
       {/* Light background */}
       <div className="absolute inset-0 bg-gray-50 dark:bg-gray-900" />
       

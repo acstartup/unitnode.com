@@ -97,8 +97,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10" onClick={handleBackdropClick}>
-      {/* Grey rectangle with rounded corners */}
-      <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
+      {/* Modal container with translucent white background like navbar */}
+      <div className="relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 bg-white/80 backdrop-blur-md shadow-xl flex flex-col items-center justify-center animate-in fade-in duration-300">
         
         {/* Google Completion Step */}
         {isGoogleCompleteStep && (
@@ -278,7 +278,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                   setVerificationCode(value);
                   if (verificationError) setVerificationError("");
                 }}
-                className="w-full px-4 py-3 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl font-medium tracking-widest letter-spacing-2"
+                className="w-full px-4 py-3 rounded-2xl bg-white/90 border border-white/70 focus:outline-none focus:ring-2 focus:ring-black/10 text-center text-xl font-medium tracking-widest letter-spacing-2"
                 maxLength={6}
                 autoFocus
                 inputMode="numeric"
@@ -465,8 +465,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
           </svg>
         </button>
         
-        {/* Left side - logo and text */}
-        <div className="flex-1 flex flex-col items-center pt-12 px-4 pb-8 md:pb-0">
+        {/* Content - centered */}
+        <div className="w-full flex flex-col items-center pt-10 px-6 pb-10">
           {/* UnitNode icon */}
           <div className="mb-5">
             <Image 
@@ -478,10 +478,10 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
           </div>
           
           {/* Create account text */}
-          <h1 className="text-2xl font-bold mb-2">Create your UnitNode account</h1>
+          <h1 className="text-2xl font-bold mb-2 text-center">Create your UnitNode account</h1>
           
           {/* Sign in link */}
-          <p className="text-sm text-gray-600 mb-8 font-medium">
+          <p className="text-sm text-gray-700 mb-8 font-medium text-center">
             Already have an account? <button 
               onClick={() => {
                 onClose();
@@ -547,7 +547,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 onFocus={() => setPasswordBlurred(false)}
                 onBlur={() => setPasswordBlurred(true)}
-                className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                className="w-full pl-4 pr-10 py-2.5 rounded-2xl bg-white/90 border border-white/70 focus:outline-none focus:ring-2 focus:ring-black/10 text-sm font-medium"
               />
               <button
                 type="button"
@@ -792,9 +792,9 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
             {/* OR divider */}
             <div className="flex items-center my-4">
-              <div className="flex-1 h-px bg-gray-300"></div>
-              <div className="px-4 text-xs text-gray-500">OR</div>
-              <div className="flex-1 h-px bg-gray-300"></div>
+              <div className="flex-1 h-px bg-white/60"></div>
+              <div className="px-4 text-xs text-gray-700">OR</div>
+              <div className="flex-1 h-px bg-white/60"></div>
             </div>
 
             {/* Continue with Google */}
@@ -803,7 +803,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 // preserve flow as signup state
                 window.location.href = '/api/auth/google/start?state=signup';
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm"
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-white text-black rounded-full border border-white/70 hover:bg-white/90 transition-colors text-sm"
             >
               <Image src="/google.svg" alt="Google" width={18} height={18} />
               <span className="font-medium">Continue with Google</span>
@@ -811,18 +811,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
           </div>
         </div>
         
-        {/* Right side - Hong Kong image */}
-        <div className="hidden md:flex flex-1 justify-center items-center p-2">
-          <div className="relative w-full h-full">
-            <Image 
-              src="/Hong-Kong-EarnestTse-Shutterstock.webp"
-              alt="Hong Kong skyline"
-              fill
-              className="object-cover rounded-3xl"
-              priority
-            />
-          </div>
-        </div>
+        {/* Removed right-side image to keep modal clean and centered */}
       </div>
     </div>
   );
