@@ -184,7 +184,7 @@ export function Navbar() {
                     <div className="hidden md:flex items-center space-x-1 pr-4">
                         <button
                             onClick={() => openLoginModal()}
-                            className="text-sm text-white hover:text-white px-1.5 py-1 bg-transparent border-none cursor-pointer"
+                            className="text-sm text-black/60 hover:text-black px-1.5 py-1 bg-transparent border-none cursor-pointer"
                         >
                             Login
                         </button>
