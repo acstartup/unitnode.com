@@ -113,8 +113,8 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10" onClick={handleBackdropClick}>
-      {/* Grey rectangle with rounded corners */}
-      <div className="relative w-[95%] max-w-[1000px] h-auto min-h-[600px] md:h-[700px] border-2 border-grey-700 rounded-4xl bg-white flex flex-col md:flex-row animate-in fade-in duration-300">
+      {/* Modal container with translucent white background like navbar */}
+      <div className="relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 bg-white/80 backdrop-blur-md shadow-xl flex flex-col items-center justify-center animate-in fade-in duration-300">
         {/* Verification Code Step */}
         {showVerificationStep && (
           <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
@@ -135,7 +135,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
               Please enter the 6-digit code below:
             </p>
             
-            <div className="w-full max-w-xs mb-6">
+             <div className="w-full max-w-xs mb-6">
               <input
                 type="text"
                 placeholder="000000"
@@ -146,7 +146,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                   setVerificationCode(value);
                   if (verificationError) setVerificationError("");
                 }}
-                className="w-full px-4 py-3 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl font-medium tracking-widest letter-spacing-2"
+                className="w-full px-4 py-3 rounded-2xl bg-white/90 border border-white/70 focus:outline-none focus:ring-2 focus:ring-black/10 text-center text-xl font-medium tracking-widest letter-spacing-2"
                 maxLength={6}
                 autoFocus
                 inputMode="numeric"
@@ -159,7 +159,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                 </p>
               )}
               
-              <div className="text-center mt-2 text-sm text-gray-500">
+               <div className="text-center mt-2 text-sm text-gray-600">
                 Code expires in {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
               </div>
             </div>
@@ -244,8 +244,8 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                 }}
                 disabled={isSubmitting || countdownActive}
                 className={cn(
-                  "py-2.5 px-4 bg-transparent text-gray-600 rounded-full font-medium transition-colors text-sm w-full",
-                  (isSubmitting || countdownActive) ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
+                  "py-2.5 px-4 bg-white/40 text-black rounded-full font-medium transition-colors text-sm w-full border border-white/60",
+                  (isSubmitting || countdownActive) ? "opacity-50 cursor-not-allowed" : "hover:bg-white/60"
                 )}
               >
                 {countdownActive ? `Resend code in ${Math.floor(countdown / 60)}:${(countdown % 60).toString().padStart(2, '0')}` : "Resend code"}
@@ -278,8 +278,8 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
           </svg>
         </button>
         
-        {/* Left side - logo and text */}
-        <div className="flex-1 flex flex-col items-center pt-12 md:pt-28 px-4 pb-8 md:pb-0">
+        {/* Content - centered */}
+        <div className="w-full flex flex-col items-center pt-10 px-6 pb-10">
           {/* UnitNode icon */}
           <div className="mb-5">
             <Image 
@@ -294,7 +294,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
           <h1 className="text-2xl font-bold mb-2">Welcome back</h1>
           
           {/* Sign up link */}
-          <p className="text-sm text-gray-600 mb-8 font-medium">
+          <p className="text-sm text-gray-800 mb-8 font-medium text-center">
             Don&apos;t have an account? <button 
               onClick={() => {
                 onClose();
@@ -304,7 +304,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
           </p>
 
           {/* Form inputs */}
-          <div className="w-full max-w-[380px]">
+            <div className="w-full max-w-[380px]">
             {/* Email input */}
             <div className="mb-4">
               <input 
@@ -315,10 +315,10 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                 onFocus={() => setEmailBlurred(false)}
                 onBlur={() => setEmailBlurred(true)}
                 className={cn(
-                  "w-full px-4 py-2.5 rounded-2xl bg-gray-100 border focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium transition-colors",
+                  "w-full px-4 py-2.5 rounded-2xl bg-white/90 border focus:outline-none focus:ring-2 focus:ring-black/10 text-sm font-medium transition-colors",
                   emailBlurred && !isValidEmail(email) && email.length > 0
                     ? "border-red-500 border-2"
-                    : "border-gray-300"
+                    : "border-white/70"
                 )}
               />
               {emailBlurred && !isValidEmail(email) && email.length > 0 && (
@@ -335,7 +335,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                 placeholder="Password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2.5 rounded-2xl bg-gray-100 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium"
+                className="w-full px-4 py-2.5 rounded-2xl bg-white/90 border border-white/70 focus:outline-none focus:ring-2 focus:ring-black/10 text-sm font-medium"
               />
             </div>
             
@@ -413,9 +413,9 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
 
             {/* OR divider */}
             <div className="flex items-center my-4">
-              <div className="flex-1 h-px bg-gray-300"></div>
-              <div className="px-4 text-xs text-gray-500">OR</div>
-              <div className="flex-1 h-px bg-gray-300"></div>
+              <div className="flex-1 h-px bg-white/60"></div>
+              <div className="px-4 text-xs text-gray-700">OR</div>
+              <div className="flex-1 h-px bg-white/60"></div>
             </div>
 
             {/* Continue with Google */}
@@ -423,7 +423,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
               onClick={() => {
                 window.location.href = '/api/auth/google/start?state=login';
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-gray-100 text-gray-800 rounded-full border border-gray-300 hover:bg-gray-200 transition-colors text-sm"
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-white text-black rounded-full border border-white/70 hover:bg-white/90 transition-colors text-sm"
             >
               <Image src="/google.svg" alt="Google" width={18} height={18} />
               <span className="font-medium">Continue with Google</span>
@@ -431,18 +431,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
           </div>
         </div>
         
-        {/* Right side - San Francisco image */}
-        <div className="hidden md:flex flex-1 justify-center items-center p-2">
-          <div className="relative w-full h-full">
-            <Image 
-              src="/san-fran.jpg"
-              alt="San Francisco skyline"
-              fill
-              className="object-cover rounded-3xl"
-              priority
-            />
-          </div>
-        </div>
+        {/* Removed right-side image to keep modal clean and centered */}
       </div>
     </div>
   );

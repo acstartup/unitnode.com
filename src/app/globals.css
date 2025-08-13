@@ -150,10 +150,10 @@
     visibility: visible !important;
   }
   
-  /* Keep text darkened when hovering dropdown */
+  /* Keep dropdown trigger text white on hover */
   [data-hover="dropdown"]:hover button,
   [data-hover="dropdown"].hover-intent button {
-    color: var(--foreground) !important;
+    color: white !important;
   }
 
   /* Add a small gap above the dropdown to prevent accidental closing */
@@ -166,9 +166,9 @@
     height: 10px;
   }
   
-  /* Add a visual connector between dropdown and button */
+  /* Hide connector entirely */
   .group:hover .dropdown-connector {
-    opacity: 1;
+    opacity: 0 !important;
   }
   
   .dropdown-connector {
@@ -178,8 +178,10 @@
     transform: translateX(-50%);
     width: 10px;
     height: 10px;
-    background-color: white;
-    opacity: 0;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0;
+    opacity: 0 !important;
     transition: opacity 0.2s ease;
   }
 }

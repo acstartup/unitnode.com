@@ -39,8 +39,8 @@ export function Navbar() {
     return (
         <header
             className={cn(
-                "fixed left-1/2 -translate-x-1/2 top-0 z-50 transition-all duration-300 w-11/12 max-w-6xl mt-3 rounded-lg border border-gray-300 bg-white/95 backdrop-blur-sm shadow-xs",
-                isScrolled ? "bg-white/95" : "bg-white/95"
+                "fixed left-1/2 -translate-x-1/2 top-0 z-50 transition-all duration-300 w-11/12 max-w-6xl mt-3 rounded-lg border border-white/40 bg-white/20 backdrop-blur-md shadow-xs",
+                isScrolled ? "bg-white/30" : "bg-white/20"
             )}
         >
             <div className="px-3">
@@ -61,9 +61,9 @@ export function Navbar() {
 
                     {/* Navigation Links - with dropdowns */}
                     <nav className="hidden md:flex flex-1 items-center justify-center space-x-6">
-                        {/* Product Dropdown */}
+                    {/*
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-gray-600 group-hover:text-gray-900 font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className="text-white group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
                                 Product
                                 <svg width="8" height="5" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-200 group-hover:rotate-180">
                                     <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -71,9 +71,8 @@ export function Navbar() {
                                 <span className="dropdown-connector"></span>
                             </button>
                             
-                            {/* Product Dropdown menu */}
                             <div className="dropdown-menu absolute -left-22 top-full mt-5 w-64 rounded-lg bg-white/80 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
-                                {/* Invisible area to prevent dropdown from closing when moving mouse */}
+                                Invisible area to prevent dropdown from closing when moving mouse
                                 <div className="absolute h-5 -top-5 left-0 right-0"></div>
                                 <div className="py-0.5">
                                     <a href="/login" className="flex items-start px-3.5 py-1.5 rounded-md m-0.5 transition-colors group/item">
@@ -94,10 +93,10 @@ export function Navbar() {
                                 </div>
                             </div>
                         </div>
-                        
+                    */}   
                         {/* Resources Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-gray-600 group-hover:text-gray-900 font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className="text-white group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
                                 Resources
                                 <svg width="8" height="5" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-200 group-hover:rotate-180">
                                     <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -128,7 +127,7 @@ export function Navbar() {
 
                         {/* Help Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-gray-600 group-hover:text-gray-900 font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className="text-white group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
                                 Help
                                 <svg width="8" height="5" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-200 group-hover:rotate-180">
                                     <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -157,7 +156,7 @@ export function Navbar() {
                             </div>
                         </div>
                     
-                        <Link href="/pricing" className="text-gray-600 hover:text-gray-900 font-sm">
+                        <Link href="/pricing" className="text-white hover:text-white font-sm">
                             Pricing
                         </Link>
                     </nav>
@@ -166,7 +165,7 @@ export function Navbar() {
                     <div className="hidden md:flex items-center space-x-1 pr-4">
                         <button
                             onClick={() => openLoginModal()}
-                            className="text-sm text-gray-600 hover:text-gray-900 px-1.5 py-1 bg-transparent border-none cursor-pointer"
+                            className="text-sm text-white hover:text-white px-1.5 py-1 bg-transparent border-none cursor-pointer"
                         >
                             Login
                         </button>
@@ -182,7 +181,7 @@ export function Navbar() {
 
                     {/* Mobile menu button - hidden on desktop */}
                     <div className="md:hidden ml-auto">
-                        <button className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer">
+                        <button className="p-2 rounded-md text-white hover:text-white hover:bg-white/10 cursor-pointer">
                             <span className="sr-only">Open menu</span>
                             {/* Simple hamburger icon */}
                             <svg
