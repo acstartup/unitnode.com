@@ -96,11 +96,8 @@ export function Navbar() {
                     */}   
                         {/* Resources Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-white group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className="text-white/60 group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
                                 Resources
-                                <svg width="8" height="5" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-200 group-hover:rotate-180">
-                                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
                                 <span className="dropdown-connector"></span>
                             </button>
                             
@@ -127,11 +124,8 @@ export function Navbar() {
 
                         {/* Help Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-white group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
+                            <button className="text-white/60 group-hover:text-white font-sm flex items-center gap-1 cursor-pointer relative">
                                 Help
-                                <svg width="8" height="5" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg" className="transition-transform duration-200 group-hover:rotate-180">
-                                    <path d="M1 1L5 5L9 1" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
                                 <span className="dropdown-connector"></span>
                             </button>
                             
@@ -156,7 +150,7 @@ export function Navbar() {
                             </div>
                         </div>
                     
-                        <Link href="/pricing" className="text-white hover:text-white font-sm">
+                        <Link href="/pricing" className="text-white/60 hover:text-white font-sm">
                             Pricing
                         </Link>
                     </nav>
