@@ -34,7 +34,7 @@ export default function Home() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
           </span> {/* Update Launch Date - check with Varun*/}
-          UnitNode launching MVP 11/30/25... 
+          UnitNode launching MVP 1/30/25... 
         </div>
         <TypingAnimation 
           text="Property management on autopilot."
