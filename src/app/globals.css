@@ -133,7 +133,9 @@
     @apply border-border outline-ring/50;
   }
   html, body {
-    @apply bg-background text-foreground overflow-hidden h-full;
+    @apply bg-background text-foreground min-h-screen overflow-auto;
+    /* Reserve space for the scrollbar to prevent layout shift/alignment issues */
+    scrollbar-gutter: stable both-edges;
   }
   
   /* Add pointer cursor to all clickable elements */
@@ -150,10 +152,10 @@
     visibility: visible !important;
   }
   
-  /* Keep dropdown trigger text white on hover */
+  /* Let dropdown trigger text color follow utility classes (e.g., hover:text-black) */
   [data-hover="dropdown"]:hover button,
   [data-hover="dropdown"].hover-intent button {
-    color: white !important;
+    color: inherit;
   }
 
   /* Add a small gap above the dropdown to prevent accidental closing */
