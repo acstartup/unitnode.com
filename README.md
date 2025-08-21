@@ -6,6 +6,10 @@
 
 UnitNode is a property management software that aims to automate tasks for real estate property managers. By automating entire workflows (e.g. automatically: importing water bills, notifying tenants in their preferred langauge), UnitNode saves property managers several hours a day, making property management an efficient up-to-date process.
 
+## 💡 Vision
+
+UnitNode aims to transform property management by leveraging AIs, APIs, and a simplified system to make property management software actually save hours rather than extend and allow universal accessibility through multilingual software and communication. "Property Management on Autopilot."
+
 ## 🎯 Core Features (MVP)
 
 - **Automated Utility Importation**: Forwards and parses utility emails extracting necessary information into PM database
@@ -57,10 +61,6 @@ npm run prisma:migrate
 # Start the development server
 npm run dev
 ```
-
-## 💡 Vision
-
-UnitNode aims to transform property management by leveraging AIs, APIs, and a simplified system to make property management software actually save hours rather than extend and allow universal accessibility through multilingual software and communication. "Property Management on Autopilot."
 
 ## 🌐 Deployment
 
