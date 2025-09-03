@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="public/unitnode-full-whitebg.png" alt="UnitNode Logo" width="400"/>
+  <img src="public/unitnode-full-whitebg.png" alt="UnitNode Logo" width="1200"/>
 </div>
 
 # UnitNode - Property Management on Autopilot. 🏢
