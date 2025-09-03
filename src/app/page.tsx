@@ -37,13 +37,13 @@ export default function Home() {
           UnitNode launching MVP 1/30/25... 
         </div>
         <TypingAnimation 
-          text="Property management on autopilot."
+          text="Where real estate runs itself."
           className="text-white text-4xl md:text-4xl lg:text-6xl font-bold tracking-tight text-center drop-shadow"
           speed={40}
           cursorHeight="h-12"
         />
         <p className="text-white text-sm md:text-base max-w-2xl mx-auto text-center mt-6 drop-shadow font-semibold">
-          UnitNode is a property management software that automates entire workflows—from importing water-bills to notifying tenants in their preferred language.
+          UnitNode is the first AI-powered operations hub where real estate runs itself—automating and simplifying property management by connecting owners, contractors, and tenants, eliminating the need for a traditional manager.
         </p>
       </section>
 
