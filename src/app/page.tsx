@@ -16,7 +16,7 @@ export default function Home() {
       <Navbar />
       <AutoLoginOpener />
       
-      {/* Hero section with typing animation */}
+      {/* Hero section wunitnith typing animation */}
       {/* 
         Margin lines (commented out):
         - Use these classes to add margin if scrolling is re-enabled
@@ -34,7 +34,7 @@ export default function Home() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
           </span> {/* Update Launch Date - check with Varun*/}
-          UnitNode launching MVP 1/30/25... 
+          UnitNode launching MVP 1/30/25... (re-launch in TypeScript)
         </div>
         <TypingAnimation 
           text="Where real estate runs itself."
@@ -43,7 +43,7 @@ export default function Home() {
           cursorHeight="h-12"
         />
         <p className="text-white text-sm md:text-base max-w-2xl mx-auto text-center mt-6 drop-shadow font-semibold">
-          UnitNode is the first AI-powered operations hub where real estate runs itself—automating and simplifying property management by connecting owners, contractors, and tenants, eliminating the need for a traditional manager.
+          UnitNode is the first AI-powered operations hub where real estate runs itself—automating and simplifying property management by connecting owners, contractors, and tenants, eliminating the need for a traditional manager. With UnitNode, owners can be the property manager.
         </p>
       </section>
 
