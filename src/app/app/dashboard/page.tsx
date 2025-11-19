@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Sidebar from '@/components/sidebar';
 
 interface User {
   id: string;
@@ -47,7 +48,7 @@ export default function Dashboard() {
   // Blank white page dashboard
   return (
     <div className="min-h-screen bg-white">
-      {/* Intentionally left blank */}
+      < Sidebar />
     </div>
   );
 }
