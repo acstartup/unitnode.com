@@ -9,7 +9,7 @@ interface ImageBackgroundProps {
   opacity?: number; // optional overlay opacity 0..1
 }
 
-export function ImageBackground({ src = "/image4.png", className, opacity = 1 }: ImageBackgroundProps) {
+export function ImageBackground({ src = "/philadelphia-homepage.png", className, opacity = 1 }: ImageBackgroundProps) {
   const style: CSSProperties = {
     backgroundImage: `url(${src})`,
     backgroundSize: "cover",
