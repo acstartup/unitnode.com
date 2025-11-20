@@ -100,17 +100,18 @@ export function Navbar() {
                     */}   
 						{/* Resources Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className={cn(
+                            {/* <button className={cn(
                                 "font-sm flex items-center gap-1 cursor-pointer relative",
                                 pathname?.startsWith("/updates") ? "text-black" : "text-black/60 hover:text-black group-hover:text-black focus:text-black"
                             )}>
                                 Resources
                                 <span className="dropdown-connector"></span>
                             </button>
-                            
+                            */}
                             {/* Resources Dropdown menu */}
                             <div className="dropdown-menu absolute -left-13 top-full mt-5 w-54 rounded-lg bg-white/80 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                                 {/* Invisible area to prevent dropdown from closing when moving mouse */}
+                                
                                 <div className="absolute h-5 -top-5 left-0 right-0"></div>
                                 <div className="py-0.5">
                                     <a href="/updates" className="flex items-start px-3.5 py-1.5 rounded-md m-0.5 transition-colors group/item">
@@ -132,11 +133,11 @@ export function Navbar() {
 
 						{/* Help Dropdown */}
                         <div className="relative group" data-hover="dropdown">
-                            <button className="text-black/60 hover:text-black group-hover:text-black focus:text-black font-sm flex items-center gap-1 cursor-pointer relative">
+                            {/* <button className="text-black/60 hover:text-black group-hover:text-black focus:text-black font-sm flex items-center gap-1 cursor-pointer relative">
                                 Help
                                 <span className="dropdown-connector"></span>
                             </button>
-                            
+                            */}
                             {/* Help Dropdown Menu*/}
                             <div className="dropdown-menu absolute -left-20 top-full mt-5 w-52 rounded-lg bg-white/80 backdrop-blur-xl shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50">
                                 {/* Invisible area to prevent dropdown from closing when moving mouse */}
@@ -175,9 +176,10 @@ export function Navbar() {
                             </div>
                         </div>
                     
-						<Link href="/pricing" className="text-black/60 hover:text-black font-sm">
+						{/* <Link href="/pricing" className="text-black/60 hover:text-black font-sm">
                             Pricing
                         </Link>
+                        */}
                     </nav>
 
                     {/* Auth Buttons - reduced left margin */}
