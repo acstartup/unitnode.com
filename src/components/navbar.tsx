@@ -16,7 +16,7 @@ export function Navbar() {
     const [hoverTimeout] = useState<number | null>(null);
     // Access modal functions
     const { openSignupModal, openLoginModal } = useModal();
-    {/* const pathname = usePathname(); */}
+    const pathname = usePathname();
 
     // Handle scroll events to change navbar appearance
     useEffect(() => {
