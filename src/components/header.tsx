@@ -1,7 +1,14 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
+
 export default function Header() {
+    const pathname = usePathname();
+
+    const isActive = (path: string) => pathname === path;
+
     return (
+
         <header className="h-12 bg-white flex items-center px-6 sticky">
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl">
@@ -34,11 +41,15 @@ export default function Header() {
             <div className="ml-115 flex items-center">
                 <a
                     href="/app/settings"
-                    className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="Settings"
                 >
                     <svg
-                    className="h-5 w-5 text-gray-600"
+                    className={`h-5 w-5 ${
+                        isActive('/app/settings')
+                            ? 'text-gray-900'
+                            : 'text-gray-600'
+                    }`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
