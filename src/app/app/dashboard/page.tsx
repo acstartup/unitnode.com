@@ -48,7 +48,6 @@ export default function Dashboard() {
   // Blank white page dashboard
   return (
     <div className="min-h-screen bg-white">
-      < Sidebar />
     </div>
   );
 }
