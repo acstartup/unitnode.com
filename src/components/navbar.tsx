@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/button";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+{/* import { usePathname } from "next/navigation"; */}
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/modal-provider";
 
@@ -16,7 +16,7 @@ export function Navbar() {
     const [hoverTimeout] = useState<number | null>(null);
     // Access modal functions
     const { openSignupModal, openLoginModal } = useModal();
-    const pathname = usePathname();
+    {/* const pathname = usePathname(); */}
 
     // Handle scroll events to change navbar appearance
     useEffect(() => {

@@ -8,11 +8,11 @@ export default function Sidebar() {
     const isActive = (path: string) => pathname === path;
 
     return (
-        <aside className="h-screen w-64 bg-white border-r border-gray-400 text-black flex flex-col">
+        <aside className="h-screen w-60 bg-white border-r border-gray-400 text-black flex flex-col">
             {/* Sidebar header */}
             { /* logo area */}
             {/* "div" because it is boxes (less critical) than critical side ("aside") information*/}
-            <div className ="px-6 py-5">
+            <div className ="px-4 py-5">
                 <h1 className="text-xl font-semibold text-gray-900">UnitNode</h1>
             </div>
 
