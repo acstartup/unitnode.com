@@ -32,7 +32,8 @@ export default function Header() {
 
             {/* right side: settings icon*/}
             <div className="ml-115 flex items-center">
-                <button
+                <a
+                    href="/app/settings"
                     className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="Settings"
                 >
@@ -54,7 +55,7 @@ export default function Header() {
                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                     </svg>
-                </button>
+                </a>
             </div>
         </header>
     )
