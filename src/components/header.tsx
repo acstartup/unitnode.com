@@ -11,7 +11,7 @@ export default function Header() {
 
     return (
 
-        <header className="h-12 bg-white flex items-center px-6 sticky">
+        <header className="h-12 bg-white flex items-center px-8 sticky">
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl">
                 <div className="relative">
@@ -40,7 +40,7 @@ export default function Header() {
             </div>
 
             {/* right side: settings icon*/}
-            <div className="ml-115 flex items-center">
+            <div className="ml-115 flex items-center gap-3 px-2">
                 <div className="relative group">
                     <a
                         href="/app/settings"
@@ -58,7 +58,8 @@ export default function Header() {
                         viewBox="0 0 24 24"
                     >
                         <path
-                            strokeLinecap="round"                                strokeLinejoin="round"
+                            strokeLinecap="round"                                
+                            strokeLinejoin="round"
                             strokeWidth={2}
                             d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
                         />
@@ -79,7 +80,7 @@ export default function Header() {
               
               {/* Circle Plus Command Center Icon */}
                 <button
-                    className="hover:opacity-80 transition-opacity relative"
+                    className="block p-1.5 rounded-full hover:bg-gray-100 transition-colors hover:opacity-80 transition-opacity relative group"
                     aria-label="Add"
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
@@ -101,6 +102,11 @@ export default function Header() {
                             strokeLinecap="round"
                         />
                     </svg>
+
+                    {/* Custom Setting Tooltip */}
+                    <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                        Command
+                    </span>
 
                     {/* Dropdown Menu for Command Center*/}
                     {isDropdownOpen && (
