@@ -30,8 +30,8 @@ export default function Header() {
                 </div>
             </div>
 
-            {/* right side: settings icon*/}
-            <div className="ml-115 flex items-center">
+            <div className="ml-115 flex items-center gap-3">
+                {/* right side: settings icon*/}
                 <button
                     className="p-1 rounded-full hover:bg-gray-100 transition-colors"
                     aria-label="Settings"
@@ -55,6 +55,32 @@ export default function Header() {
                     />
                     </svg>
                 </button>
+                
+                {/* Circle Plus Command Center Icon */}
+                <button
+                    className="hover:opacity-80 transition-opacity"
+                    aria-label="Add"
+                >
+                    <svg
+                        className="h-6 w-6"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            fill="black"
+                        />
+                        <path
+                            d="M12 8v8M8 12h8"
+                            stroke="white"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                        />
+                    </svg>
+                </button>
+
             </div>
         </header>
     )
