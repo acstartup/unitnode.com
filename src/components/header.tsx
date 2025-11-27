@@ -1,10 +1,12 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Header() {
     const pathname = usePathname();
-
+  
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
 
     return (
@@ -74,7 +76,61 @@ export default function Header() {
                         Settings
                     </span>
                 </div>
-            
+              
+              {/* Circle Plus Command Center Icon */}
+                <button
+                    className="hover:opacity-80 transition-opacity relative"
+                    aria-label="Add"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                >
+                    <svg
+                        className="h-6 w-6"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                    >
+                        <circle
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            fill="black"
+                        />
+                        <path
+                            d="M12 8v8M8 12h8"
+                            stroke="white"
+                            strokeWidth={2}
+                            strokeLinecap="round"
+                        />
+                    </svg>
+
+                    {/* Dropdown Menu for Command Center*/}
+                    {isDropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                            {/* Add Property BUtton */}
+                            <div className="w-full px-4 y-2 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left">
+                                <svg
+                                    className="h-4.5 w-4.5 flex-shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        fill="white"
+                                    />
+                                    <path
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                        stroke="black"
+                                        strokeWidth={2}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                <span className="text-sm text-black">Add property</span>
+                            </div>
+                        </div>
+                    )}
+                </button>
             </div>
         </header>
     )
