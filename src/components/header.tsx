@@ -1,13 +1,30 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 export default function Header() {
     const pathname = usePathname();
   
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current?.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        }
+
+        if (isDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [isDropdownOpen]);
 
     return (
 
@@ -78,42 +95,44 @@ export default function Header() {
                     </span>
                 </div>
               
-              {/* Circle Plus Command Center Icon */}
-                <button
-                    className="block p-1.5 rounded-full hover:bg-gray-100 transition-colors hover:opacity-80 transition-opacity relative group"
-                    aria-label="Add"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                    <svg
-                        className="h-6 w-6"
-                        viewBox="0 0 24 24"
-                        fill="none"
+                {/* Circle Plus Command Center Icon */}
+                <div ref={dropdownRef} className="relative">
+                    <button
+                        className="block p-1.5 rounded-full hover:bg-gray-100 transition-colors hover:opacity-80 transition-opacity relative group"
+                        aria-label="Add"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        <circle
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            fill="black"
-                        />
-                        <path
-                            d="M12 8v8M8 12h8"
-                            stroke="white"
-                            strokeWidth={2}
-                            strokeLinecap="round"
-                        />
-                    </svg>
+                        <svg
+                            className="h-6 w-6"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                fill="black"
+                            />
+                            <path
+                                d="M12 8v8M8 12h8"
+                                stroke="white"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                            />
+                        </svg>
 
-                    {/* Custom Command Tooltip */}
-                    {!isDropdownOpen && (
-                        <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                            Command
-                        </span>
-                    )}
-                    
+                        {/* Custom Command Tooltip */}
+                        {!isDropdownOpen && (
+                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                                Command
+                            </span>
+                        )}
+                    </button> 
+
                     {/* Dropdown Menu for Command Center*/}
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-3 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                            {/* Add Property BUtton */}
+                        <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                            {/* Add Property Button */}
                             <button className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
                                 <svg
                                     className="h-4.5 w-4.5 flex-shrink-0"
@@ -138,7 +157,7 @@ export default function Header() {
                             </button>
                         </div>
                     )}
-                </button>
+                </div>
             </div>
         </header>
     )
