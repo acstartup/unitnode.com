@@ -98,7 +98,9 @@ export default function Header() {
                 {/* Circle Plus Command Center Icon */}
                 <div ref={dropdownRef} className="relative">
                     <button
-                        className="block p-1.5 rounded-full hover:bg-gray-100 transition-colors hover:opacity-80 transition-opacity relative group"
+                        className={`block p-1.5 rounded-full hover:bg-gray-100 transition-colors hover:opacity-80 transition-opacity relative group ${
+                            isDropdownOpen ? 'bg-gray-100' : 'hover:bg-gray-100'
+                        }`}
                         aria-label="Add"
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
