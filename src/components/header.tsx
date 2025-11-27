@@ -2,11 +2,13 @@
 
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
+import AddPropertyOverlay from './overlays/app-property';
 
 export default function Header() {
     const pathname = usePathname();
   
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -135,7 +137,13 @@ export default function Header() {
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                             {/* Add Property Button */}
-                            <button className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                            <button 
+                                onClick={() => {
+                                    setIsAddPropertyOpen(true);
+                                    setIsDropdownOpen(false);
+                                }}
+                                className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md"
+                            >
                                 <svg
                                     className="h-4.5 w-4.5 flex-shrink-0"
                                     viewBox="0 0 24 24"
@@ -157,6 +165,10 @@ export default function Header() {
                                 </svg>
                                 <span className="text-sm text-black">Add property</span>
                             </button>
+                            <AddPropertyOverlay
+                                isOpen={isAddPropertyOpen}
+                                onClose={() => setIsAddPropertyOpen(false)}
+                            />
                         </div>
                     )}
                 </div>
