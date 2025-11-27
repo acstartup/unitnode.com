@@ -165,12 +165,14 @@ export default function Header() {
                                 </svg>
                                 <span className="text-sm text-black">Add property</span>
                             </button>
-                            <AddPropertyOverlay
-                                isOpen={isAddPropertyOpen}
-                                onClose={() => setIsAddPropertyOpen(false)}
-                            />
                         </div>
                     )}
+
+                    <AddPropertyOverlay
+                                isOpen={isAddPropertyOpen}
+                                onClose={() => setIsAddPropertyOpen(false)}
+                    />
+                    
                 </div>
             </div>
         </header>
