@@ -87,9 +87,30 @@ export default function Header() {
 
                     {/* Dropdown Menu for Command Center*/}
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                            {/* Dropdown Content*/}
-                            <div className="p-4">Content</div>
+                        <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                            {/* Add Property BUtton */}
+                            <div className="w-full px-4 y-2 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left">
+                                <svg
+                                    className="h-4.5 w-4.5 flex-shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                >
+                                    <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        fill="white"
+                                    />
+                                    <path
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                                        stroke="black"
+                                        strokeWidth={2}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                <span className="text-sm text-black">Add property</span>
+                            </div>
                         </div>
                     )}
                 </button>
