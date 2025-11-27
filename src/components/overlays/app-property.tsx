@@ -25,7 +25,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="px-6 py-4 border-gray-200">
+                    <div className="px-4 py-4 border-gray-200">
                         <h2 className="text-md font-semibold text-gray-900">Add property</h2>
                     </div>
                     {/* Close Button */}
@@ -50,7 +50,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                     </button>
 
                     {/* Form Content */}
-                    <div className="px-6 py-2">
+                    <div className="px-4 py-2">
                         <div className="mb-2">
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Property address
@@ -58,9 +58,24 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                             <input
                                 type="text"
                                 className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="123 Acme St"
+                                placeholder="123 Main Street, Apt 4B, Anytown, CA 90210, USA"
                             />
                         </div>
+                    </div>
+
+                    {/* Footer Button */}
+                    <div className="absolute bottom-0 left-0 right-0 px-4 py-4 border-gray-200 flex justify-end gap-3">
+                        <button
+                            onClick={onClose}
+                            className="px-3 py-1 bg-white border border-gray-300 text-gray-700 text-sm font-small rounded-md hover:bg-gray-50 transition-colors"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 transition-colors"
+                        >
+                            Add property
+                        </button>
                     </div>
                 </div>
             </div>
