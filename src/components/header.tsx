@@ -1,6 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+
 export default function Header() {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+
     return (
         <header className="h-12 bg-white flex items-center px-6 sticky">
             {/* Search Bar */}
@@ -58,8 +62,9 @@ export default function Header() {
                 
                 {/* Circle Plus Command Center Icon */}
                 <button
-                    className="hover:opacity-80 transition-opacity"
+                    className="hover:opacity-80 transition-opacity relative"
                     aria-label="Add"
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 >
                     <svg
                         className="h-6 w-6"
@@ -79,8 +84,15 @@ export default function Header() {
                             strokeLinecap="round"
                         />
                     </svg>
-                </button>
 
+                    {/* Dropdown Menu for Command Center*/}
+                    {isDropdownOpen && (
+                        <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                            {/* Dropdown Content*/}
+                            <div className="p-4">Content</div>
+                        </div>
+                    )}
+                </button>
             </div>
         </header>
     )
