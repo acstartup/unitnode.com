@@ -21,7 +21,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
             {/* Overlay Content */}
             <div className="fixed inset-0 z-2 flex items-center justify-center p-4 pointer-events-none">
                 <div
-                    className="bg-white border shadow-lg rounded-lg w-full max-w-2xl h-96 pointer-events-auto animate-in fade-in zoom-in-95 duration-200 relative"
+                    className="bg-white border shadow-lg rounded-lg w-full max-w-xl h-96 pointer-events-auto animate-in fade-in zoom-in-95 duration-200 relative"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -48,6 +48,20 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                             />
                         </svg>
                     </button>
+
+                    {/* Form Content */}
+                    <div className="px-6 py-2">
+                        <div className="mb-2">
+                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                                Property address
+                            </label>
+                            <input
+                                type="text"
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="123 Acme St"
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
         </>
