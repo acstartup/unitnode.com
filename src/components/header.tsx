@@ -103,11 +103,13 @@ export default function Header() {
                         />
                     </svg>
 
-                    {/* Custom Setting Tooltip */}
-                    <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                        Command
-                    </span>
-
+                    {/* Custom Command Tooltip */}
+                    {!isDropdownOpen && (
+                        <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                            Command
+                        </span>
+                    )}
+                    
                     {/* Dropdown Menu for Command Center*/}
                     {isDropdownOpen && (
                         <div className="absolute right-0 mt-3 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
