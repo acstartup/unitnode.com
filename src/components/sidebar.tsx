@@ -35,14 +35,6 @@ export default function Sidebar() {
                 >
                     Properties
                 </a>
-                <a href="/app/settings" className={`flex items-center px-3 py-2 text-sm rounded-md hover:bg-gray-100 ${
-                    isActive('/app/settings')
-                        ? 'font-bold text-gray-900'
-                        : 'font-medium text-gray-600'
-                    }`}
-                >
-                    Settings
-                </a>
             </nav>
         </aside>
     )
