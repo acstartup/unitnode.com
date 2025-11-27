@@ -24,6 +24,10 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                     className="bg-white border shadow-lg rounded-lg w-full max-w-2xl h-96 pointer-events-auto animate-in fade-in zoom-in-95 duration-200 relative"
                     onClick={(e) => e.stopPropagation()}
                 >
+                    {/* Header */}
+                    <div className="px-6 py-4 border-gray-200">
+                        <h2 className="text-md font-semibold text-gray-900">Add property</h2>
+                    </div>
                     {/* Close Button */}
                     <button
                         onClick={onClose}
