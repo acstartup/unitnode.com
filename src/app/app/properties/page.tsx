@@ -7,7 +7,7 @@ export default function Properties(){
     const { properties } = useProperties();
 
     return (
-        <div className="min-h-screen w-full bg-white">
+        <div className="w-full bg-white">
             {/* Page Header */}
             <div className="mb-1">
                 <h1 className="text-3xl font-semibold text-gray-900 px-8 py-8">Properties</h1>
