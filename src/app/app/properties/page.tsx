@@ -1,8 +1,11 @@
 'use client';
 
+import { useProperties } from '@/contexts/PropertyContext';
 import React from 'react';
 
 export default function Properties(){
+    const { properties } = useProperties();
+
     return (
         <div className="min-h-screen w-full bg-white">
             {/* Page Header */}
@@ -30,9 +33,15 @@ export default function Properties(){
                             </th>
                         </tr>
                     </thead>
-                    {/* Table Body - Empty till connection */}
-                    <tbody className="bg-white divid-y divide-gray-200">
-                        {/* Rows will be added here */}
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {properties.map((property) => (
+                            <tr key={property.id}>
+                                <td className="px-4 py-3 text-sm text-gray-900">{property.address}</td>
+                                <td className="px-4 py-3 text-sm text-gray-900">{property.mainTenant}</td>
+                                <td className="px-4 py-3 text-sm text-gray-900">{property.rent}</td>
+                                <td className="px-4 py-3 text-sm text-gray-900">{property.occupied ? 'Yes' : 'No'}</td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
             </div>

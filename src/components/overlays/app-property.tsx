@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
 import PlacesAutocomplete from '../PlacesAutocomplete';
+import { useProperties } from '@/contexts/PropertyContext';
 
 interface AddPropertyOverlayProps {
     isOpen: boolean;
@@ -13,6 +14,7 @@ const libraries: ("places")[] = ["places"];
 
 export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverlayProps) {
     const [address, setAddress] = useState('');
+    const { addProperty } = useProperties();
 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -21,8 +23,22 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
    
     if (!isOpen) return null;
 
-    const handleAddressSelect = (selectedAddress: string) => {
-        setAddress(selectedAddress);
+    const handleSubmit = () => {
+        if (!address.trim()) {
+            alert('Please enter an address');
+            return;
+        }
+
+        addProperty({
+            address: address.trim(),
+            mainTenant: 'N/A',
+            rent: 0,
+            occupied: false,
+            createdAt: new Date(),
+        })
+
+        setAddress('');
+        onClose();
     }
 
     return (
@@ -74,7 +90,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                                 <PlacesAutocomplete
                                     value={address}
                                     onChange={setAddress}
-                                    onSelect={handleAddressSelect}
+                                    onSelect={setAddress}
                                 />
                             ) : (
                                 <input
@@ -96,6 +112,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                             Cancel
                         </button>
                         <button
+                            onClick={handleSubmit}
                             className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 transition-colors"
                         >
                             Add property
