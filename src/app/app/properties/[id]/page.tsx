@@ -1,10 +1,11 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { useProperties } from '@/contexts/PropertyContext';
 
 export default function PropertyDetailsPage() {
     const params = useParams();
+    const router = useRouter();
     const { properties } = useProperties();
     const propertyId = params.id as string;
 
@@ -15,7 +16,12 @@ export default function PropertyDetailsPage() {
             {/* Breadcrumbs */}
             <div className="px-8 pt-8 pb-1">
                 <div className="flex items-center text-sm text-gray-500 font-semibold">
-                    <span>{property?.address || 'Loading...'}</span>
+                    <button
+                        onClick={() => router.push('/app/properties')}
+                        className="hover:text-gray-700 transition-colors"
+                    >
+                        {property?.address || 'Loading...'}
+                    </button>
                     <svg
                         className="h-4 w-4 mx-2"
                         fill="none"
@@ -28,7 +34,7 @@ export default function PropertyDetailsPage() {
                             strokeWidth={2}
                             d="M9 5l7 7-7 7"
                         />
-                    </svg>              
+                    </svg>    
                 </div>
             </div>
 
