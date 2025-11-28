@@ -34,7 +34,6 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
             mainTenant: 'N/A',
             rent: 0,
             occupied: false,
-            createdAt: new Date(),
         })
 
         setAddress('');
