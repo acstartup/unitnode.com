@@ -2,9 +2,15 @@
 
 import { useProperties } from '@/contexts/PropertyContext';
 import React from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function Properties(){
     const { properties } = useProperties();
+    const router = useRouter();
+
+    const handleViewDetails = (propertyId: string) => {
+        router.push(`/app/properties/${propertyId}`);
+    }
 
     return (
         <div className="w-full bg-white">
@@ -43,6 +49,7 @@ export default function Properties(){
                                 <td className="px-4 py-1 text-right">
                                     <div className="relative group inline-block">                                        
                                         <button
+                                            onClick={() => handleViewDetails(property.id)}
                                             className="p-1 rounded-2xl hover:bg-gray-100 transition-colors"
                                             aria-label="Actions"
                                         >
