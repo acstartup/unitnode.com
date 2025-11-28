@@ -1,14 +1,29 @@
 'use client';
 
 import { useState } from 'react';
+import { useLoadScript } from '@react-google-maps/api';
+import PlacesAutocomplete from '../PlacesAutocomplete';
 
 interface AddPropertyOverlayProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
+const libraries: ("places")[] = ["places"];
+
 export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverlayProps) {
+    const [address, setAddress] = useState('');
+
+    const { isLoaded, loadError } = useLoadScript({
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
+        libraries,
+    })
+   
     if (!isOpen) return null;
+
+    const handleAddressSelect = (selectedAddress: string) => {
+        setAddress(selectedAddress);
+    }
 
     return (
         <>
@@ -55,11 +70,20 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Property address
                             </label>
-                            <input
-                                type="text"
-                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="123 Main Street, Apt 4B, Anytown, CA 90210, USA"
-                            />
+                            {isLoaded ? (
+                                <PlacesAutocomplete
+                                    value={address}
+                                    onChange={setAddress}
+                                    onSelect={handleAddressSelect}
+                                />
+                            ) : (
+                                <input
+                                    type="text"
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Loading..."
+                                    disabled
+                                />
+                            )}
                         </div>
                     </div>
 
