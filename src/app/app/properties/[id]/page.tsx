@@ -17,6 +17,11 @@ export default function PropertyDetailsPage() {
         { name: 'Jann Smith', phone: '(555) 987-6543', relation: 'Sister'}
     ]
 
+    // Placeholder utility data
+    const utility = [
+        { type: 'Rent', recurrence: 'Yearly', cost: '$120'}
+    ]
+
     return (
         <div className="w-full bg-white">
             {/* Breadcrumbs */}
@@ -62,8 +67,8 @@ export default function PropertyDetailsPage() {
                     <thead>
                         <tr className="border-b border-gray-200">
                             <th className="text-left py-1 pr-35 text-xs font-semibold text-gray-900">Name</th>
-                            <th className="text-left py-1 text-xs font-semi-bold text-gray-900">Phone</th>
-                            <th className="text-left py-1 pr-135 text-xs font-semi-bold text-gray-900">Relation</th>
+                            <th className="text-left py-1 text-xs font-semibold text-gray-900">Phone</th>
+                            <th className="text-left py-1 pr-135 text-xs font-semibold text-gray-900">Relation</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -72,6 +77,29 @@ export default function PropertyDetailsPage() {
                                 <td className="py-1 text-sm text-gray-900 font-semibold">{tenant.name}</td>
                                 <td className="py-1 text-sm text-gray-600">{tenant.phone}</td>
                                 <td className="py-1 text-sm text-gray-600">{tenant.relation}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {/* Utility */}
+                <h3 className="text-md font-medium text-gray-900 mx-1 pt-6 pb-4">Utility</h3>
+
+                {/* Utilities Table */}
+                <table className="mx-2 w-full">
+                    <thead>
+                        <tr className="border-b border-gray-200">
+                            <th className="text-left py-1 pr-25 text-xs font-semibold text-gray-900">Type</th>
+                            <th className="text-left py-1 pr-20 text-xs font-semibold text-gray-900">Recurrence</th>
+                            <th className="text-left py-1 pr-170 text-xs font-semibold text-gray-900">Cost</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {utility.map((utility, index) => (
+                            <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                <td className="py-1 text-sm text-gray-900 font-semibold">{utility.type}</td>
+                                <td className="py-1 text-sm text-gray-600">{utility.recurrence}</td>
+                                <td className="py-1 text-sm text-gray-600">{utility.cost}</td>
                             </tr>
                         ))}
                     </tbody>
