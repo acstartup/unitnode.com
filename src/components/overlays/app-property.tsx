@@ -111,7 +111,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                         <div>
                             <h2 className="text-sm font-semibold py-2 text-gray-900">Owner information</h2>
                             <label className="block text-sm font-medium text-gray-900 mb-2">
-                                Owner name
+                                Name
                             </label>
                             <input
                                 type="name"
@@ -125,7 +125,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                         {/* Owner Email */}
                         <div>
                             <label className="block text-sm font-medium text-gray-900 py-2">
-                                Owner email
+                                Email
                             </label>
                             <input
                                 type="email"
@@ -139,7 +139,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                         {/* Owner Phone */}
                         <div>
                             <label className="block text-sm font-medium text-gray-900 py-2">
-                                Owner phone
+                                Phone
                             </label>
                             <input
                                 type="phone"
