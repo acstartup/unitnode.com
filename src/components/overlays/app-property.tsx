@@ -14,6 +14,9 @@ const libraries: ("places")[] = ["places"];
 
 export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverlayProps) {
     const [address, setAddress] = useState('');
+    const [ownerName, setOwnerName] = useState('');
+    const [ownerEmail, setOwnerEmail] = useState('');
+    const [ownerPhone, setOwnerPhone] = useState('');
     const { addProperty } = useProperties();
 
     const { isLoaded, loadError } = useLoadScript({
@@ -37,6 +40,9 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
         })
 
         setAddress('');
+        setOwnerName('');
+        setOwnerEmail('');
+        setOwnerPhone('');
         onClose();
     }
 
@@ -51,7 +57,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
             {/* Overlay Content */}
             <div className="fixed inset-0 z-2 flex items-center justify-center p-4 pointer-events-none">
                 <div
-                    className="bg-white border shadow-lg rounded-lg w-full max-w-xl h-96 pointer-events-auto animate-in fade-in zoom-in-95 duration-200 relative"
+                    className="bg-white border shadow-lg rounded-lg w-full max-w-xl h-110 pointer-events-auto animate-in fade-in zoom-in-95 duration-200 relative"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -99,6 +105,49 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                                     disabled
                                 />
                             )}
+                        </div>
+
+                        {/* Owner Name */}
+                        <div>
+                            <h2 className="text-sm font-semibold py-2 text-gray-900">Owner information</h2>
+                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                                Owner name
+                            </label>
+                            <input
+                                type="name"
+                                value={ownerName}
+                                onChange={(e) => setOwnerName(e.target.value)}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="John Owner"
+                            />
+                        </div>
+
+                        {/* Owner Email */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-900 py-2">
+                                Owner email
+                            </label>
+                            <input
+                                type="email"
+                                value={ownerEmail}
+                                onChange={(e) => setOwnerEmail(e.target.value)}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="john.owner@example.com"
+                            />
+                        </div>
+
+                        {/* Owner Phone */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-900 py-2">
+                                Owner phone
+                            </label>
+                            <input
+                                type="phone"
+                                value={ownerPhone}
+                                onChange={(e) => setOwnerPhone(e.target.value)}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="(555) 123-4567"
+                            />
                         </div>
                     </div>
 

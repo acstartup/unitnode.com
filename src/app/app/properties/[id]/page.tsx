@@ -116,7 +116,7 @@ export default function PropertyDetailsPage() {
             </div>
 
             {/* Property Section */}
-            <div className="px-8 py-5">
+            <div className="px-8 py-4">
                 {/* Sub-header */}
                 <div className="space-y-3">
                     {/* Header with Edit button */}
