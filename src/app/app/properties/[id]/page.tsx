@@ -22,6 +22,11 @@ export default function PropertyDetailsPage() {
         { type: 'Rent', recurrence: 'Yearly', cost: '$120'}
     ]
 
+    // Placeholder owner data
+    const owner = [
+        { name: 'John Owner', email: 'john.owner@example.com', phone: '(555) 111-2222' }
+    ]
+
     return (
         <div className="w-full bg-white">
             {/* Breadcrumbs */}
@@ -54,7 +59,7 @@ export default function PropertyDetailsPage() {
                 <h1 className="text-3xl font-semibold text-gray-900 px-8">Property details</h1>
             </div>
 
-            {/* Lease */}
+            {/* Lease Section */}
             <div className="px-8 py-5">
                 {/* Sub-header: Lease */}
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">Lease</h2>
@@ -104,6 +109,33 @@ export default function PropertyDetailsPage() {
                         ))}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Property Section */}
+            <div className="px-8 py-5">
+                {/* Sub-header: */}
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Owner</h2>
+
+                {/* Owner Details */}
+                <div className="mx-2 space-y-4">
+                    {/* Name */}
+                    <div className="flex items-center py-3">
+                        <div className="w-48 text-sm font-medium text-gray-800">Name</div>
+                        <div className="flex-1 text-sm text-gray-600">{owner[0].name}</div>
+                    </div>
+
+                    {/* Email */}
+                    <div className="flex items-center py-3">
+                        <div className="w-48 text-sm font-medium text-gray-800">Email</div>
+                        <div className="flex-1 text-sm text-gray-600">{owner[0].email}</div>
+                    </div>
+
+                    {/* Phone */}
+                    <div className="flex items-center py-3">
+                        <div className="w-48 text-sm font-medium text-gray-800">Phone</div>
+                        <div className="flex-1 text-sm text-gray-600">{owner[0].phone}</div>
+                    </div>
+                </div>
             </div>
         </div>
     )
