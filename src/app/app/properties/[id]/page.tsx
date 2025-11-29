@@ -11,6 +11,12 @@ export default function PropertyDetailsPage() {
 
     const property = properties.find(p => p.id === propertyId);
 
+    // Placeholder tenant data
+    const tenants = [
+        { name: 'Jone Doe', phone: '(555) 123-4567', relation: 'Main'},
+        { name: 'Jann Smith', phone: '(555) 987-6543', relation: 'Sister'}
+    ]
+
     return (
         <div className="w-full bg-white">
             {/* Breadcrumbs */}
@@ -39,8 +45,37 @@ export default function PropertyDetailsPage() {
             </div>
 
             {/* Header */}
-            <div className="mb-1">
+            <div className="mb-0">
                 <h1 className="text-3xl font-semibold text-gray-900 px-8">Property details</h1>
+            </div>
+
+            {/* Lease */}
+            <div className="px-8 py-5">
+                {/* Sub-header: Lease */}
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Lease</h2>
+
+                {/* Sub-sub-header */}
+                <h3 className="text-md font-medium text-gray-900 mb-4 mx-1">Tenants</h3>
+
+                {/* Tenants Table */}
+                <table className="mx-2 w-full">
+                    <thead>
+                        <tr className="border-b border-gray-200">
+                            <th className="text-left py-1 pr-12 text-xs font-semibold text-gray-900">Name</th>
+                            <th className="text-left py-1 pr-5 text-xs font-semi-bold text-gray-900">Phone</th>
+                            <th className="text-left py-1 pr-60 text-xs font-semi-bold text-gray-900">Relation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {tenants.map((tenant, index) => (
+                            <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                <td className="py-1 text-sm text-gray-900 font-semibold">{tenant.name}</td>
+                                <td className="py-1 text-sm text-gray-600">{tenant.phone}</td>
+                                <td className="py-1 text-sm text-gray-600">{tenant.relation}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     )
