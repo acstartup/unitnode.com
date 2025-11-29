@@ -13,7 +13,7 @@ export default function PropertyDetailsPage() {
 
     // Placeholder tenant data
     const tenants = [
-        { name: 'Jone Doe', phone: '(555) 123-4567', relation: 'Main'},
+        { name: 'Aiden Timothy-John Potato', phone: '(555) 123-4567', relation: 'Main'},
         { name: 'Jann Smith', phone: '(555) 987-6543', relation: 'Sister'}
     ]
 
@@ -61,9 +61,9 @@ export default function PropertyDetailsPage() {
                 <table className="mx-2 w-full">
                     <thead>
                         <tr className="border-b border-gray-200">
-                            <th className="text-left py-1 pr-12 text-xs font-semibold text-gray-900">Name</th>
-                            <th className="text-left py-1 pr-5 text-xs font-semi-bold text-gray-900">Phone</th>
-                            <th className="text-left py-1 pr-60 text-xs font-semi-bold text-gray-900">Relation</th>
+                            <th className="text-left py-1 pr-35 text-xs font-semibold text-gray-900">Name</th>
+                            <th className="text-left py-1 text-xs font-semi-bold text-gray-900">Phone</th>
+                            <th className="text-left py-1 pr-135 text-xs font-semi-bold text-gray-900">Relation</th>
                         </tr>
                     </thead>
                     <tbody>
