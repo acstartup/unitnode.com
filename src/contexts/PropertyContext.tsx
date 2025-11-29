@@ -8,6 +8,9 @@ export interface Property {
     mainTenant: string;
     rent: number;
     occupied: boolean;
+    ownerName?: string;
+    ownerEmail?: string;
+    ownerPhone?: string;
     createdAt: Date;
 }
 
@@ -39,7 +42,7 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.success) {
-                        setProperties(data.properties.map((p: { id: string; address: string; mainTenant: string; rent: number; occupied: boolean; createdAt: string }) => ({
+                        setProperties(data.properties.map((p: { id: string; address: string; mainTenant: string; rent: number; occupied: boolean; ownerName?: string; ownerEmail?: string; ownerPhone?: string; createdAt: string }) => ({
                             ...p,
                             createdAt: new Date(p.createdAt),
                         })));

@@ -22,11 +22,6 @@ export default function PropertyDetailsPage() {
         { type: 'Rent', recurrence: 'Yearly', cost: '$120'}
     ]
 
-    // Placeholder owner data
-    const owner = [
-        { name: 'John Owner', email: 'john.owner@example.com', phone: '(555) 111-2222' }
-    ]
-
     return (
         <div className="w-full bg-white">
             {/* Breadcrumbs */}
@@ -142,19 +137,19 @@ export default function PropertyDetailsPage() {
                     {/* Name */}
                     <div className="flex items-center py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Name</div>
-                        <div className="flex-1 text-sm text-gray-600">{owner[0].name}</div>
+                        <div className="flex-1 text-sm text-gray-600">{property?.ownerName || ''}</div>
                     </div>
 
                     {/* Email */}
                     <div className="flex items-center py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Email</div>
-                        <div className="flex-1 text-sm text-gray-600">{owner[0].email}</div>
+                        <div className="flex-1 text-sm text-gray-600">{property?.ownerEmail || ''}</div>
                     </div>
 
                     {/* Phone */}
                     <div className="flex items-center py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Phone</div>
-                        <div className="flex-1 text-sm text-gray-600">{owner[0].phone}</div>
+                        <div className="flex-1 text-sm text-gray-600">{property?.ownerPhone || ''}</div>
                     </div>
                 </div>
             </div>

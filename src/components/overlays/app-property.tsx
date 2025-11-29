@@ -37,6 +37,9 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
             mainTenant: 'N/A',
             rent: 0,
             occupied: false,
+            ownerName: ownerName.trim() || undefined,
+            ownerEmail: ownerEmail.trim() || undefined,
+            ownerPhone: ownerPhone.trim() || undefined,
         })
 
         setAddress('');

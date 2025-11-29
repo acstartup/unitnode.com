@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { address, mainTenant, rent, occupied } = body;
+    const { address, mainTenant, rent, occupied, ownerName, ownerEmail, ownerPhone } = body;
 
     if (!address) {
       return NextResponse.json(
@@ -55,6 +55,9 @@ export async function POST(request: NextRequest) {
         mainTenant: mainTenant || 'N/A',
         rent: rent || 0,
         occupied: occupied || false,
+        ownerName,
+        ownerEmail,
+        ownerPhone,
         userId: session.userId,
       },
     });
