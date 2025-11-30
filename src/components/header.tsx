@@ -1,17 +1,36 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import AddPropertyOverlay from './overlays/app-property';
 
 export default function Header() {
     const pathname = usePathname();
   
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current?.contains(event.target as Node)) {
+                setIsDropdownOpen(false);
+            }
+        }
+
+        if (isDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [isDropdownOpen]);
 
     return (
 
-        <header className="h-12 bg-white flex items-center px-8 sticky">
+        <header className="h-8 bg-white flex items-center px-8 sticky">
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl">
                 <div className="relative">
@@ -78,41 +97,53 @@ export default function Header() {
                     </span>
                 </div>
               
-              {/* Circle Plus Command Center Icon */}
-                <button
-                    className="block p-1.5 rounded-full hover:bg-gray-100 transition-colors hover:opacity-80 transition-opacity relative group"
-                    aria-label="Add"
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                >
-                    <svg
-                        className="h-6 w-6"
-                        viewBox="0 0 24 24"
-                        fill="none"
+                {/* Circle Plus Command Center Icon */}
+                <div ref={dropdownRef} className="relative">
+                    <button
+                        className={`block p-1.5 rounded-full hover:bg-gray-100 transition-colors hover:opacity-80 transition-opacity relative group ${
+                            isDropdownOpen ? 'bg-gray-100' : 'hover:bg-gray-100'
+                        }`}
+                        aria-label="Add"
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        <circle
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            fill="black"
-                        />
-                        <path
-                            d="M12 8v8M8 12h8"
-                            stroke="white"
-                            strokeWidth={2}
-                            strokeLinecap="round"
-                        />
-                    </svg>
+                        <svg
+                            className="h-6 w-6"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                        >
+                            <circle
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                fill="black"
+                            />
+                            <path
+                                d="M12 8v8M8 12h8"
+                                stroke="white"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                            />
+                        </svg>
 
-                    {/* Custom Setting Tooltip */}
-                    <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                        Command
-                    </span>
+                        {/* Custom Command Tooltip */}
+                        {!isDropdownOpen && (
+                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                                Command
+                            </span>
+                        )}
+                    </button> 
 
                     {/* Dropdown Menu for Command Center*/}
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                            {/* Add Property BUtton */}
-                            <div className="w-full px-4 y-2 flex items-center gap-3 hover:bg-gray-50 transition-colors text-left">
+                        <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                            {/* Add Property Button */}
+                            <button 
+                                onClick={() => {
+                                    setIsAddPropertyOpen(true);
+                                    setIsDropdownOpen(false);
+                                }}
+                                className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md"
+                            >
                                 <svg
                                     className="h-4.5 w-4.5 flex-shrink-0"
                                     viewBox="0 0 24 24"
@@ -133,10 +164,16 @@ export default function Header() {
                                     />
                                 </svg>
                                 <span className="text-sm text-black">Add property</span>
-                            </div>
+                            </button>
                         </div>
                     )}
-                </button>
+
+                    <AddPropertyOverlay
+                                isOpen={isAddPropertyOpen}
+                                onClose={() => setIsAddPropertyOpen(false)}
+                    />
+                    
+                </div>
             </div>
         </header>
     )
