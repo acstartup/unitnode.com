@@ -165,28 +165,51 @@ export default function PropertyDetailsPage() {
             <div className="px-8 py-4">
                 {/* Sub-header */}
                 <div className="space-y-3">
-                    {/* Header with Edit button */}
+                    {/* Header with Edit button & Cancel/Save buttons isEdit */}
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold text-gray-900">Owner</h2>
-                        <button 
-                            onClick={handleEditClick}
-                            className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors">
-                            <svg
-                                className="h-3.5 w-3.5"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth={2}
-                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                                />
-                            </svg>
-                            Edit
-                        </button>
-                    </div>
+                        {!isEditing ? (
+                            <button
+                                onClick={handleEditClick}
+                                className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors">
+                                <svg
+                                    className="h-3.5 w-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                    />
+                                </svg>
+                                Edit
+                            </button>
+                            ) : (
+                                <div className="flex gap-3 mx-1">
+                                    <button
+                                        onClick={handleCancel}
+                                        className="px-2 py-1.25 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:border-gray-400 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={!hasChanges()}
+                                        className={`px-2.5 py-1.25 text-white text-sm font-medium rounded-md transition-colors ${
+                                            hasChanges()
+                                                ? 'bg-black hover:bg-gray-800 cursor-pointer'
+                                                : 'bg-gray-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
                     {/* Name */}
                     <div className="flex items-center py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Name</div>
@@ -234,29 +257,6 @@ export default function PropertyDetailsPage() {
                             <div className="flex-1 text-sm text-gray-600">{property?.ownerPhone || ''}</div>
                         )}
                     </div>
-
-                    {/* Action Buttons when editing */}
-                    {isEditing && (
-                        <div className="flex justify-end gap-3 mx-1 mt-4">
-                            <button
-                                onClick={handleCancel}
-                                className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSave}
-                                disabled={!hasChanges()}
-                                className={`px-3 py-1.5 text-white text-sm font-medium rounded-md transition-colors ${
-                                    hasChanges()
-                                        ? 'bg-black hover:bg-gray-800 cursor-pointer'
-                                        : 'bg-gray-400 cursor-not-allowed'
-                                }`}
-                            >
-                                Save
-                            </button>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
