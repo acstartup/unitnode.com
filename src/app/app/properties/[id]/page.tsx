@@ -218,7 +218,7 @@ export default function PropertyDetailsPage() {
                                 type="text"
                                 value={editedOwnerName}
                                 onChange={(e) => setEditedOwnerName(e.target.value)}
-                                className="flex-1 px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Owner name"
                             />
                         ) : (
@@ -234,7 +234,7 @@ export default function PropertyDetailsPage() {
                                 type="email"
                                 value={editedOwnerEmail}
                                 onChange={(e) => setEditedOwnerEmail(e.target.value)}
-                                className="flex-1 px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="owner@example.com"
                             />
                         ) : (
@@ -250,7 +250,7 @@ export default function PropertyDetailsPage() {
                                 type="tel"
                                 value={editedOwnerPhone}
                                 onChange={(e) => setEditedOwnerPhone(e.target.value)}
-                                className="flex-1 px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="(555) 123-4567"
                             />
                         ) : (
