@@ -165,6 +165,29 @@ export default function Header() {
                                 </svg>
                                 <span className="text-sm text-black">Add property</span>
                             </button>
+
+                            {/* Add Lease Button */}
+                            <button
+                                onClick={() => {
+                                    setIsDropdownOpen(false)
+                                }}
+                                className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md"
+                            >
+                                <svg
+                                    className="h-4.5 w-4.5 flex-shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                >
+                                    <path
+                                        d="M9 12h6m-6 4h6m2-13H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2z"
+                                        stroke="black"
+                                        strokeWidth={2}
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                    />
+                                </svg>
+                                <span className="text-sm text-black">Add lease</span>
+                            </button>
                         </div>
                     )}
 
