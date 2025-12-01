@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
 
 export default function PropertyDetailsPage() {
@@ -8,6 +9,11 @@ export default function PropertyDetailsPage() {
     const router = useRouter();
     const { properties } = useProperties();
     const propertyId = params.id as string;
+     
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedOwnerName, setEditedOwnerName] = useState('');
+    const [editedOwnerEmail, setEditedOwnerEmail] = useState('');
+    const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
 
     const property = properties.find(p => p.id === propertyId);
 
@@ -21,6 +27,51 @@ export default function PropertyDetailsPage() {
     const utility = [
         { type: 'Rent', recurrence: 'Yearly', cost: '$120'}
     ]
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+        setEditedOwnerName(property?.ownerName || '');
+        setEditedOwnerEmail(property?.ownerEmail || '');
+        setEditedOwnerPhone(property?.ownerPhone || '');
+    }
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        setEditedOwnerName('');
+        setEditedOwnerEmail('');
+        setEditedOwnerPhone('');
+    }
+
+    const handleSave = async () => {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ownerName: editedOwnerName.trim() || undefined,
+                    ownerEmail: editedOwnerEmail.trim() || undefined,
+                    ownerPhone: editedOwnerPhone.trim() || undefined,
+                }),
+            })
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to update owner information');
+            }
+        } catch (error) {
+            console.error('Error updating owner:', error);
+            alert('Failed to update owner information');
+        }
+    }
+
+    const hasChanges = () => {
+        return (
+            editedOwnerName !== (property?.ownerName || '') ||
+            editedOwnerEmail !== (property?.ownerEmail || '') ||
+            editedOwnerPhone !== (property?.ownerPhone || '')
+        )
+    }
 
     return (
         <div className="w-full bg-white">
@@ -117,7 +168,9 @@ export default function PropertyDetailsPage() {
                     {/* Header with Edit button */}
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold text-gray-900">Owner</h2>
-                        <button className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors">
+                        <button 
+                            onClick={handleEditClick}
+                            className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors">
                             <svg
                                 className="h-3.5 w-3.5"
                                 fill="none"
@@ -137,20 +190,73 @@ export default function PropertyDetailsPage() {
                     {/* Name */}
                     <div className="flex items-center py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Name</div>
-                        <div className="flex-1 text-sm text-gray-600">{property?.ownerName || ''}</div>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                value={editedOwnerName}
+                                onChange={(e) => setEditedOwnerName(e.target.value)}
+                                className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Owner name"
+                            />
+                        ) : (
+                            <div className="flex-1 text-sm text-gray-600">{property?.ownerName || ''}</div>
+                        )}
                     </div>
 
                     {/* Email */}
                     <div className="flex items-center py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Email</div>
-                        <div className="flex-1 text-sm text-gray-600">{property?.ownerEmail || ''}</div>
+                        {isEditing ? (
+                            <input
+                                type="email"
+                                value={editedOwnerEmail}
+                                onChange={(e) => setEditedOwnerEmail(e.target.value)}
+                                className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="owner@example.com"
+                            />
+                        ) : (
+                            <div className="flex-1 text-sm text-gray-600">{property?.ownerEmail || ''}</div>
+                        )}
                     </div>
 
                     {/* Phone */}
                     <div className="flex items-center py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Phone</div>
-                        <div className="flex-1 text-sm text-gray-600">{property?.ownerPhone || ''}</div>
+                        {isEditing ? (
+                            <input
+                                type="tel"
+                                value={editedOwnerPhone}
+                                onChange={(e) => setEditedOwnerPhone(e.target.value)}
+                                className="flex-1 px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="(555) 123-4567"
+                            />
+                        ) : (
+                            <div className="flex-1 text-sm text-gray-600">{property?.ownerPhone || ''}</div>
+                        )}
                     </div>
+
+                    {/* Action Buttons when editing */}
+                    {isEditing && (
+                        <div className="flex justify-end gap-3 mx-1 mt-4">
+                            <button
+                                onClick={handleCancel}
+                                className="px-3 py-1.5 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={!hasChanges()}
+                                className={`px-3 py-1.5 text-white text-sm font-medium rounded-md transition-colors ${
+                                    hasChanges()
+                                        ? 'bg-black hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
