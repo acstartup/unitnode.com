@@ -58,7 +58,7 @@ export default function PlacesAutocomplete({
                 onBlur={() => setTimeout(() => setIsFocused(false), 200)}
                 disabled={!ready}
                 className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="123 Main Street, Apt 4B, Anytown, CA 90210, USA"
+                placeholder="123 Main Street, Anytown, CA 90210, USA"
             />
 
             {/* Dropdown suggestions */}

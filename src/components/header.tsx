@@ -3,12 +3,14 @@
 import { usePathname } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import AddPropertyOverlay from './overlays/app-property';
+import AddLeaseOverlay from './overlays/add-lease';
 
 export default function Header() {
     const pathname = usePathname();
   
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
+    const [isAddLeaseOpen, setIsAddLeaseOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -169,7 +171,8 @@ export default function Header() {
                             {/* Add Lease Button */}
                             <button
                                 onClick={() => {
-                                    setIsDropdownOpen(false)
+                                    setIsAddLeaseOpen(true);
+                                    setIsDropdownOpen(false);
                                 }}
                                 className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md"
                             >
@@ -195,7 +198,11 @@ export default function Header() {
                                 isOpen={isAddPropertyOpen}
                                 onClose={() => setIsAddPropertyOpen(false)}
                     />
-                    
+
+                    <AddLeaseOverlay  
+                        isOpen={isAddLeaseOpen}
+                        onClose={() => setIsAddLeaseOpen(false)}
+                    />
                 </div>
             </div>
         </header>
