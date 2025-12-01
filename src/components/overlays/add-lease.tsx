@@ -73,6 +73,48 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 placeholder="123 Main Street, Anytown, CA 902310, USA"
                             />    
                         </div>
+
+                        {/* Tenant Section */}
+                        <h2 className="text-sm font-semibold py-2 text-gray-900">Tenant Information</h2>
+
+                        <div className="flex gap-3">
+                            {/* Name Box */}
+                            <div className="flex-[2]">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Name
+                                </label>
+                                <input
+                                    type="text"
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="John Tenant"
+                                />
+                            </div>
+
+                            {/* Phone Box */}
+                            <div className="flex-[1]">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Phone
+                                </label>
+                                <input
+                                    type="tel"
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="(555) 123-4567"
+                                />
+                            </div>
+
+                            {/* Relation */}
+                            <div className="flex-[0.6]">
+                                <label className="block text-sm font-medium text-gray=900 mb-2">
+                                    Relation
+                                </label>
+                                <input 
+                                    type="text"
+                                    value="Main"
+                                    disabled
+                                    className="w-full px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-600 focus:outline-none"
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     {/* Footer Button */}
