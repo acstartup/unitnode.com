@@ -120,7 +120,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                         </div>
 
                         {/* Tenant Section */}
-                        <h2 className="text-sm font-semibold py-2 text-gray-900">Tenant Information</h2>
+                        <h2 className="text-sm font-semibold py-2 text-gray-900">Tenant information</h2>
 
                         {tenants.map((tenant, index) => (
                             <div key={tenant.id}>
@@ -164,18 +164,33 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                                 Relation
                                             </label>
                                         )}
-                                        <select
-                                            value={tenant.relation}
-                                            onChange={(e) => updateTenant(tenant.id, 'relation', e.target.value)}
-                                            disabled={index === 0}
-                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600"
-                                        >
-                                            {relationOptions.map(option => (
-                                                <option key={option} value={option}>
-                                                    {option}
-                                                </option>
-                                            ))}
-                                        </select>
+                                        <div className="relative">
+                                            <select
+                                                value={tenant.relation}
+                                                onChange={(e) => updateTenant(tenant.id, 'relation', e.target.value)}
+                                                disabled={index === 0}
+                                                className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 appearance-none"
+                                            >
+                                                {relationOptions.map(option => (
+                                                    <option key={option} value={option}>
+                                                        {option}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                            <svg
+                                                className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600 pointer-events-none"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M6 9l6 6 6-6"
+                                                />
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -228,7 +243,12 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 <div className="my-3"></div>
                             </div>
                         ))}
+
+                        {/* Utility Section */}
+                        <h2 className="text-sm font-semibold py-2 text-gray-900">Utility details</h2>
+
                     </div>
+
 
                     {/* Footer Button */}
                     <div className="sticky bottom-0 left-0 right-0 px-4 py-4 flex justify-end gap-3 bg-white">
