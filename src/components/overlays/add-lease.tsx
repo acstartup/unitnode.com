@@ -19,6 +19,9 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     const [tenants, setTenants] = useState<Tenant[]>([
         { id: '1', name: '', phone: '', relation: 'Main' }
     ]);
+    const [utilityType, setUtilityType] = useState('Rent');
+    const [utilityRecurrence, setUtilityRecurrence] = useState('Monthly');
+    const [utilityCost, setUtilityCost] = useState('');
 
     const relationOptions = [
         'Main',
@@ -246,7 +249,80 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                         {/* Utility Section */}
                         <h2 className="text-sm font-semibold py-2 text-gray-900">Utility details</h2>
+                        
+                        <div className="flex gap-3">
+                            {/* Type Dropdown */}
+                            <div className="flex-[1.3]">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Type
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={utilityType}
+                                        onChange={(e) => setUtilityType(e.target.value)}
+                                        className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                                    >
+                                        <option value="Rent">Rent</option>
+                                    </select>
+                                    <svg
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600 pointer-events-none"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M6 9l6 6 6-6"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
 
+                            {/* Recurrance Dropdown */}
+                            <div className="flex-[0.7]">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Recurrence
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={utilityRecurrence}
+                                        onChange={(e) => setUtilityType(e.target.value)}
+                                        className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                                    >
+                                        <option value="Monthly">Monthly</option>
+                                    </select>
+                                    <svg
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600 pointer-events-none"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M6 9l6 6 6-6"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {/* Cost Box */}
+                            <div className="flex-[0.6]">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Cost
+                                </label>
+                                <input
+                                    type="text"
+                                    value={utilityCost}
+                                    onChange={(e) => setUtilityCost(e.target.value)}
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="$1200"
+                                />
+                            </div>
+                        </div>
                     </div>
 
 
