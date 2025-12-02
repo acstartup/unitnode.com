@@ -43,7 +43,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
     const addTenant = () => {
         const newId = Math.max(...tenants.map(t => parseInt(t.id)), 0) + 1;
-        setTenants([...tenants, { id: newId.toString(), name: '', phone: '', relation: 'Spouse' }]);
+        setTenants([...tenants, { id: newId.toString(), name: '', phone: '', relation: 'Select' }]);
     }
 
     const updateTenant = (id: string, field: string, value: string) => {
@@ -174,11 +174,22 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                                 disabled={index === 0}
                                                 className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 appearance-none"
                                             >
-                                                {relationOptions.filter(option => index === 0 || option !== 'Main').map(option => (
-                                                    <option key={option} value={option}>
-                                                        {option}
-                                                    </option>
-                                                ))}
+                                                {index === 0 ? (
+                                                    relationOptions.map(option => (
+                                                        <option key={option} value={option}>
+                                                            {option}
+                                                        </option>
+                                                    ))
+                                                ) : (
+                                                    <>
+                                                        <option value="Select" hidden>Select</option>
+                                                        {relationOptions.filter(option => option !== 'Main').map(option => (
+                                                            <option key={option} value={option}>
+                                                                {option}
+                                                            </option>
+                                                        ))}
+                                                    </>
+                                                )}
                                             </select>
                                             <svg
                                                 className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600 pointer-events-none"
