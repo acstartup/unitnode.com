@@ -126,7 +126,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                             <div key={tenant.id}>
                                 <div className="flex gap-3">
                                     {/* Name Box */}
-                                    <div className="flex-[2]">
+                                    <div className="flex-[1.3]">
                                         <label className="block text-sm font-medium text-gray-900 mb-2">
                                             Name
                                         </label>
@@ -140,7 +140,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     </div>
 
                                     {/* Phone Box */}
-                                    <div className="flex-[1]">
+                                    <div className="flex-[0.7]">
                                         <label className="block text-sm font-medium text-gray-900 mb-2">
                                             Phone
                                         </label>
@@ -175,10 +175,10 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                 {/* Add Tenant Button */}
                                 {index === tenants.length - 1 && (
-                                    <div className="flex gap-3 mt-3">
+                                    <div className="flex gap-2 mt-3">
                                         <button
                                             onClick={addTenant}
-                                            className="flex items-center justify-center h-10 w-10 border-2 border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-600 hover:text-gray-900"
+                                            className="flex items-center justify-center h-8 w-8 border-2 border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-600 hover:text-gray-900"
                                             aria-label="Add tenant"
                                         >
                                             <svg
@@ -199,11 +199,11 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                         {tenants.length > 1 && (
                                             <button
                                                 onClick={() => removeTenant(tenant.id)}
-                                                className="flex items-center justify-center h-10 w-10 border-2 border-red-300 rounded-md hover:bg-red-50 transition-colors text-red-600 hover:text-red-900"
+                                                className="flex items-center justify-center h-8 w-8 border-2 border-red-300 rounded-md hover:bg-red-50 transition-colors text-red-600 hover:text-red-900"
                                                 aria-label="Remove tenant"
                                             >
                                                 <svg
-                                                    className="h-5 w-5"
+                                                    className="h-4 w-4"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24"
