@@ -43,7 +43,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
     const addTenant = () => {
         const newId = Math.max(...tenants.map(t => parseInt(t.id)), 0) + 1;
-        setTenants([...tenants, { id: newId.toString(), name: '', phone: '', relation: 'Other' }]);
+        setTenants([...tenants, { id: newId.toString(), name: '', phone: '', relation: 'Spouse' }]);
     }
 
     const updateTenant = (id: string, field: string, value: string) => {
@@ -174,7 +174,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                                 disabled={index === 0}
                                                 className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 appearance-none"
                                             >
-                                                {relationOptions.map(option => (
+                                                {relationOptions.filter(option => index === 0 || option !== 'Main').map(option => (
                                                     <option key={option} value={option}>
                                                         {option}
                                                     </option>
@@ -280,7 +280,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 </div>
                             </div>
 
-                            {/* Recurrance Dropdown */}
+                            {/* Recurrence Dropdown */}
                             <div className="flex-[0.7]">
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Recurrence
@@ -288,7 +288,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 <div className="relative">
                                     <select
                                         value={utilityRecurrence}
-                                        onChange={(e) => setUtilityType(e.target.value)}
+                                        onChange={(e) => setUtilityRecurrence(e.target.value)}
                                         className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                                     >
                                         <option value="Monthly">Monthly</option>
