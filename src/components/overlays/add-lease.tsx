@@ -7,10 +7,55 @@ interface AddLeaseOverlayProps {
     onClose: () => void;
 }
 
-export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProps) {
-    if (!isOpen) return null;
+interface Tenant {
+    id: string;
+    name: string;
+    phone: string;
+    relation: string;
+}
 
+export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProps) {
     const [propertyAddress, setPropertyAddress] = useState('');
+    const [tenants, setTenants] = useState<Tenant[]>([
+        { id: '1', name: '', phone: '', relation: 'Main' }
+    ]);
+
+    const relationOptions = [
+        'Main',
+        'Spouse',
+        'Son',
+        'Daughter',
+        'Father',
+        'Mother',
+        'Brother',
+        'Sister',
+        'Grandfather',
+        'Grandmother',
+        'Uncle',
+        'Aunt',
+        'Cousin',
+        'Friend',
+        'Other'
+    ];
+
+    const addTenant = () => {
+        const newId = Math.max(...tenants.map(t => parseInt(t.id)), 0) + 1;
+        setTenants([...tenants, { id: newId.toString(), name: '', phone: '', relation: 'Other' }]);
+    }
+
+    const updateTenant = (id: string, field: string, value: string) => {
+        setTenants(tenants.map(t =>
+            t.id === id ? { ...t, [field]: value } : t
+        ));
+    };
+
+    const removeTenant = (id: string) => {
+        if (tenants.length > 1) {
+            setTenants(tenants.filter(t => t.id !== id));
+        }
+    }
+
+    if (!isOpen) return null;
 
     return (
         <>
@@ -77,44 +122,106 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                         {/* Tenant Section */}
                         <h2 className="text-sm font-semibold py-2 text-gray-900">Tenant Information</h2>
 
-                        <div className="flex gap-3">
-                            {/* Name Box */}
-                            <div className="flex-[2]">
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Name
-                                </label>
-                                <input
-                                    type="text"
-                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="John Tenant"
-                                />
-                            </div>
+                        {tenants.map((tenant, index) => (
+                            <div key={tenant.id}>
+                                <div className="flex gap-3">
+                                    {/* Name Box */}
+                                    <div className="flex-[2]">
+                                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                                            Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={tenant.name}
+                                            onChange={(e) => updateTenant(tenant.id, 'name', e.target.value)}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transparent"
+                                            placeholder="John Tenant"             
+                                        />
+                                    </div>
 
-                            {/* Phone Box */}
-                            <div className="flex-[1]">
-                                <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Phone
-                                </label>
-                                <input
-                                    type="tel"
-                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="(555) 123-4567"
-                                />
-                            </div>
+                                    {/* Phone Box */}
+                                    <div className="flex-[1]">
+                                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                                            Phone
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            value={tenant.phone}
+                                            onChange={(e) => updateTenant(tenant.id, 'phone', e.target.value)}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="(555) 123-4567"
+                                        />
+                                    </div>
 
-                            {/* Relation */}
-                            <div className="flex-[0.6]">
-                                <label className="block text-sm font-medium text-gray=900 mb-2">
-                                    Relation
-                                </label>
-                                <input 
-                                    type="text"
-                                    value="Main"
-                                    disabled
-                                    className="w-full px-3 py-1.5 bg-gray-100 border border-gray-300 rounded-md text-sm text-gray-600 focus:outline-none"
-                                />
+                                    {/* Relation Dropdown */}
+                                    <div className="flex-[0.6]">
+                                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                                            Relation
+                                        </label>
+                                        <select
+                                            value={tenant.relation}
+                                            onChange={(e) => updateTenant(tenant.id, 'relation', e.target.value)}
+                                            disabled={index === 0}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600"
+                                        >
+                                            {relationOptions.map(option => (
+                                                <option key={option} value={option}>
+                                                    {option}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                {/* Add Tenant Button */}
+                                {index === tenants.length - 1 && (
+                                    <div className="flex gap-3 mt-3">
+                                        <button
+                                            onClick={addTenant}
+                                            className="flex items-center justify-center h-10 w-10 border-2 border-gray-300 rounded-md hover:bg-gray-50 transition-colors text-gray-600 hover:text-gray-900"
+                                            aria-label="Add tenant"
+                                        >
+                                            <svg
+                                                className="h-5 w-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M12 4v16m8-8H4"
+                                                />
+                                            </svg>
+                                        </button>
+                                        {/* Remove Tenant Button */}
+                                        {tenants.length > 1 && (
+                                            <button
+                                                onClick={() => removeTenant(tenant.id)}
+                                                className="flex items-center justify-center h-10 w-10 border-2 border-red-300 rounded-md hover:bg-red-50 transition-colors text-red-600 hover:text-red-900"
+                                                aria-label="Remove tenant"
+                                            >
+                                                <svg
+                                                    className="h-5 w-5"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <path
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth={2}
+                                                        d="M20 12H4"
+                                                    />
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                                <div className="my-3"></div>
                             </div>
-                        </div>
+                        ))}
                     </div>
 
                     {/* Footer Button */}
