@@ -68,7 +68,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
             {/* Overlay Content */}
             <div className="fixed inset-0 z-2 flex items-center justify-center p-4 pointer-events-none">
                 <div
-                    className="bg-white border shadow-lg rounded-lg w-full max-w-xl h-110 pointer-events-auto animate-in fade-in zone-in-95 duration-200 relative"
+                    className="bg-white border shadow-lg rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto pointer-events-auto animate-in fade-in zone-in-95 duration-200 relative"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -127,9 +127,11 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 <div className="flex gap-3">
                                     {/* Name Box */}
                                     <div className="flex-[1.3]">
-                                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                                            Name
-                                        </label>
+                                        {index === 0 && (
+                                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                                                Name
+                                            </label>
+                                        )}
                                         <input
                                             type="text"
                                             value={tenant.name}
@@ -141,9 +143,11 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                     {/* Phone Box */}
                                     <div className="flex-[0.7]">
-                                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                                            Phone
-                                        </label>
+                                        {index === 0 && (
+                                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                                                Phone
+                                            </label>
+                                        )}
                                         <input
                                             type="tel"
                                             value={tenant.phone}
@@ -155,9 +159,11 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                     {/* Relation Dropdown */}
                                     <div className="flex-[0.6]">
-                                        <label className="block text-sm font-medium text-gray-900 mb-2">
-                                            Relation
-                                        </label>
+                                        {index === 0 && (
+                                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                                                Relation
+                                            </label>
+                                        )}
                                         <select
                                             value={tenant.relation}
                                             onChange={(e) => updateTenant(tenant.id, 'relation', e.target.value)}
@@ -225,7 +231,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                     </div>
 
                     {/* Footer Button */}
-                    <div className="absolute buttom-0 left-0 right-0 px-4 py-4 border-gray-200 flex justify-end gap-3">
+                    <div className="sticky bottom-0 left-0 right-0 px-4 py-4 flex justify-end gap-3 bg-white">
                         <button
                             onClick={onClose}
                             className="px-3 py-1 bg-white border border-gray-300 text-gray-700 text-sm font-small rounded-md hover:bg-gray-50 transition-colors"
