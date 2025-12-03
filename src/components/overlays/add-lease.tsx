@@ -418,7 +418,52 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     alert('Please select a property first');
                                     return;
                                 }
-                                // Handle add lease submission here
+                                
+                                // Validate that first tenant's name is filled
+                                if (!tenants[0].name.trim()) {
+                                    alert('Please enter the main tenant name');
+                                    return;
+                                }
+
+                                if (!utilityCost.trim()) {
+                                    alert('Please enter the cost');
+                                    return;
+                                }
+
+                                // Make API call
+                                const addLease = async () => {
+                                    try {
+                                        const response = await fetch(`/api/properties/@{selectedPropertyId}`, {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                mainTenant: tenants[0].name,
+                                                rent: parseFloat(utilityCost) || 0,
+                                                occupied: true,
+                                            }),
+                                        })
+
+                                        if (!response.ok) {
+                                            throw new Error('Failed to add lease');
+                                        }
+
+                                        const data = await response.json();
+                                        if (data.success) {
+                                            alert('Lease added succesfully');
+                                            // Reset form
+                                            setPropertyAddress('');
+                                            setSelectedPropertyId('');
+                                            setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
+                                            setUtilityCost('');
+                                            onClose();
+                                        }
+                                    } catch (error) {
+                                        console.error('Error adding lease:', error);
+                                        alert('Failed to add lease. Please try again.');
+                                    }
+                                };
+
+                                addLease();
                             }}
                             disabled={!selectedPropertyId}
                             className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
