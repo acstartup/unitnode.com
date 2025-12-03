@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useProperties } from '@/contexts/PropertyContext';
 
 interface AddLeaseOverlayProps {
     isOpen: boolean;
@@ -22,6 +23,11 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     const [utilityType, setUtilityType] = useState('Rent');
     const [utilityRecurrence, setUtilityRecurrence] = useState('Monthly');
     const [utilityCost, setUtilityCost] = useState('');
+
+    const { properties } = useProperties();
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
+    const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
+    const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
 
     const relationOptions = [
         'Main',
@@ -56,6 +62,28 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         if (tenants.length > 1) {
             setTenants(tenants.filter(t => t.id !== id));
         }
+    }
+
+    const handlePropertyAddressChange = (value: string) => {
+        setPropertyAddress(value);
+        if (value.trim()) {
+            const filtered = properties.filter(p => 
+                p.address.toLowerCase().includes(value.toLowerCase())
+            );
+            setFilteredProperties(filtered);
+            setShowPropertyDropdown(true);
+        } else {
+            setFilteredProperties([]);
+            setShowPropertyDropdown(false);
+            setSelectedPropertyId('');
+        }
+    };
+
+    const handleSelectProperty = (propertyId: string, address: string) => {
+        setSelectedPropertyId(propertyId);
+        setPropertyAddress(address);
+        setShowPropertyDropdown(false);
+        setFilteredProperties([]);
     }
 
     if (!isOpen) return null;
@@ -113,17 +141,51 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Property address
                             </label>
-                            <input
-                                type="text"
-                                value={propertyAddress}
-                                onChange={(e) => setPropertyAddress(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="123 Main Street, Anytown, CA 902310, USA"
-                            />    
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={propertyAddress}
+                                    onChange={(e) => handlePropertyAddressChange(e.target.value)}
+                                    onFocus={() => propertyAddress && setShowPropertyDropdown(true)}
+                                    onBlurCapture={() => setTimeout(() => setShowPropertyDropdown(false), 200)}
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="123 Main Street, Anytown, CA 902310, USA"
+                                />
+
+                                {/* Property Dropdown */}
+                                {showPropertyDropdown && filteredProperties.length > 0 && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-y-auto">
+                                        {filteredProperties.map((property) => (
+                                            <button
+                                                key={property.id}
+                                                onClick={() => handleSelectProperty(property.id, property.address)}
+                                                className="w-full px-3 py-2 text-left hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                            >
+                                                <div className="text-sm font-medium text-gray-900">
+                                                    {property.address}
+                                                </div>
+                                                {property.ownerName && (
+                                                    <div className="text-xs text-gray-500">
+                                                        Owner: {property.ownerName}
+                                                    </div>
+                                                )}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {showPropertyDropdown && propertyAddress && filteredProperties.length === 0 && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                                        <div className="text-sm text-gray-500">
+                                            No properties found
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* Tenant Section */}
-                        <h2 className="text-sm font-semibold py-2 text-gray-900">Tenant information</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Tenant information</h2>
 
                         {tenants.map((tenant, index) => (
                             <div key={tenant.id}>
@@ -139,8 +201,9 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                             type="text"
                                             value={tenant.name}
                                             onChange={(e) => updateTenant(tenant.id, 'name', e.target.value)}
-                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transparent"
-                                            placeholder="John Tenant"             
+                                            disabled={!selectedPropertyId}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
+                                            placeholder="John Tenant"
                                         />
                                     </div>
 
@@ -155,7 +218,8 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                             type="tel"
                                             value={tenant.phone}
                                             onChange={(e) => updateTenant(tenant.id, 'phone', e.target.value)}
-                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            disabled={!selectedPropertyId}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
                                             placeholder="(555) 123-4567"
                                         />
                                     </div>
@@ -171,8 +235,8 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                             <select
                                                 value={tenant.relation}
                                                 onChange={(e) => updateTenant(tenant.id, 'relation', e.target.value)}
-                                                disabled={index === 0}
-                                                className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 appearance-none"
+                                                disabled={index === 0 || !selectedPropertyId}
+                                                className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
                                             >
                                                 {index === 0 ? (
                                                     relationOptions.map(option => (
@@ -259,7 +323,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                         ))}
 
                         {/* Utility Section */}
-                        <h2 className="text-sm font-semibold py-2 text-gray-900">Utility details</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Utility details</h2>
                         
                         <div className="flex gap-3">
                             {/* Type Dropdown */}
@@ -271,7 +335,8 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     <select
                                         value={utilityType}
                                         onChange={(e) => setUtilityType(e.target.value)}
-                                        className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                                        disabled={!selectedPropertyId}
+                                        className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
                                     >
                                         <option value="Rent">Rent</option>
                                     </select>
@@ -300,7 +365,8 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     <select
                                         value={utilityRecurrence}
                                         onChange={(e) => setUtilityRecurrence(e.target.value)}
-                                        className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                                        disabled={!selectedPropertyId}
+                                        className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
                                     >
                                         <option value="Monthly">Monthly</option>
                                     </select>
@@ -329,7 +395,8 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     type="text"
                                     value={utilityCost}
                                     onChange={(e) => setUtilityCost(e.target.value)}
-                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    disabled={!selectedPropertyId}
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
                                     placeholder="$1200"
                                 />
                             </div>
@@ -346,7 +413,15 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                             Cancel
                         </button>
                         <button
-                            className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 transition-colors"
+                            onClick={() => {
+                                if (!selectedPropertyId) {
+                                    alert('Please select a property first');
+                                    return;
+                                }
+                                // Handle add lease submission here
+                            }}
+                            disabled={!selectedPropertyId}
+                            className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                         >
                             Add lease
                         </button>
