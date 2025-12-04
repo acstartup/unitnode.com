@@ -47,7 +47,8 @@ export default function Sidebar() {
                                     <span className="flex justify-center py-6 text-black text-xl">
                                         UN
                                     </span>
-                                    <h1 className="flex justify-center py-3 text-md ">unitnode@gmail.com</h1>
+                                    <h1 className="flex justify-center py-3 text-md ">UnitNode</h1>
+
                                 </div>
                             </div>
                         </div>
