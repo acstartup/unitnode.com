@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
 
 interface AddLeaseOverlayProps {
@@ -28,6 +28,19 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
+
+    useEffect(() => {
+        if (isOpen) {
+            setPropertyAddress('');
+            setSelectedPropertyId('');
+            setTenants([{ id: '1', name: '', phone: '', relation: 'Main'}]);
+            setUtilityType('Rent');
+            setUtilityRecurrence('Monthly');
+            setUtilityCost('');
+            setFilteredProperties([]);
+            setShowPropertyDropdown(false);
+        }
+    }, [isOpen]);
 
     const relationOptions = [
         'Main',
