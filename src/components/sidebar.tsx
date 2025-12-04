@@ -10,10 +10,12 @@ export default function Sidebar() {
     return (
         <aside className="h-screen w-60 bg-white border-r border-gray-400 text-black flex flex-col">
             {/* Sidebar header */}
-            { /* logo area */}
-            {/* "div" because it is boxes (less critical) than critical side ("aside") information*/}
-            <div className ="px-4 py-5">
-                <h1 className="text-xl font-semibold text-gray-900">UnitNode</h1>
+            <div className="px-4 py-5 flex items-center gap-3 border-gray-200">
+                { /* logo area */}
+                <div className="w-7 h-7 bg-gray-300 rounded-sm flex items-center justify-center">
+                    <span className="text-white font-bold text-xs">UN</span>
+                </div>
+                <span className="font-semibold text-base text-gray-900 flex-1">UnitNode</span>
             </div>
 
             {/* Navigation (pages) */}
