@@ -1,9 +1,11 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 export default function Sidebar() {
     const pathname = usePathname();
+    const [showDropdown, setShowDropdown] = useState(false);
 
     const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/');
 
@@ -11,12 +13,17 @@ export default function Sidebar() {
         <aside className="h-screen w-60 bg-white border-r border-gray-400 text-black flex flex-col">
             {/* Sidebar header */}
                 <div className="flex items-center gap px-2 border-gray-200">
-                    <button className="flex hover:bg-gray-100 items-center mx-1 my-3 px-2 py-1.5 gap-3 rounded-lg w-full items-center">
+                    <button
+                        onClick={() => setShowDropdown(!showDropdown)} 
+                        className={`flex hover:bg-gray-100 items-center mx-1 my-3 px-2 py-1.5 gap-3 rounded-lg w-full items-center ${showDropdown ? 'bg-gray-100' : ''}`}
+                    >
                         { /* logo area */}
                         <div className="w-6 h-6 bg-gray-100 rounded-sm flex items-center justify-center">
-                            <span className="text-black ont-bold text-xs">UN</span>
+                            <span className="text-black text-xs">UN</span>
                         </div>
-                        <span className="flex font-medium text-sm text-gray-700 flex-1">UnitNode</span>
+                        <span className={'flex text-sm flex-1'}>
+                            UnitNode
+                        </span>
                         <svg
                             className="h-4 w-4 text-gray-600 pointer-events-none"
                             fill="none"
@@ -31,6 +38,14 @@ export default function Sidebar() {
                             />
                         </svg>
                     </button>
+
+                    {/* Dropdown */}
+                    {showDropdown && (
+                        <div className="absolute top-14 left-3 w-70 h-60 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                            <div className="px-2 py-20">
+                            </div>
+                        </div>
+                    )}
                 </div>
 
             {/* Navigation (pages) */}
