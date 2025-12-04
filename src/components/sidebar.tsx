@@ -10,13 +10,15 @@ export default function Sidebar() {
     return (
         <aside className="h-screen w-60 bg-white border-r border-gray-400 text-black flex flex-col">
             {/* Sidebar header */}
-            <div className="px-4 py-5 flex items-center gap-3 border-gray-200">
-                { /* logo area */}
-                <div className="w-7 h-7 bg-gray-300 rounded-sm flex items-center justify-center">
-                    <span className="text-white font-bold text-xs">UN</span>
+                <div className="flex items-center gap px-2 border-gray-200">
+                    <button className="flex hover:bg-gray-200 items-center mx-1 my-2 px-2 py-2 gap-3 rounded-lg w-full items-center">
+                        { /* logo area */}
+                        <div className="w-6 h-6 bg-gray-100 rounded-sm flex items-center justify-center">
+                            <span className="text-black ont-bold text-xs">UN</span>
+                        </div>
+                        <span className="flex font-medium text-sm text-gray-700 flex-1">UnitNode</span>
+                    </button>
                 </div>
-                <span className="font-semibold text-base text-gray-900 flex-1">UnitNode</span>
-            </div>
 
             {/* Navigation (pages) */}
             <nav className="flex-1 px-4 py-6 space-y-1">
