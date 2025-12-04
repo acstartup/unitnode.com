@@ -1,18 +1,35 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function Sidebar() {
     const pathname = usePathname();
     const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/');
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        }
+
+        if (showDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+    }, [showDropdown]);
 
     return (
         <aside className="h-screen w-60 bg-white border-r border-gray-400 text-black flex flex-col">
             {/* Sidebar header */}
-                <div className="flex items-center gap px-2 border-gray-200">
+                <div ref={dropdownRef} className="flex items-center gap px-2 border-gray-200 relative">
                     <button
                         onClick={() => setShowDropdown(!showDropdown)} 
                         className={`flex hover:bg-gray-100 items-center mx-1 my-3 px-2 py-1.5 gap-3 rounded-lg w-full items-center ${showDropdown ? 'bg-gray-100' : ''}`}
@@ -41,7 +58,7 @@ export default function Sidebar() {
 
                     {/* Dropdown */}
                     {showDropdown && (
-                        <div className="absolute top-14 left-3 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                        <div className="absolute top-14 left-3 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                             <div className="p-2">
                                 {/* Logo Section */}
                                 <div className="flex flex-col items-center py-3 border-gray-200">
