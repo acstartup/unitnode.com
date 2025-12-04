@@ -41,8 +41,14 @@ export default function Sidebar() {
 
                     {/* Dropdown */}
                     {showDropdown && (
-                        <div className="absolute top-14 left-3 w-70 h-60 bg-white border border-gray-300 rounded-md shadow-lg z-50">
-                            <div className="px-2 py-20">
+                        <div className="absolute top-14 left-3 w-70 h-70 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                            <div className="flex justify-center py-5">
+                                 <div className="w-20 h-20 bg-gray-100 rounded-sm">
+                                    <span className="flex justify-center py-6 text-black text-xl">
+                                        UN
+                                    </span>
+                                    <h1 className="flex justify-center py-3 text-md ">unitnode@gmail.com</h1>
+                                </div>
                             </div>
                         </div>
                     )}
