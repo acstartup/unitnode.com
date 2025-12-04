@@ -41,14 +41,74 @@ export default function Sidebar() {
 
                     {/* Dropdown */}
                     {showDropdown && (
-                        <div className="absolute top-14 left-3 w-70 h-70 bg-white border border-gray-300 rounded-md shadow-lg z-50">
-                            <div className="flex justify-center py-5">
-                                 <div className="w-20 h-20 bg-gray-100 rounded-sm">
-                                    <span className="flex justify-center py-6 text-black text-xl">
-                                        UN
-                                    </span>
-                                    <h1 className="flex justify-center py-3 text-md ">UnitNode</h1>
+                        <div className="absolute top-14 left-3 w-64 bg-white border border-gray-300 rounded-md shadow-lg z-50">
+                            <div className="p-2">
+                                {/* Logo Section */}
+                                <div className="flex flex-col items-center py-3 border-gray-200">
+                                    <div className="w-16 h-16 bg-gray-100 rounded-sm flex items-center justify-center mb-2">
+                                        <span className="text-black text-lg font-semibold">UN</span>
+                                    </div>
+                                    <h1 className="text-md font-medium">UnitNode</h1>
+                                </div>
 
+                                {/* Menu items */}
+                                <div className="py-1">
+                                    {/* Settings */}
+                                    <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                        <svg
+                                            className="h-4 w-4 text-gray-600"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                                            />                                        
+                                        </svg>
+                                        <span className="text-sm text-gray-700">Settings</span>
+                                    </button>
+
+                                    {/* Divider */}
+                                    <div className="border-t border-gray-200 my-1"></div>
+
+                                    {/* Personal Details */}
+                                    <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                        <svg
+                                            className="h-4 w-4 text-gray-600"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                            />
+                                        </svg>
+                                        <span className="text-sm text-gray-700">unitnode@gmail.com</span>
+                                    </button>
+
+                                    {/* Log Out */}
+                                    <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                        <svg
+                                            className="h-4 w-4 text-gray-600"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                                            />
+                                        </svg>
+                                        <span className="text-sm text-gray-700">Log out</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
