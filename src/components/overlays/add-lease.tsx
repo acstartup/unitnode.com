@@ -451,6 +451,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({
                                                 mainTenant: tenants[0].name,
+                                                mainTenantPhone: tenants[0].phone,
                                                 rent: parseFloat(utilityCost) || 0,
                                                 occupied: true,
                                             }),

@@ -17,7 +17,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { ownerName, ownerEmail, ownerPhone, mainTenant, rent, occupied } = body;
+    const { ownerName, ownerEmail, ownerPhone, mainTenant, mainTenantPhone, rent, occupied } = body;
 
     // Verify the property belonds to the user
     const existingProperty = await prisma.property.findFirst({
@@ -41,6 +41,7 @@ export async function PATCH(
             ownerEmail,
             ownerPhone,
             ...(mainTenant && { mainTenant }),
+            ...(mainTenantPhone !== undefined && { mainTenantPhone }),
             ...(rent !== undefined && { rent }),
             ...(occupied !== undefined && { occupied }),
         }

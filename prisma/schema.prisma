@@ -25,6 +25,7 @@ model Property {
   id         String   @id @default(cuid())
   address    String
   mainTenant String   @default("N/A")
+  mainTenantPhone String?
   rent       Float    @default(0)
   occupied   Boolean  @default(false)
   userId     String
