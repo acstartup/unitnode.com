@@ -15,6 +15,24 @@ interface Tenant {
     relation: string;
 }
 
+// Phone formatting utility
+const formatPhoneNumber = (value: string): string => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+
+    // Limit to 10 digits
+    const limited = digits.slice(0, 10);
+
+    // Format based on length
+    if (limited.length <= 3) {
+        return limited;
+    } else if (limited.length <= 6) {
+        return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
+    } else {
+        return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
+    }
+};
+
 export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProps) {
     const [propertyAddress, setPropertyAddress] = useState('');
     const [tenants, setTenants] = useState<Tenant[]>([
@@ -28,6 +46,10 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
+    const [isEditingLease, setIsEditingLease] = useState(false);
+
+    const [originalTenant, setOriginalTenant] = useState({ name: '', phone: ''});
+    const [originalCost, setOriginalCost] = useState('');
 
     useEffect(() => {
         if (isOpen) {
@@ -39,6 +61,9 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
             setUtilityCost('');
             setFilteredProperties([]);
             setShowPropertyDropdown(false);
+            setIsEditingLease(false);
+            setOriginalTenant({ name: '', phone: '' });
+            setOriginalCost('');
         }
     }, [isOpen]);
 
@@ -66,8 +91,9 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     }
 
     const updateTenant = (id: string, field: string, value: string) => {
+        const formattedValue = field === 'phone' ? formatPhoneNumber(value) : value;
         setTenants(tenants.map(t =>
-            t.id === id ? { ...t, [field]: value } : t
+            t.id === id ? { ...t, [field]: formattedValue } : t
         ));
     };
 
@@ -97,6 +123,50 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         setPropertyAddress(address);
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
+
+        // Find if property alraedy has lease
+        const selectedProperty = properties.find(p => p.id === propertyId);
+        if (selectedProperty && selectedProperty.mainTenant && selectedProperty.mainTenant !== 'N/A') {
+            // Memory fill form
+            const tenantData = {
+                name: selectedProperty.mainTenant,
+                phone: selectedProperty.mainTenantPhone || '',
+            };
+            const costData = selectedProperty.rent.toString();
+
+            setTenants([{
+                id: '1',
+                name: selectedProperty.mainTenant,
+                phone: selectedProperty.mainTenantPhone || '',
+                relation: 'Main'
+            }]);
+            setUtilityCost(selectedProperty.rent.toString());
+            setIsEditingLease(true);
+
+            // Save original values for change detection
+            setOriginalTenant(tenantData);
+            setOriginalCost(costData);
+        } else {
+            setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
+            setUtilityCost('');
+            setIsEditingLease(false);
+
+            // Reset original
+            setOriginalTenant({ name: '', phone: ''});
+            setOriginalCost('');
+        }
+    }
+
+    const hasChanges = () => {
+        if (isEditingLease) {
+            return (
+                tenants[0].name !== originalTenant.name ||
+                tenants[0].phone !== originalTenant.phone ||
+                utilityCost !== originalCost
+            );
+        } else {
+            return tenants[0].name.trim() !== '' && utilityCost.trim() !== '';
+        }
     }
 
     if (!isOpen) return null;
@@ -463,12 +533,8 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                         const data = await response.json();
                                         if (data.success) {
-                                            alert('Lease added succesfully');
-                                            // Reset form
-                                            setPropertyAddress('');
-                                            setSelectedPropertyId('');
-                                            setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
-                                            setUtilityCost('');
+                                            alert(isEditingLease ? 'Lease updated successfully' : 'Lease added successfully');
+                                            window.location.reload();
                                             onClose();
                                         }
                                     } catch (error) {
@@ -479,10 +545,10 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                 addLease();
                             }}
-                            disabled={!selectedPropertyId}
+                            disabled={!selectedPropertyId || !hasChanges()}
                             className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
                         >
-                            Add lease
+                            {isEditingLease ? 'Edit lease' : 'Add lease'}
                         </button>
                     </div>
                 </div>

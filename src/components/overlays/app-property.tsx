@@ -12,6 +12,24 @@ interface AddPropertyOverlayProps {
 
 const libraries: ("places")[] = ["places"];
 
+// Phone formatting utility
+const formatPhoneNumber = (value: string): string => {
+    // Remove all non-digit characters
+    const digits = value.replace(/\D/g, '');
+
+    // Limit to 10 digits
+    const limited = digits.slice(0, 10);
+
+    // Format based on length
+    if (limited.length <= 3) {
+        return limited;
+    } else if (limited.length <= 6) {
+        return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
+    } else {
+        return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
+    }
+};
+
 export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverlayProps) {
     const [address, setAddress] = useState('');
     const [ownerName, setOwnerName] = useState('');
@@ -145,9 +163,9 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                                 Phone
                             </label>
                             <input
-                                type="phone"
+                                type="tel"
                                 value={ownerPhone}
-                                onChange={(e) => setOwnerPhone(e.target.value)}
+                                onChange={(e) => setOwnerPhone(formatPhoneNumber(e.target.value))}
                                 className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="(555) 123-4567"
                             />
