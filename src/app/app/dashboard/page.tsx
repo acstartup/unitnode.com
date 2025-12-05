@@ -46,7 +46,7 @@ export default function Dashboard() {
 
   // Blank white page dashboard
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
     </div>
   );
 }

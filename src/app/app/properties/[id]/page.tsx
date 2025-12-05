@@ -1,0 +1,278 @@
+'use client';
+
+import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useProperties } from '@/contexts/PropertyContext';
+
+export default function PropertyDetailsPage() {
+    const params = useParams();
+    const router = useRouter();
+    const { properties } = useProperties();
+    const propertyId = params.id as string;
+     
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedOwnerName, setEditedOwnerName] = useState('');
+    const [editedOwnerEmail, setEditedOwnerEmail] = useState('');
+    const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
+
+    const property = properties.find(p => p.id === propertyId);
+    const hasLease = property?.mainTenant && property.mainTenant !== 'N/A';
+
+    const tenants = hasLease ? [
+        { name: property.mainTenant, phone: property.mainTenantPhone || '', relation: 'Main' } 
+    ] : [];
+
+    const utility = hasLease ? [
+        { type: 'Rent', recurrence: 'Monthly', cost: `$${property.rent}`}
+    ] : [];
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+        setEditedOwnerName(property?.ownerName || '');
+        setEditedOwnerEmail(property?.ownerEmail || '');
+        setEditedOwnerPhone(property?.ownerPhone || '');
+    }
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        setEditedOwnerName('');
+        setEditedOwnerEmail('');
+        setEditedOwnerPhone('');
+    }
+
+    const handleSave = async () => {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ownerName: editedOwnerName.trim() || undefined,
+                    ownerEmail: editedOwnerEmail.trim() || undefined,
+                    ownerPhone: editedOwnerPhone.trim() || undefined,
+                }),
+            })
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to update owner information');
+            }
+        } catch (error) {
+            console.error('Error updating owner:', error);
+            alert('Failed to update owner information');
+        }
+    }
+
+    const hasChanges = () => {
+        return (
+            editedOwnerName !== (property?.ownerName || '') ||
+            editedOwnerEmail !== (property?.ownerEmail || '') ||
+            editedOwnerPhone !== (property?.ownerPhone || '')
+        )
+    }
+
+    return (
+        <div className="w-full bg-white">
+            {/* Breadcrumbs */}
+            <div className="px-8 pt-8 pb-1">
+                <div className="flex items-center text-sm text-gray-500 font-semibold">
+                    <button
+                        onClick={() => router.push('/app/properties')}
+                        className="hover:text-gray-700 transition-colors"
+                    >
+                        {property?.address || 'Loading...'}
+                    </button>
+                    <svg
+                        className="h-4 w-4 mx-2"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 5l7 7-7 7"
+                        />
+                    </svg>    
+                </div>
+            </div>
+
+            {/* Header */}
+            <div className="mb-0">
+                <h1 className="text-3xl font-semibold text-gray-900 px-8">Property details</h1>
+            </div>
+
+            {/* Lease Section */}
+            <div className="px-8 py-5">
+                {/* Sub-header: Lease */}
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Lease</h2>
+
+                {/* Sub-sub-header */}
+                <h3 className="text-md font-medium text-gray-900 mb-4 mx-1">Tenants</h3>
+
+                {/* Tenants Table */}
+                <div className="max-w-6xl">
+                    <table className="mx-2 w-full">
+                        <thead>
+                            <tr className="border-b border-gray-200">
+                                <th className="text-left py-1 pr-35 text-xs font-semibold text-gray-900">Name</th>
+                                <th className="text-left py-1 text-xs font-semibold text-gray-900">Phone</th>
+                                <th className="text-left py-1 pr-125 text-xs font-semibold text-gray-900">Relation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {tenants.length > 0 ? (
+                                tenants.map((tenant, index) => (
+                                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                        <td className="py-1 text-sm text-gray-900 font-semibold">{tenant.name}</td>
+                                        <td className="py-1 text-sm text-gray-600">{tenant.phone}</td>
+                                        <td className="py-1 text-sm text-gray-600">{tenant.relation}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3} className="py-2 text-xs text-gray-500">
+                                        No lease
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Utility */}
+                <h3 className="text-md font-medium text-gray-900 mx-1 pt-6 pb-4">Utility</h3>
+
+                {/* Utilities Table */}
+                <div className="max-w-6xl">
+                    <table className="mx-2 w-full">
+                        <thead>
+                            <tr className="border-b border-gray-200">
+                                <th className="text-left py-1 pr-25 text-xs font-semibold text-gray-900">Type</th>
+                                <th className="text-left py-1 pr-20 text-xs font-semibold text-gray-900">Recurrence</th>
+                                <th className="text-left py-1 pr-170 text-xs font-semibold text-gray-900">Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {utility.length > 0 ? (
+                                utility.map((utility, index) => (
+                                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                        <td className="py-1 text-sm text-gray-900 font-semibold">{utility.type}</td>
+                                        <td className="py-1 text-sm text-gray-600">{utility.recurrence}</td>
+                                        <td className="py-1 text-sm text-gray-600">{utility.cost}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3} className="py-2 text-xs text-gray-500">
+                                        No lease
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Property Section */}
+            <div className="px-8 py-4">
+                {/* Sub-header */}
+                <div className="space-y-3">
+                    {/* Header with Edit button & Cancel/Save buttons isEdit */}
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-semibold text-gray-900">Owner</h2>
+                        {!isEditing ? (
+                            <button
+                                onClick={handleEditClick}
+                                className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors">
+                                <svg
+                                    className="h-3.5 w-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                    />
+                                </svg>
+                                Edit
+                            </button>
+                            ) : (
+                                <div className="flex gap-3 mx-1">
+                                    <button
+                                        onClick={handleCancel}
+                                        className="px-2 py-1.25 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:border-gray-400 transition-colors"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSave}
+                                        disabled={!hasChanges()}
+                                        className={`px-2.5 py-1.25 text-white text-sm font-medium rounded-md transition-colors ${
+                                            hasChanges()
+                                                ? 'bg-black hover:bg-gray-800 cursor-pointer'
+                                                : 'bg-gray-400 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        Save
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                    {/* Name */}
+                    <div className="flex items-baseline py-3 mx-1">
+                        <div className="w-48 text-sm font-medium text-gray-800">Name</div>
+                        {isEditing ? (
+                            <input
+                                type="text"
+                                value={editedOwnerName}
+                                onChange={(e) => setEditedOwnerName(e.target.value)}
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Owner name"
+                            />
+                        ) : (
+                            <div className="flex-1 text-sm text-gray-600">{property?.ownerName || ''}</div>
+                        )}
+                    </div>
+
+                    {/* Email */}
+                    <div className="flex items-baseline py-3 mx-1">
+                        <div className="w-48 text-sm font-medium text-gray-800">Email</div>
+                        {isEditing ? (
+                            <input
+                                type="email"
+                                value={editedOwnerEmail}
+                                onChange={(e) => setEditedOwnerEmail(e.target.value)}
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="owner@example.com"
+                            />
+                        ) : (
+                            <div className="flex-1 text-sm text-gray-600">{property?.ownerEmail || ''}</div>
+                        )}
+                    </div>
+
+                    {/* Phone */}
+                    <div className="flex items-baseline py-3 mx-1">
+                        <div className="w-48 text-sm font-medium text-gray-800">Phone</div>
+                        {isEditing ? (
+                            <input
+                                type="tel"
+                                value={editedOwnerPhone}
+                                onChange={(e) => setEditedOwnerPhone(e.target.value)}
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="(555) 123-4567"
+                            />
+                        ) : (
+                            <div className="flex-1 text-sm text-gray-600">{property?.ownerPhone || ''}</div>
+                        )}
+                    </div>
+                </div>
+            </div>
+        </div>
+    )
+}
