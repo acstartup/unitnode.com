@@ -446,7 +446,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 // Make API call
                                 const addLease = async () => {
                                     try {
-                                        const response = await fetch(`/api/properties/@{selectedPropertyId}`, {
+                                        const response = await fetch(`/api/properties/${selectedPropertyId}`, {
                                             method: 'PATCH',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({
