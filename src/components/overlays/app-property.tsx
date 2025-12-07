@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
 import PlacesAutocomplete from '../PlacesAutocomplete';
 import { useProperties } from '@/contexts/PropertyContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface AddPropertyOverlayProps {
     isOpen: boolean;
@@ -36,6 +37,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
     const [ownerEmail, setOwnerEmail] = useState('');
     const [ownerPhone, setOwnerPhone] = useState('');
     const { addProperty } = useProperties();
+    const { showToast } = useToast();
 
     const { isLoaded, loadError } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -44,27 +46,34 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
    
     if (!isOpen) return null;
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!address.trim()) {
-            alert('Please enter an address');
+            showToast('Please enter an address', 'error');
             return;
         }
 
-        addProperty({
-            address: address.trim(),
-            mainTenant: 'N/A',
-            rent: 0,
-            occupied: false,
-            ownerName: ownerName.trim() || undefined,
-            ownerEmail: ownerEmail.trim() || undefined,
-            ownerPhone: ownerPhone.trim() || undefined,
-        })
+        try {
+            await addProperty({
+                address: address.trim(),
+                mainTenant: 'N/A',
+                rent: 0,
+                occupied: false,
+                ownerName: ownerName.trim() || undefined,
+                ownerEmail: ownerEmail.trim() || undefined,
+                ownerPhone: ownerPhone.trim() || undefined,
+            })
 
-        setAddress('');
-        setOwnerName('');
-        setOwnerEmail('');
-        setOwnerPhone('');
-        onClose();
+            showToast('Property added successfully', 'success');
+
+            setAddress('');
+            setOwnerName('');
+            setOwnerEmail('');
+            setOwnerPhone('');
+            onClose();
+        } catch (error) {
+            console.error('Error adding property:', error);
+            showToast('Failed to add property', 'error');
+        }
     }
 
     return (
