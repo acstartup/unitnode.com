@@ -102,7 +102,10 @@ export default function Sidebar() {
                                     <div className="border-t border-gray-200 my-1"></div>
 
                                     {/* Personal Details */}
-                                    <Link href="/app/settings/account" className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                    <Link 
+                                        href="/app/settings/account" 
+                                        onClick={() => setShowDropdown(false)}
+                                        className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
                                         <svg
                                             className="h-4.5 w-4.5 text-gray-600"
                                             fill="none"
@@ -120,7 +123,19 @@ export default function Sidebar() {
                                     </Link>
 
                                     {/* Log Out */}
-                                    <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                    <button
+                                        onClick={async () => {
+                                            setShowDropdown(false);
+                                            try {
+                                                await fetch('/api/auth/logout', {
+                                                    method: 'POST',
+                                                });
+                                                window.location.href = '/';
+                                            } catch (error) {
+                                                console.error('Logout failed:', error);
+                                            }
+                                        }} 
+                                        className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">    
                                         <svg
                                             className="h-4.5 w-4.5 text-gray-600"
                                             fill="none"
