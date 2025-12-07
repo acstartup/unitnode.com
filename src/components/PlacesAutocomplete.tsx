@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
+import { useState } from 'react';
 import usePlacesAutocomplete, {
     getGeocode,
     getLatLng,

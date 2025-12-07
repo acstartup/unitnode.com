@@ -4,11 +4,11 @@ import { prisma } from '@/lib/db';
 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: { id:string } }
+    { params }: { params: Promise<{ id: string }> }
 )   {
     try {
         const session = await getSession();
-        
+
     if (!session) {
         return NextResponse.json(
             { success: false, message: 'Unauthroized' },
@@ -17,12 +17,14 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { ownerName, ownerEmail, ownerPhone } = body;
+    const { ownerName, ownerEmail, ownerPhone, mainTenant, mainTenantPhone, rent, occupied } = body;
+
+    const { id } = await params;
 
     // Verify the property belonds to the user
     const existingProperty = await prisma.property.findFirst({
         where: {
-            id: params.id,
+            id,
             userId: session.userId,
         },
     })
@@ -35,11 +37,15 @@ export async function PATCH(
     }
 
     const property = await prisma.property.update({
-        where: { id: params.id },
-        data: { 
+        where: { id },
+        data: {
             ownerName,
             ownerEmail,
             ownerPhone,
+            ...(mainTenant && { mainTenant }),
+            ...(mainTenantPhone !== undefined && { mainTenantPhone }),
+            ...(rent !== undefined && { rent }),
+            ...(occupied !== undefined && { occupied }),
         }
     })
 

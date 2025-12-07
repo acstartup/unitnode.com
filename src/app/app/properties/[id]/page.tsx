@@ -16,17 +16,15 @@ export default function PropertyDetailsPage() {
     const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
 
     const property = properties.find(p => p.id === propertyId);
+    const hasLease = property?.mainTenant && property.mainTenant !== 'N/A';
 
-    // Placeholder tenant data
-    const tenants = [
-        { name: 'Aiden Timothy-John Potato', phone: '(555) 123-4567', relation: 'Main'},
-        { name: 'Jann Smith', phone: '(555) 987-6543', relation: 'Sister'}
-    ]
+    const tenants = hasLease ? [
+        { name: property.mainTenant, phone: property.mainTenantPhone || '', relation: 'Main' } 
+    ] : [];
 
-    // Placeholder utility data
-    const utility = [
-        { type: 'Rent', recurrence: 'Yearly', cost: '$120'}
-    ]
+    const utility = hasLease ? [
+        { type: 'Rent', recurrence: 'Monthly', cost: `$${property.rent}`}
+    ] : [];
 
     const handleEditClick = () => {
         setIsEditing(true);
@@ -124,13 +122,21 @@ export default function PropertyDetailsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {tenants.map((tenant, index) => (
-                                <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                    <td className="py-1 text-sm text-gray-900 font-semibold">{tenant.name}</td>
-                                    <td className="py-1 text-sm text-gray-600">{tenant.phone}</td>
-                                    <td className="py-1 text-sm text-gray-600">{tenant.relation}</td>
+                            {tenants.length > 0 ? (
+                                tenants.map((tenant, index) => (
+                                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                        <td className="py-1 text-sm text-gray-900 font-semibold">{tenant.name}</td>
+                                        <td className="py-1 text-sm text-gray-600">{tenant.phone}</td>
+                                        <td className="py-1 text-sm text-gray-600">{tenant.relation}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3} className="py-2 text-xs text-gray-500">
+                                        No lease
+                                    </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -149,13 +155,21 @@ export default function PropertyDetailsPage() {
                             </tr>
                         </thead>
                         <tbody>
-                            {utility.map((utility, index) => (
-                                <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                    <td className="py-1 text-sm text-gray-900 font-semibold">{utility.type}</td>
-                                    <td className="py-1 text-sm text-gray-600">{utility.recurrence}</td>
-                                    <td className="py-1 text-sm text-gray-600">{utility.cost}</td>
+                            {utility.length > 0 ? (
+                                utility.map((utility, index) => (
+                                    <tr key={index} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                                        <td className="py-1 text-sm text-gray-900 font-semibold">{utility.type}</td>
+                                        <td className="py-1 text-sm text-gray-600">{utility.recurrence}</td>
+                                        <td className="py-1 text-sm text-gray-600">{utility.cost}</td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td colSpan={3} className="py-2 text-xs text-gray-500">
+                                        No lease
+                                    </td>
                                 </tr>
-                            ))}
+                            )}
                         </tbody>
                     </table>
                 </div>

@@ -6,6 +6,7 @@ export interface Property {
     id: string;
     address: string;
     mainTenant: string;
+    mainTenantPhone?: string;
     rent: number;
     occupied: boolean;
     ownerName?: string;
