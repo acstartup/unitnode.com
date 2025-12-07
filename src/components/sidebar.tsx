@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function Sidebar() {
     const pathname = usePathname();
 
-    const isActive = (path: string) => pathname === path;
+    const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/');
 
     return (
         <aside className="h-screen w-60 bg-white border-r border-gray-400 text-black flex flex-col">
