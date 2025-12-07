@@ -137,7 +137,7 @@ export default function Header() {
 
                     {/* Dropdown Menu for Command Center*/}
                     {isDropdownOpen && (
-                        <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute right-0 mt-0.5 w-29 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                             {/* Add Property Button */}
                             <button 
                                 onClick={() => {
@@ -165,7 +165,7 @@ export default function Header() {
                                         strokeLinejoin="round"
                                     />
                                 </svg>
-                                <span className="text-sm text-black">Add property</span>
+                                <span className="text-sm text-black">Property</span>
                             </button>
 
                             {/* Add Lease Button */}
@@ -189,7 +189,7 @@ export default function Header() {
                                         strokeLinejoin="round"
                                     />
                                 </svg>
-                                <span className="text-sm text-black">Add lease</span>
+                                <span className="text-sm text-black">Lease</span>
                             </button>
                         </div>
                     )}

@@ -37,6 +37,7 @@ export default function Properties(){
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">
                                 Occupied
                             </th>
+                            <th className="px-4 py-2"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
