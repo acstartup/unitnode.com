@@ -72,7 +72,10 @@ export default function Sidebar() {
                                 {/* Menu items */}
                                 <div className="py-1 pb-0">
                                     {/* Settings */}
-                                    <Link href="/app/settings" className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                    <Link 
+                                        href="/app/settings"
+                                        onClick={() => setShowDropdown(false)} 
+                                        className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
                                         <svg
                                             className="h-4.5 w-4.5 text-gray-600"
                                             fill="none"
