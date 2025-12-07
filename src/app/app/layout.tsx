@@ -3,10 +3,11 @@ import type { Metadata } from 'next';
 import '@/app/globals.css';
 import Sidebar from '@/components/sidebar';
 import Header from '@/components/header';
+import { PropertyProvider } from '@/contexts/PropertyContext';
 
 export const metadata: Metadata = {
-  title: 'UnitNode App',
-  description: 'Property management software by UnitNode',
+  title: 'UnitNode',
+  description: 'Automate your property management.',
 };
 
 export default function AppLayout({
@@ -15,16 +16,17 @@ export default function AppLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-screen bg-white">
-      {/* Updated Layout to have sidebar on every page, step #1 to redirecting the log-in page to the dashboard page*/}
-      <Sidebar />
+    <PropertyProvider>
+      <div className="flex h-screen bg-white">
+        <Sidebar />
 
-      <div className="flex-1 flex flex-col py-4 overflow-hidden">
-        <Header />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+        <div className="flex-1 flex flex-col py-4 overflow-hidden">
+          <Header />
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </PropertyProvider>
   );
 }

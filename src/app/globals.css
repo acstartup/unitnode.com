@@ -138,7 +138,7 @@
   html, body {
     @apply bg-background text-foreground min-h-screen overflow-auto;
     /* Reserve space for the scrollbar to prevent layout shift/alignment issues */
-    scrollbar-gutter: stable both-edges;
+    scrollbar-gutter: stable right-edge;
   }
   
   /* Add pointer cursor to all clickable elements */
