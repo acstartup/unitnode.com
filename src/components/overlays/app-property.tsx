@@ -37,7 +37,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
     const [ownerPhone, setOwnerPhone] = useState('');
     const { addProperty } = useProperties();
 
-    const { isLoaded, loadError } = useLoadScript({
+    const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
         libraries,
     })
