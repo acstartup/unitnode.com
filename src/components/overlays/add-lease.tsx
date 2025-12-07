@@ -191,7 +191,9 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                 >
                     {/* Header */}
                     <div className="px-4 py-4 border-gray-200">
-                        <h2 className="text-md font-semibold text-gray-900">Add lease</h2>
+                        <h2 className="text-md font-semibold text-gray-900">
+                            {isEditingLease ? 'Edit lease' : 'Add lease'}
+                        </h2>
                     </div>
                     {/* Close Button */}
                     <button
