@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useLoadScript } from '@react-google-maps/api';
 import PlacesAutocomplete from '../PlacesAutocomplete';
 import { useProperties } from '@/contexts/PropertyContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface AddPropertyOverlayProps {
     isOpen: boolean;
@@ -36,6 +37,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
     const [ownerEmail, setOwnerEmail] = useState('');
     const [ownerPhone, setOwnerPhone] = useState('');
     const { addProperty } = useProperties();
+    const { showToast } = useToast();
 
     const { isLoaded } = useLoadScript({
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
@@ -44,27 +46,34 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
    
     if (!isOpen) return null;
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (!address.trim()) {
-            alert('Please enter an address');
+            showToast('Please enter an address', 'error');
             return;
         }
 
-        addProperty({
-            address: address.trim(),
-            mainTenant: 'N/A',
-            rent: 0,
-            occupied: false,
-            ownerName: ownerName.trim() || undefined,
-            ownerEmail: ownerEmail.trim() || undefined,
-            ownerPhone: ownerPhone.trim() || undefined,
-        })
+        try {
+            await addProperty({
+                address: address.trim(),
+                mainTenant: 'N/A',
+                rent: 0,
+                occupied: false,
+                ownerName: ownerName.trim() || undefined,
+                ownerEmail: ownerEmail.trim() || undefined,
+                ownerPhone: ownerPhone.trim() || undefined,
+            })
 
-        setAddress('');
-        setOwnerName('');
-        setOwnerEmail('');
-        setOwnerPhone('');
-        onClose();
+            showToast('Property added successfully', 'success');
+
+            setAddress('');
+            setOwnerName('');
+            setOwnerEmail('');
+            setOwnerPhone('');
+            onClose();
+        } catch (error) {
+            console.error('Error adding property:', error);
+            showToast('Failed to add property', 'error');
+        }
     }
 
     return (
@@ -130,7 +139,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
 
                         {/* Owner Name */}
                         <div>
-                            <h2 className="text-sm font-semibold py-2 text-gray-900">Owner information</h2>
+                            <h2 className={`text-sm font-semibold py-2 ${!address.trim() ? 'text-gray-400' : 'text-gray-900'}`}>Owner information</h2>
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Name
                             </label>
@@ -138,7 +147,8 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                                 type="name"
                                 value={ownerName}
                                 onChange={(e) => setOwnerName(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                disabled={!address.trim()}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
                                 placeholder="John Owner"
                             />
                         </div>
@@ -152,7 +162,8 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                                 type="email"
                                 value={ownerEmail}
                                 onChange={(e) => setOwnerEmail(e.target.value)}
-                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                disabled={!address.trim()}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
                                 placeholder="john.owner@example.com"
                             />
                         </div>
@@ -166,7 +177,8 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                                 type="tel"
                                 value={ownerPhone}
                                 onChange={(e) => setOwnerPhone(formatPhoneNumber(e.target.value))}
-                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                disabled={!address.trim()}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
                                 placeholder="(555) 123-4567"
                             />
                         </div>
@@ -182,7 +194,13 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                         </button>
                         <button
                             onClick={handleSubmit}
-                            className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 transition-colors"
+                            // !trim = not filled out, so it is disabled when those boxes aren't filed
+                            disabled={!address.trim() || !ownerName.trim() || !ownerEmail.trim() || !ownerPhone.trim()} 
+                            className={`px-3 py-1 text-white text-sm font-small rounded-md transition-colors ${
+                                address.trim() && ownerName.trim() && ownerEmail.trim() && ownerPhone.trim()
+                                    ? 'bg-black hover:bg-gray-800 cursor-pointer'
+                                    : 'bg-gray-400 cursor-not-allowed'
+                            }`}
                         >
                             Add property
                         </button>

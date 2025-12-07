@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface AddLeaseOverlayProps {
     isOpen: boolean;
@@ -41,6 +42,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     const [utilityType, setUtilityType] = useState('Rent');
     const [utilityRecurrence, setUtilityRecurrence] = useState('Monthly');
     const [utilityCost, setUtilityCost] = useState('');
+    const { showToast } = useToast();
 
     const { properties } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
@@ -500,18 +502,19 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                         <button
                             onClick={() => {
                                 if (!selectedPropertyId) {
-                                    alert('Please select a property first');
+                                    // showToast('message', 'type of Toast')
+                                    showToast('Please select a property first', 'error');
                                     return;
                                 }
                                 
                                 // Validate that first tenant's name is filled
                                 if (!tenants[0].name.trim()) {
-                                    alert('Please enter the main tenant name');
+                                    showToast('Please enter the main tenant name', 'error');
                                     return;
                                 }
 
                                 if (!utilityCost.trim()) {
-                                    alert('Please enter the cost');
+                                    showToast('Please enter the cost', 'error');
                                     return;
                                 }
 
@@ -535,13 +538,16 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                         const data = await response.json();
                                         if (data.success) {
-                                            alert(isEditingLease ? 'Lease updated successfully' : 'Lease added successfully');
-                                            window.location.reload();
+                                            showToast(isEditingLease ? 'Lease updated successfully' : 'Lease added successfully', 'success');
+                                            // 2000 mili (2 second) delay before page refresh
+                                            setTimeout(() => {
+                                                window.location.reload();
+                                            }, 2000);
                                             onClose();
                                         }
                                     } catch (error) {
                                         console.error('Error adding lease:', error);
-                                        alert('Failed to add lease. Please try again.');
+                                        showToast('Failed to add lease. Please try again.', 'error');
                                     }
                                 };
 
