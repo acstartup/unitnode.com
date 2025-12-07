@@ -72,7 +72,7 @@ export default function Sidebar() {
                                 {/* Menu items */}
                                 <div className="py-1 pb-0">
                                     {/* Settings */}
-                                    <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                    <Link href="/app/settings" className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
                                         <svg
                                             className="h-4.5 w-4.5 text-gray-600"
                                             fill="none"
@@ -93,13 +93,13 @@ export default function Sidebar() {
                                             />                               
                                         </svg>
                                         <span className="text-sm text-gray-700">Settings</span>
-                                    </button>
+                                    </Link>
 
                                     {/* Divider */}
                                     <div className="border-t border-gray-200 my-1"></div>
 
                                     {/* Personal Details */}
-                                    <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
+                                    <Link href="/app/settings/account" className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
                                         <svg
                                             className="h-4.5 w-4.5 text-gray-600"
                                             fill="none"
@@ -114,7 +114,7 @@ export default function Sidebar() {
                                             />
                                         </svg>
                                         <span className="text-sm text-gray-700">unitnode@gmail.com</span>
-                                    </button>
+                                    </Link>
 
                                     {/* Log Out */}
                                     <button className="w-full px-3 py-2 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md">
