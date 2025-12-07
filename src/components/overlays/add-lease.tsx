@@ -128,16 +128,18 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         const selectedProperty = properties.find(p => p.id === propertyId);
         if (selectedProperty && selectedProperty.mainTenant && selectedProperty.mainTenant !== 'N/A') {
             // Memory fill form
+                // pre-formats the phone numbers
+            const formattedPhone = formatPhoneNumber(selectedProperty.mainTenantPhone || '');
             const tenantData = {
                 name: selectedProperty.mainTenant,
-                phone: selectedProperty.mainTenantPhone || '',
+                phone: formattedPhone,
             };
             const costData = selectedProperty.rent.toString();
 
             setTenants([{
                 id: '1',
                 name: selectedProperty.mainTenant,
-                phone: selectedProperty.mainTenantPhone || '',
+                phone: formattedPhone,
                 relation: 'Main'
             }]);
             setUtilityCost(selectedProperty.rent.toString());
