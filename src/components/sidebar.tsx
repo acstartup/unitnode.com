@@ -204,12 +204,16 @@ export default function Sidebar() {
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 onMouseEnter={() => setIsHoveringToggle(true)}
                 onMouseLeave={() => setIsHoveringToggle(false)}
-                className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all"
+                className="absolute top-1/2 -translate-y-1/2 flex items-center justify-center transition-all group"
                 style={{ left: isCollapsed ? '64px' : '240px' }}
                 aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
                 {!isHoveringToggle && (
-                    <div className="w-0.5 h-4 bg-gray-400 ml-2"></div>
+                    <div className="w-0.5 h-4 bg-gray-400 ml-2">
+                        <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                            Collapse
+                        </span>
+                    </div>
                 )}
                 {isHoveringToggle && (
                     <svg
@@ -226,7 +230,12 @@ export default function Sidebar() {
                         />
                     </svg>
                 )}
+                {/* Tooltip */}
+                <span className="absolute left-full ml-1 top-1/2 -translate-y-1/2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitesapce-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                    {isCollapsed ? 'Expand' : 'Collapse'}
+                </span>
             </button>
+            
         </div>
     )
 
