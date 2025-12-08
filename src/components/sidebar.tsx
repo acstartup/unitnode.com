@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
+import { useUser } from '@/contexts/UserContext';
 import Link from 'next/link';
 
 export default function Sidebar() {
@@ -10,6 +11,7 @@ export default function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [isHoveringToggle, setIsHoveringToggle] = useState(false);
+    const { user } = useUser();
 
     const isActive = (path: string) => pathname === path || pathname.startsWith(path + '/');
 
@@ -40,12 +42,14 @@ export default function Sidebar() {
                         >
                             { /* logo area */}
                             <div className="w-6 h-6 bg-gray-100 rounded-sm flex items-center justify-center">
-                                <span className="text-black text-xs">UN</span>
+                                <span className="text-black text-xs">
+                                    {user?.companyName?.[0]?.toUpperCase() || 'U'}
+                                </span>
                             </div>
                             {!isCollapsed && (
                                 <>
                                     <span className={'flex text-sm flex-1'}>
-                                        UnitNode
+                                        {user?.companyName || 'UnitNode'}
                                     </span>
                                     <svg
                                         className="h-4 w-4 text-gray-600 pointer-events-none"
@@ -71,9 +75,11 @@ export default function Sidebar() {
                                     {/* Logo Section */}
                                     <div className="flex flex-col items-center py-3 border-gray-200">
                                         <div className="w-16 h-16 bg-gray-100 rounded-sm flex items-center justify-center mb-2">
-                                            <span className="text-black text-lg font-semibold">UN</span>
+                                            <span className="text-black text-lg font-small">
+                                                {user?.companyName?.[0].toUpperCase() || 'U'}
+                                            </span>
                                         </div>
-                                        <h1 className="text-md font-medium">UnitNode</h1>
+                                        <h1 className="text-md font-medium">{user?.companyName || 'UnitNode'}</h1>
                                     </div>
 
                                     {/* Menu items */}
@@ -126,7 +132,9 @@ export default function Sidebar() {
                                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                                                 />
                                             </svg>
-                                            <span className="text-sm text-gray-700">unitnode@gmail.com</span>
+                                            <span className="text-sm text-gray-700">
+                                                {user?.email || 'unitnode@gmail.com'}
+                                            </span>
                                         </Link>
 
                                         {/* Log Out */}
