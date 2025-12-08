@@ -31,7 +31,7 @@ export default function Sidebar() {
 
     return (
         <div className="relative">
-            <aside className="h-screen w-60 bg-white border-r border-gray-400 text-black flex flex-col">
+            <aside className={`h-screen bg-white border-r border-gray-400 text-black flex flex-col transition-all duration-300 ${isCollapsed ? 'w-16' : 'w-60'}`}>
                 {/* Sidebar header */}
                     <div ref={dropdownRef} className="flex items-center gap px-2 border-gray-200 relative">
                         <button
@@ -175,14 +175,14 @@ export default function Sidebar() {
                     >
                         Dashboard
                     </Link> */}
-                    <Link href="/app/properties" className={`flex items-center px-1 py-2 text-sm rounded-md hover:bg-gray-100 ${
+                    <Link href="/app/properties" className={`flex items-center ${isCollapsed ? 'justify-center -mx-1' : 'pl-2 -mx-1'} px-1 py-2 text-sm rounded-lg hover:bg-gray-100 ${
                         isActive('/app/properties')
                             ? 'font-bold text-gray-900'
                             : 'font-medium text-gray-600'
                         }`}
                     >
                         <svg
-                            className="h-5 w-5 mr-3 text-gray-600"
+                            className={`h-5 w-5 text-gray-600 flex-shrink-0 ${isCollapsed ? '' : 'mr-3'}`}
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
