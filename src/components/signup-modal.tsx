@@ -38,6 +38,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
   const [isGoogleCompleteStep, setIsGoogleCompleteStep] = useState(false);
   const [googleEmail, setGoogleEmail] = useState('');
   const [googleCompleteSuccess, setGoogleCompleteSuccess] = useState(false);
+  const [showCompanyNameStep, setShowCompanyNameStep] = useState(false);
   
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -164,8 +165,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                     const data = await res.json();
                     if (res.ok && data.success) {
                       // Show success overlay inside modal
-                      setIsGoogleCompleteStep(false);
-                      setGoogleCompleteSuccess(true);
+                      window.location.href='/app/properties';
                     } else {
                       setErrorMessage(data.message || 'Failed to save company name');
                     }
@@ -310,8 +310,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                     const result = await apiClient.auth.verifyCode(verificationCode);
                     
                     if (result.success) {
-                      setSignupSuccess(true);
                       setShowVerificationStep(false);
+                      setShowCompanyNameStep(true);
                     } else {
                       setVerificationError(result.message || "Invalid verification code");
                     }
@@ -379,6 +379,93 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               >
                 Back to signup
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* Company Name */}
+        {showCompanyNameStep && (
+          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+            <div className="relative w-full mb-5">
+              <div className="flex justify-center">
+                <Image
+                  src="/unitnode-logo.png"
+                  alt="UnitNode"
+                  width={150}
+                  height={40}
+                  priority
+                />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-center">One more thing...</h2>
+            <p className="text-gray-600 text-center mb-6 max-w-md">
+              What's your company name?
+            </p>
+
+            <div className="w-full max-w-[380px]">
+              <div className="mb-4">
+                <input
+                  type="text"
+                  placeholder="Company Name"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
+                  onFocus={() => setCompanyNameBlurred(false)}
+                  onBlur={() => setCompanyNameBlurred(true)}
+                  className={cn(
+                    "w-full px-4 py-2.5 rounded-2xl bg-gray-100 border focus:outline-none focus:ring-2 focus:ring-primary/50 text-sm font-medium transition-colors",
+                    companyNameBlurred && companyName.length === 0
+                      ? "border-red-500 border-2"
+                      : "border-gray-300"
+                  )}
+                  autoFocus
+                />
+                {companyNameBlurred && companyName.length === 0 && (
+                  <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
+                    Company name is required
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={async () => {
+                  if (companyName.trim().length === 0) {
+                    setCompanyNameBlurred(true);
+                    return;
+                  }
+                  setIsSubmitting(true);
+                  setErrorMessage("");
+                  try {
+                    const res = await fetch('/api/auth/update-company', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ email, companyName: companyName.trim() }),
+                    });
+                    const data = await res.json();
+                    if (res.ok && data.success) {
+                      setShowCompanyNameStep(false)
+                      setSignupSuccess(true);
+                    } else {
+                      setErrorMessage(data.message || 'Failed to save company name');
+                    }
+                  } catch {
+                    setErrorMessage('An error occcured. Please try again.');
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
+                disabled={isSubmitting}
+                className={cn(
+                  "w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium transition-colors text-sm",
+                  isSubmitting ? "opacity-70 cursor-not-allowed" : "hover:bg-black/90"
+                )}
+              >
+                {isSubmitting ? 'Saving...' : 'Continue'}
+              </button>
+
+              {/* Error message */}
+              {errorMessage && (
+                <p className="text-red-500 text-xs mt-2 text-center animate-in fade-in">{errorMessage}</p>
+              )}
             </div>
           </div>
         )}
