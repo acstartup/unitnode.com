@@ -101,7 +101,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
       {/* Modal container with translucent white background like navbar */}
       <div className={cn(
         "relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center animate-in fade-in duration-300",
-        isGoogleCompleteStep || showCompanyNameStep ? "" : "bg-white/80 backdrop-blur-md"
+        isGoogleCompleteStep || showCompanyNameStep || signupSuccess ? "" : "bg-white/80 backdrop-blur-md"
       )}>
         
         {/* Google Completion Step */}
@@ -475,7 +475,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         
         {/* Success Message */}
         {signupSuccess && !isGoogleCompleteStep && (
-          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-3xl animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-10 flex flex-col items-center justify-center p-8 rounded-3xl animate-in fade-in duration-300">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -488,14 +488,14 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 <line x1="6" y1="6" x2="18" y2="18"></line>
               </svg>
             </button>
-            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="w-20 h-20 bg-white/20 backdrop-blur-md border-black/20 backdrop-blur-md rounded-full flex items-center justify-center mb-6">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-black-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                 <polyline points="22,6 12,13 2,6"></polyline>
               </svg>
             </div>
             <h2 className="text-2xl font-bold mb-3 text-center">Check Your Email</h2>
-            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mb-6 max-w-md">
+            <div className="bg-white/20 border border-black/20 rounded-xl p-4 mb-6 max-w-md">
               <p className="text-gray-700 mb-2">
                 We&apos;ve sent a verification link to <span className="font-medium">{email}</span>
               </p>
@@ -541,8 +541,8 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </p>
           </div>
         )}
-        {/* Close button - hidden during company name or Google complete */}
-        {!isGoogleCompleteStep && !showCompanyNameStep && (
+        {/* Close button - hidden during company name, Google complete, or success */}
+        {!isGoogleCompleteStep && !showCompanyNameStep && !signupSuccess && (
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -558,7 +558,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
         )}
 
         {/* Content - centered */}
-        {!isGoogleCompleteStep && !showCompanyNameStep && ( 
+        {!isGoogleCompleteStep && !showCompanyNameStep && !signupSuccess && ( 
           <div className="w-full flex flex-col items-center pt-10 px-6 pb-10">
             {/* UnitNode icon */}
             <div className="mb-5">
