@@ -32,7 +32,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
     const fetchUser = async () => {
         try {
-            const response = await fetch('/api/user/me');
+            const response = await fetch('/api/auth/user/me');
             const data = await response.json();
 
             if (data.success && data.user) {
