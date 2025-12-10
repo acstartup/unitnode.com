@@ -211,7 +211,15 @@ export default function Account() {
 
                 {/* Company */}
                 <h2 className="text-lg font-semibold text-gray-900 mb-4">Company</h2>
-                            
+                    <div className="flex items-baseline py-3 mx-1">
+                        <div className="w-48 text-sm font-medium text-gray-800">Name</div>
+                    </div>
+                    <div className="flex items-baseline py-5 mx-1">
+                        <div className="w-48 text-sm font-medium text-gray-800">Email</div>
+                    </div>
+                    <div className="flex items-baseline py-3 mx-1">
+                        <div className="w-48 text-sm font-medium text-gray-800">Password</div>
+                    </div>
             </div>
         </div>
     )
