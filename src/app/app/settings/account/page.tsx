@@ -103,8 +103,9 @@ export default function Account() {
 
             {/* Content */}
             <div className="px-8 py-5">
-                <div className="text-lg font-semibold text-gray-900 mb-4">Profile</div>
-                    <div className="flex flex-col items-left px-100 border-gray-200 mb-6">
+                <h2 className="text-lg font-semibold text-gray-900 mb-4">Company</h2>
+                <div className="w-48 text-sm font-medium text-gray-800">Profile</div>
+                    <div className="flex flex-col items-left px-60 border-gray-200 -mt-5 mb-6">
                         {/* Logo */}
                         <div className="relative w-20 h-20 group">
                             <div className="w-20 h-20 bg-gray-100 rounded-sm flex items-center justify-center mb-3 overflow-hidden">
@@ -210,7 +211,6 @@ export default function Account() {
                     </div>
 
                 {/* Company */}
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Company</h2>
                     <div className="flex items-baseline py-3 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Name</div>
                     </div>
