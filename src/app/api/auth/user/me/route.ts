@@ -20,6 +20,7 @@ export async function GET() {
                 email: true,
                 name: true,
                 companyName: true,
+                companyLogo: true,
                 role: true,
             },
         })

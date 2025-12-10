@@ -7,6 +7,7 @@ interface User {
     email: string;
     name: string | null;
     companyName: string | null;
+    companyLogo: string | null;
     role: string;
 }
 
