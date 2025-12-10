@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { createSession, setSessionCookie } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,12 +16,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'User not found' }, { status: 404 });
     }
 
-    await prisma.user.update({
+    const updated = await prisma.user.update({
       where: { email },
       data: { companyName },
     });
 
-    return NextResponse.json({ success: true });
+    // Create session after updating company name
+    const sessionToken = createSession({
+      userId: updated.id,
+      email: updated.email,
+      role: updated.role,
+    });
+
+    const response = NextResponse.json({ success: true });
+    setSessionCookie(response, sessionToken);
+
+    return response;
   } catch (error) {
     console.error('Google complete error:', error);
     return NextResponse.json({ success: false, message: 'An error occurred' }, { status: 500 });
