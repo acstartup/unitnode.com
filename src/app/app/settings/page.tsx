@@ -6,8 +6,8 @@ export default function Settings() {
     return (
         <div className="min-h-screen w-full bg-white p-8">
             {/* Setting Header */}
-            <div className="mb-6">
-                <h1 className="text-xl font-semibold text-gray-900">General Settings</h1>
+            <div className="mb-6 -mt-3">
+                <h1 className="text-3xl font-semibold text-gray-900">General Settings</h1>
             </div>
 
             {/* Personal Navigation */}

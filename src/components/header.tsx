@@ -32,7 +32,7 @@ export default function Header() {
 
     return (
 
-        <header className="h-8 bg-white flex items-center px-8 sticky">
+        <header className="h-8 bg-white flex items-center px-8 mb-3 -mt-0.75 sticky">
             {/* Search Bar */}
             <div className="flex-1 max-w-2xl">
                 <div className="relative">
@@ -61,7 +61,7 @@ export default function Header() {
             </div>
 
             {/* right side: settings icon*/}
-            <div className="ml-115 flex items-center gap-3 px-2">
+            <div className="ml-115 flex relative-group position:fixed items-center gap-3 px-2">
                 <div className="relative group">
                     <a
                         href="/app/settings"

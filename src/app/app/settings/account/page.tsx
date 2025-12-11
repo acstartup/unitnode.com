@@ -130,7 +130,7 @@ export default function Account() {
     return (
         <div className="w-full bg-white min-h-screen">
             {/* Breadcrumbs */}
-            <div className="px-8 pt-8 pb-1">
+            <div className="-mt-3 px-8 pt-8 pb-1">
                 <div className="flex items-center text-sm text-gray-500 font-semibold">
                     <button
                         onClick={() => router.push('/app/settings')}

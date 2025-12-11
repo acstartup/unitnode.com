@@ -16,7 +16,7 @@ export default function Properties(){
         <div className="w-full bg-white">
             {/* Page Header */}
             <div className="mb-1">
-                <h1 className="text-3xl font-semibold text-gray-900 px-8 py-8">Properties</h1>
+                <h1 className="text-3xl font-semibold text-gray-900 -mt-3 px-8 py-8">Properties</h1>
             </div>
 
             {/* Table Container */}
