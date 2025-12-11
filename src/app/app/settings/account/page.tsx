@@ -11,6 +11,10 @@ export default function Account() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedCompanyName, setEditedCompanyName] = useState('');
+    const [editedEmail, setEditedEmail] = useState('');
+    const [editedPassword, setEditedPassword] = useState('');
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -69,6 +73,58 @@ export default function Account() {
         }
     };
 
+    const handleEditClick = () => {
+        setIsEditing(true);
+        setEditedCompanyName(user?.companyName || '');
+        setEditedEmail(user?.email || '');
+        setEditedPassword('');
+    };
+
+    const handleCancel = () => {
+        setIsEditing(false);
+        setEditedCompanyName('');
+        setEditedEmail('');
+        setEditedPassword('');
+    };
+
+    const hasChanges = () => {
+        return (
+            editedCompanyName !== (user?.companyName || '') ||
+            editedEmail !== (user?.email || '') ||
+            editedPassword !== ''
+        );
+    };
+
+    const handleSave = async () => {
+        try {
+            const updates: any = {};
+            if (editedCompanyName !== (user?.companyName || '')) {
+                updates.companyName = editedCompanyName.trim();
+            }
+            if (editedEmail !== (user?.email || '')) {
+                updates.email = editedEmail.trim();
+            }
+            if (editedPassword) {
+                updates.password = editedPassword;
+            }
+
+            const response = await fetch('/api/auth/user/update', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates),
+            });
+
+            if (!response.ok) throw new Error('Update failed');
+
+            await refreshUser();
+            setIsEditing(false);
+            setEditedPassword('');
+        } catch (error) {
+            console.error('Update error:', error);
+            alert('Failed to update account. Please try again.');
+        }
+    };
+
     return (
         <div className="w-full bg-white min-h-screen">
             {/* Breadcrumbs */}
@@ -103,9 +159,53 @@ export default function Account() {
 
             {/* Content */}
             <div className="px-8 py-5">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4">Company</h2>
-                <div className="w-48 text-sm font-medium text-gray-800">Profile</div>
-                    <div className="flex flex-col items-left px-60 border-gray-200 -mt-5 mb-6">
+                {/* Company Section Header with Edit/Save/Cancel Buttons */}
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-lg font-semibold text-gray-900">Company</h2>
+                    {!isEditing ? (
+                        <button
+                            onClick={handleEditClick}
+                            className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors"
+                        >
+                            <svg
+                                className="h-3.5 w-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                                />
+                            </svg>
+                            Edit
+                        </button>
+                    ) : (
+                        <div className="flex gap-3 mx-1">
+                            <button
+                                onClick={handleCancel}
+                                className="px-2 py-1.25 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:border-gray-400 transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                disabled={!hasChanges()}
+                                className={`px-2.5 py-1.25 text-white text-sm font-medium rounded-md transition-colors ${
+                                    hasChanges()
+                                        ? 'bg-black hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Save
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="w-48 text-sm font-medium text-black mx-1 py-3 items-baseline">Profile</div>
+                    <div className="flex flex-col items-left px-55 border-gray-200 -mt-8 mb-2">
                         {/* Logo */}
                         <div className="relative w-20 h-20 group">
                             <div className="w-20 h-20 bg-gray-100 rounded-sm flex items-center justify-center mb-3 overflow-hidden">
@@ -210,16 +310,53 @@ export default function Account() {
                         </div>
                     </div>
 
-                {/* Company */}
-                    <div className="flex items-baseline py-3 mx-1">
-                        <div className="w-48 text-sm font-medium text-gray-800">Name</div>
-                    </div>
-                    <div className="flex items-baseline py-5 mx-1">
-                        <div className="w-48 text-sm font-medium text-gray-800">Email</div>
-                    </div>
-                    <div className="flex items-baseline py-3 mx-1">
-                        <div className="w-48 text-sm font-medium text-gray-800">Password</div>
-                    </div>
+                {/* Company Name */}
+                <div className="flex items-baseline py-3 mx-1">
+                    <div className="w-48 text-sm font-medium text-gray-800">Company Name</div>
+                    {isEditing ? (
+                        <input
+                            type="text"
+                            value={editedCompanyName}
+                            onChange={(e) => setEditedCompanyName(e.target.value)}
+                            className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Company name"
+                        />
+                    ) : (
+                        <div className="flex-1 text-sm text-gray-600">{user?.companyName || ''}</div>
+                    )}
+                </div>
+
+                {/* Email */}
+                <div className="flex items-baseline py-3 mx-1">
+                    <div className="w-48 text-sm font-medium text-gray-800">Email</div>
+                    {isEditing ? (
+                        <input
+                            type="email"
+                            value={editedEmail}
+                            onChange={(e) => setEditedEmail(e.target.value)}
+                            className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="email@example.com"
+                        />
+                    ) : (
+                        <div className="flex-1 text-sm text-gray-600">{user?.email || ''}</div>
+                    )}
+                </div>
+
+                {/* Password */}
+                <div className="flex items-baseline py-3 mx-1">
+                    <div className="w-48 text-sm font-medium text-gray-800">Password</div>
+                    {isEditing ? (
+                        <input
+                            type="password"
+                            value={editedPassword}
+                            onChange={(e) => setEditedPassword(e.target.value)}
+                            className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Leave blank to keep current password"
+                        />
+                    ) : (
+                        <div className="flex-1 text-sm text-gray-600">••••••••</div>
+                    )}
+                </div>
             </div>
         </div>
     )
