@@ -100,7 +100,7 @@ export default function PropertyDetailsPage() {
 
             {/* Header */}
             <div className="mb-0">
-                <h1 className="text-3xl font-semibold text-gray-900 px-8">Property details</h1>
+                <h1 className="text-3xl -mt-3 font-semibold text-gray-900 px-8">Property details</h1>
             </div>
 
             {/* Lease Section */}
