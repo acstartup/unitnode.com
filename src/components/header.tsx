@@ -61,7 +61,7 @@ export default function Header() {
             </div>
 
             {/* right side: settings icon*/}
-            <div className="ml-115 flex relative-group position:fixed items-center gap-3 px-2">
+            <div className="fixed right-8 flex items-center gap-3 px-2">
                 <div className="relative group">
                     <a
                         href="/app/settings"
