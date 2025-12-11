@@ -15,6 +15,7 @@ export default function Account() {
     const [editedCompanyName, setEditedCompanyName] = useState('');
     const [editedEmail, setEditedEmail] = useState('');
     const [editedPassword, setEditedPassword] = useState('');
+    const [showPasswordInput, setShowPasswordInput] = useState(false);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -85,6 +86,7 @@ export default function Account() {
         setEditedCompanyName('');
         setEditedEmail('');
         setEditedPassword('');
+        setShowPasswordInput(false);
     };
 
     const hasChanges = () => {
@@ -346,13 +348,23 @@ export default function Account() {
                 <div className="flex items-baseline py-3 mx-1">
                     <div className="w-48 text-sm font-medium text-gray-800">Password</div>
                     {isEditing ? (
-                        <input
-                            type="password"
-                            value={editedPassword}
-                            onChange={(e) => setEditedPassword(e.target.value)}
-                            className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Leave blank to keep current password"
-                        />
+                        showPasswordInput ? (
+                            <input
+                                type="password"
+                                value={editedPassword}
+                                onChange={(e) => setEditedPassword(e.target.value)}
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="Enter new password"
+                                autoFocus
+                            />
+                        ) : (
+                            <button
+                                onClick={() => setShowPasswordInput(true)}
+                                className="border border-gray-300 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors"
+                            >
+                                Change password
+                            </button>
+                        )
                     ) : (
                         <div className="flex-1 text-sm text-gray-600">••••••••</div>
                     )}
