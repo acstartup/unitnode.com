@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Sidebar() {
     const pathname = usePathname();
@@ -41,10 +42,20 @@ export default function Sidebar() {
                             className={`flex hover:bg-gray-100 items-center mx-1 my-3 px-2 py-1.5 gap-3 rounded-lg w-full items-center ${showDropdown ? 'bg-gray-100' : ''}`}
                         >
                             { /* logo area */}
-                            <div className="w-6 h-6 bg-gray-100 rounded-sm flex items-center justify-center">
-                                <span className="text-black text-xs">
-                                    {user?.companyName?.[0]?.toUpperCase() || 'U'}
-                                </span>
+                            <div className="w-6 h-6 bg-gray-100 rounded-sm flex items-center justify-center overflow-hidden">
+                                {user?.companyLogo ? (
+                                    <Image
+                                        src={user.companyLogo}
+                                        alt="Company Logo"
+                                        width={24}
+                                        height={24}
+                                        className="object-cover w-full h-full"
+                                    />
+                                ) : (
+                                    <span className="text-black text-xs">
+                                        {user?.companyName?.[0]?.toUpperCase() || 'U'}
+                                    </span>
+                                )}
                             </div>
                             {!isCollapsed && (
                                 <>
@@ -74,17 +85,27 @@ export default function Sidebar() {
                                 <div className="p-2">
                                     {/* Logo Section */}
                                     <div className="flex flex-col items-center py-3 border-gray-200">
-                                        <div className="w-16 h-16 bg-gray-100 rounded-sm flex items-center justify-center mb-2">
-                                            <span className="text-black text-lg font-small">
-                                                {user?.companyName?.[0].toUpperCase() || 'U'}
-                                            </span>
+                                        <div className="w-16 h-16 bg-gray-100 rounded-sm flex items-center justify-center mb-2 overflow-hidden">
+                                            {user?.companyLogo ? (
+                                                <Image
+                                                    src={user.companyLogo}
+                                                    alt="Company Logo"
+                                                    width={64}
+                                                    height={64}
+                                                    className="object-cover w-full h-full"
+                                                />
+                                            ) : (
+                                                <span className="text-black text-lg font-small">
+                                                    {user?.companyName?.[0]?.toUpperCase() || 'U'}
+                                                </span>
+                                            )}
                                         </div>
                                         <h1 className="text-md font-medium">{user?.companyName || 'UnitNode'}</h1>
                                     </div>
 
                                     {/* Menu items */}
                                     <div className="py-1 pb-0">
-                                        {/* Settings */}
+                                        {/* Settings
                                         <Link 
                                             href="/app/settings"
                                             onClick={() => setShowDropdown(false)} 
@@ -110,9 +131,10 @@ export default function Sidebar() {
                                             </svg>
                                             <span className="text-sm text-gray-700">Settings</span>
                                         </Link>
+                                        */}
 
                                         {/* Divider */}
-                                        <div className="border-t border-gray-200 my-1"></div>
+                                        <div className="my-1"></div>
 
                                         {/* Personal Details */}
                                         <Link 
