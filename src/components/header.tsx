@@ -101,10 +101,16 @@ export default function Header() {
                                     <div className="text-sm font-medium text-gray-900">
                                         {property.address}
                                     </div>
-                                    {property.ownerName && (
+                                    {property.occupied && property.mainTenant && property.mainTenant !== 'N/A' ? (
                                         <div className="text-xs text-gray-500">
-                                            Owner: {property.ownerName}
+                                            Owner: {property.ownerName || '-'} • Main Tenant: {property.mainTenant} • Rent: ${property.rent}
                                         </div>
+                                    ) : (
+                                        property.ownerName && (
+                                            <div className="text-xs text-gray-500">
+                                                Owner: {property.ownerName}
+                                            </div>
+                                        )
                                     )}
                                 </button>
                             ))}
