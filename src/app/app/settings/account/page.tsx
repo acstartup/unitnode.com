@@ -325,7 +325,7 @@ export default function Account() {
                             value={editedCompanyName}
                             onChange={(e) => setEditedCompanyName(e.target.value)}
                             className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            placeholder="Company name"
+                            placeholder="Username"
                         />
                     ) : (
                         <div className="flex-1 text-sm text-gray-600">{user?.companyName || ''}</div>

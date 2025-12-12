@@ -124,14 +124,14 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               {googleEmail ? (
                 <span className="font-bold">, {googleEmail}</span>
               ) : null}
-              . Enter your company name to finish.
+              . Enter your username to finish.
             </p>
 
             <div className="w-full max-w-[380px]">
               <div className="mb-4">
                 <input
                   type="text"
-                  placeholder="Company Name"
+                  placeholder="Username"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   onFocus={() => setCompanyNameBlurred(false)}
@@ -146,7 +146,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 />
                 {companyNameBlurred && companyName.length === 0 && (
                   <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
-                    Company name is required
+                    Username is required
                   </p>
                 )}
               </div>
@@ -170,7 +170,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                       // Show success overlay inside modal
                       window.location.href='/app/properties';
                     } else {
-                      setErrorMessage(data.message || 'Failed to save company name');
+                      setErrorMessage(data.message || 'Failed to save username');
                     }
                   } catch {
                     setErrorMessage('An error occurred. Please try again.');
@@ -402,14 +402,14 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
             </div>
             <h2 className="text-2xl font-bold mb-2 text-center">One more thing...</h2>
             <p className="text-gray-600 text-center mb-6 max-w-md">
-              What's your company name?
+              What's your username?
             </p>
 
             <div className="w-full max-w-[380px]">
               <div className="mb-4">
                 <input
                   type="text"
-                  placeholder="Company Name"
+                  placeholder="Username"
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   onFocus={() => setCompanyNameBlurred(false)}
@@ -424,7 +424,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 />
                 {companyNameBlurred && companyName.length === 0 && (
                   <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
-                    Company name is required
+                    Username is required
                   </p>
                 )}
               </div>
@@ -448,7 +448,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                       setShowCompanyNameStep(false)
                       setSignupSuccess(true);
                     } else {
-                      setErrorMessage(data.message || 'Failed to save company name');
+                      setErrorMessage(data.message || 'Failed to save username');
                     }
                   } catch {
                     setErrorMessage('An error occcured. Please try again.');
@@ -589,7 +589,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               <div className="mb-4">
                 <input 
                   type="text" 
-                  placeholder="Company Name" 
+                  placeholder="Username" 
                   value={companyName}
                   onChange={(e) => setCompanyName(e.target.value)}
                   onFocus={() => setCompanyNameBlurred(false)}
@@ -603,7 +603,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
                 />
                 {companyNameBlurred && companyName.length === 0 && (
                   <p className="text-red-500 text-xs mt-1 ml-1 transition-opacity animate-in fade-in font-medium">
-                    Company name is required
+                    Username is required
                   </p>
                 )}
               </div>
@@ -612,7 +612,7 @@ export function SignupModal({ isOpen, onClose }: SignupModalProps) {
               <div className="mb-4">
                 <input 
                   type="email" 
-                  placeholder="Company Email" 
+                  placeholder="Email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setEmailBlurred(false)}
