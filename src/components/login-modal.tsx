@@ -114,10 +114,13 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10" onClick={handleBackdropClick}>
       {/* Modal container with translucent white background like navbar */}
-      <div className="relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 bg-white/80 backdrop-blur-md shadow-xl flex flex-col items-center justify-center animate-in fade-in duration-300">
+      <div className={cn(
+        "relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center animate-in fade-in duration-300",
+        showVerificationStep ? "" : "bg-white/80 backdrop-blur-md"
+      )}>
         {/* Verification Code Step */}
         {showVerificationStep && (
-          <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-8 rounded-4xl animate-in fade-in duration-300">
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-10 flex flex-col items-center justify-center p-8 rounded-3xl animate-in fade-in duration-300">
             <div className="relative w-full mb-5">
               <div className="flex justify-center">
                 <Image 
@@ -146,7 +149,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                   setVerificationCode(value);
                   if (verificationError) setVerificationError("");
                 }}
-                className="w-full px-4 py-3 rounded-2xl bg-white/90 border border-white/70 focus:outline-none focus:ring-2 focus:ring-black/10 text-center text-xl font-medium tracking-widest letter-spacing-2"
+                className="w-full px-4 py-3 rounded-2xl bg-white/00 border border-black/20 focus:outline-none focus:ring-2 focus:ring-primary/50 text-center text-xl font-medium tracking-widest letter-spacing-2"
                 maxLength={6}
                 autoFocus
                 inputMode="numeric"
@@ -265,11 +268,11 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
         )}
         
         {/* Close button */}
-        <button 
+        <button
           onClick={(e) => {
             e.stopPropagation();
             onClose();
-          }} 
+          }}
           className="absolute top-4 right-4 z-20 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -279,7 +282,8 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
         </button>
         
         {/* Content - centered */}
-        <div className="w-full flex flex-col items-center pt-10 px-6 pb-10">
+        {!showVerificationStep && (
+          <div className="w-full flex flex-col items-center pt-10 px-6 pb-10">
           {/* UnitNode icon */}
           <div className="mb-5">
             <Image 
@@ -430,7 +434,8 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
             </button>
           </div>
         </div>
-        
+        )}
+
         {/* Removed right-side image to keep modal clean and centered */}
       </div>
     </div>

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';
+import { createSession, setSessionCookie } from '@/lib/session';
 
 interface GoogleTokenResponse {
   access_token: string;
@@ -97,16 +98,23 @@ export async function GET(request: NextRequest) {
       // If the user has a company name already, we can send them to login modal opener
       const hasCompany = Boolean(updated.companyName);
       if (hasCompany) {
-        const params = new URLSearchParams({
-          id: updated.id,
+        const sessionToken = createSession({
+          userId: updated.id,
           email: updated.email,
           role: updated.role,
         });
-        if (updated.name) params.set('name', updated.name);
-        if (updated.companyName) params.set('companyName', updated.companyName);
-        const next = `/auth/google/login-success?${params.toString()}`;
-        return NextResponse.redirect(new URL(next, url.origin));
+        
+        const response = NextResponse.redirect(new URL('/app/properties', url.origin));
+        response.cookies.set('session', sessionToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/'
+        });
+        return response;
       }
+
       const next = `/?unitnode_open_signup_modal=google_complete&email=${encodeURIComponent(userInfo.email)}`;
       return NextResponse.redirect(new URL(next, url.origin));
     }

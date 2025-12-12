@@ -5,6 +5,7 @@ import Sidebar from '@/components/sidebar';
 import Header from '@/components/header';
 import { PropertyProvider } from '@/contexts/PropertyContext';
 import { ToastProvider } from '@/contexts/ToastContext';
+import { UserProvider } from '@/contexts/UserContext';
 
 export const metadata: Metadata = {
   title: 'UnitNode',
@@ -17,19 +18,21 @@ export default function AppLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <PropertyProvider>
-      <ToastProvider>
-        <div className="flex h-screen bg-white">
-          <Sidebar />
+    <UserProvider>
+      <PropertyProvider>
+        <ToastProvider>
+          <div className="flex h-screen bg-white">
+            <Sidebar />
 
-          <div className="flex-1 flex flex-col py-4 overflow-hidden">
-            <Header />
-            <main className="flex-1 overflow-y-auto">
-              {children}
-            </main>
+            <div className="flex-1 flex flex-col py-4 overflow-hidden">
+              <Header />
+              <main className="flex-1 overflow-y-auto">
+                {children}
+              </main>
+            </div>
           </div>
-        </div>
-      </ToastProvider>
-    </PropertyProvider>
+        </ToastProvider>
+      </PropertyProvider>
+    </UserProvider>
   );
 }
