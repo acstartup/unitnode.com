@@ -165,7 +165,7 @@ export default function Account() {
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold text-gray-900">Profile</h2>
                 </div>
-                <div className="w-48 text-sm font-medium text-black mx-1 py-3 items-baseline">Logo</div>
+                <div className="w-48 text-sm font-medium text-black mx-1 py-3 items-baseline">Image</div>
                     <div className="flex flex-col items-left px-49 border-gray-200 -mt-8 mb-4">
                         {/* Logo */}
                         <div className="relative w-20 h-20 group">
@@ -272,7 +272,7 @@ export default function Account() {
                     </div>
 
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold text-gray-900">Company</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">User</h2>
                     {!isEditing ? (
                         <button
                             onClick={handleEditClick}
@@ -318,7 +318,7 @@ export default function Account() {
 
                 {/* Company Name */}
                 <div className="flex items-baseline py-3 mx-1">
-                    <div className="w-48 text-sm font-medium text-gray-800">Company Name</div>
+                    <div className="w-48 text-sm font-medium text-gray-800">Name</div>
                     {isEditing ? (
                         <input
                             type="text"
