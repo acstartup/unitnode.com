@@ -4,7 +4,7 @@ import React from 'react';
 
 export default function Settings() {
     return (
-        <div className="min-h-screen w-full bg-white p-8">
+        <div className="w-full bg-white p-8">
             {/* Setting Header */}
             <div className="mb-6">
                 <h1 className="text-xl font-semibold text-gray-900">General Settings</h1>
