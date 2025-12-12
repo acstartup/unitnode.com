@@ -41,8 +41,11 @@ export default function Header() {
     const handleSearchChange = (value: string) => {
         setSearchQuery(value);
         if (value.trim()) {
+            const searchLower = value.toLowerCase();
             const filtered = properties.filter(p =>
-                p.address.toLowerCase().includes(value.toLowerCase())
+                p.address.toLowerCase().includes(searchLower) ||
+                (p.ownerName && p.ownerName.toLowerCase().includes(searchLower)) ||
+                (p.mainTenant && p.mainTenant !== 'N/A' && p.mainTenant.toLowerCase().includes(searchLower))
             )
             setFilteredProperties(filtered);
             setShowSearchDropdown(true);
