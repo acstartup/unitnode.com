@@ -41,9 +41,10 @@ export default function Properties(){
                         {properties.map((property) => {
                             const tenantNames = property.tenants && property.tenants.length > 0
                                 ? property.tenants.map(t => t.name).join(', ')
-                                : property.mainTenant || 'N/A';
+                                : (property.mainTenant && property.mainTenant !== 'N/A' ? property.mainTenant : '—');
                             const textLength = tenantNames.length;
                             const fontSize = textLength > 50 ? 'text-xs' : textLength > 30 ? 'text-sm' : 'text-sm';
+                            const rentDisplay = property.rent === 0 ? '—' : property.rent;
 
                             return (
                                 <tr key={property.id}>
@@ -51,7 +52,7 @@ export default function Properties(){
                                     <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
                                         {tenantNames}
                                     </td>
-                                    <td className="px-4 py-1 text-sm text-gray-500">{property.rent}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500">{rentDisplay}</td>
                                     <td className="px-4 py-1 text-right">
                                         <div className="relative group inline-block">
                                             <button
