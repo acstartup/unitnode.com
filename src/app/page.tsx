@@ -45,7 +45,7 @@ export default function Home() {
           cursorHeight="h-12"
         />
         <p className="text-white text-sm md:text-base max-w-2xl mx-auto text-center mt-6 drop-shadow font-semibold">
-          UnitNode is the first AI-powered operations hub where real estate runs itself—automating and simplifying property management by connecting owners, contractors, and tenants, eliminating the need for a traditional manager. With UnitNode, owners can be the property manager.
+          UnitNode is the first AI-powered operations hub where real estate runs itself—automating and simplifying property management by connecting owners, contractors, and tenants, removing the need for a traditional manager. With UnitNode, owners don’t hire the property manager; they become the property manager effortlessly.
         </p>
       </section>
 
