@@ -36,16 +36,16 @@ export default function Home() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
           </span> {/* Update Launch Date - check with Varun*/}
-          UnitNode launching MVP 1/30/25... (re-launch in TypeScript)
+          UnitNode launching MVP 1/30/25...
         </div>
         <TypingAnimation 
-          text="Where real estate runs itself."
-          className="text-white text-4xl md:text-4xl lg:text-6xl font-bold tracking-tight text-center drop-shadow"
+          text="Making outsourced management obsolete."
+          className="text-white text-4xl md:text-4xl lg:text-5xl font-bold tracking-tight text-center drop-shadow"
           speed={40}
           cursorHeight="h-12"
         />
         <p className="text-white text-sm md:text-base max-w-2xl mx-auto text-center mt-6 drop-shadow font-semibold">
-          UnitNode is the first AI-powered operations hub where real estate runs itself—automating workflows and connecting owners, contractors, and tenants without the need for a traditional property manager. With UnitNode, owners at any scale don’t outsource management anymore—they can run everything automatically themselves.
+          UnitNode is the first AI-powered operations hub where real estate runs itself—automating workflows and connecting owners, contractors, and tenants without the need for a traditional property manager. With UnitNode, owners at any scale don’t need to outsource management anymore—they can run everything automatically themselves.
         </p>
       </section>
 
