@@ -4,18 +4,12 @@
 
 # UnitNode - Property Management on Autopilot. 🏢
 
-UnitNode is a property management software that aims to automate tasks for real estate property managers. By automating entire workflows (e.g. automatically: importing water bills, notifying tenants in their preferred langauge), UnitNode saves property managers several hours a day, making property management an efficient up-to-date process.
+UnitNode removes the need for external property managers by automating and simplifying real estate operations at any scale. It handles entire workflows end-to-end — from importing water bills to messaging tenants in their preferred language — all without manual work. Property management becomes faster, cheaper, and hours more efficient every day.
 
 ## 💡 Vision
 
-UnitNode aims to transform property management by leveraging AIs, APIs, and a simplified system to make property management software actually save hours rather than extend and allow universal accessibility through multilingual software and communication. "Property Management on Autopilot."
-
-## 🎯 Core Features (MVP)
-
-- **Automated Utility Importation**: Forwards and parses utility emails extracting necessary information into PM database
-- **Multilingual Communication**: Automatic tenant notifications in their preferred languages
-- **Simplified Subscription System**: One-Subscription Platform needing no demos or company meetings to begin
-- **Instant Mass Importation**: From Portfolio (export) -> Sheets -> UnitNode in seconds
+UnitNode’s vision is simple: move property management from outsourced managers to automated systems owners control.
+By combining AI, APIs, and a streamlined system, UnitNode automates tasks that normally consume hours while making estate management universally accessible and streamlined through multilingual communication and an intuitive interface. The future of property management is effortless for owners.
 
 ## 🛠️ Tech Stack
 
