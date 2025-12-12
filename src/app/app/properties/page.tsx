@@ -25,16 +25,19 @@ export default function Properties(){
                     {/* Table Header */}
                     <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[52%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[45%]">
                                 Property Address
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[35%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[18%]">
+                                Owner
+                            </th>
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[25%]">
                                 Tenant
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[15%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[12%]">
                                 Rent
                             </th>
-                            <th className="px-4 py-2 w-[10%]"></th>
+                            <th className="px-4 py-2 w-[5%]"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -49,6 +52,7 @@ export default function Properties(){
                             return (
                                 <tr key={property.id}>
                                     <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500">{property.ownerName || '—'}</td>
                                     <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
                                         {tenantNames}
                                     </td>
