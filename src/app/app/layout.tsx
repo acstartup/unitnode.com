@@ -24,9 +24,11 @@ export default function AppLayout({
           <div className="flex h-screen bg-white">
             <Sidebar />
 
-            <div className="flex-1 flex flex-col py-4 overflow-hidden">
-              <Header />
-              <main className="flex-1 overflow-y-auto">
+            <div className="flex-1 flex flex-col overflow-y-auto">
+              <div className="sticky top-0 z-10 bg-white py-4">
+                <Header />
+              </div>
+              <main className="">
                 {children}
               </main>
             </div>

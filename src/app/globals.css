@@ -140,9 +140,33 @@
     /* Reserve space for the scrollbar to prevent layout shift/alignment issues */
     scrollbar-gutter: stable right-edge;
   }
-  
+
+  /* Universal UnitNode Scrollbar Styling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(209 213 219) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgb(209 213 219);
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(156 163 175);
+  }
+
   /* Add pointer cursor to all clickable elements */
-  button, a, [role="button"], 
+  button, a, [role="button"],
   input[type="button"], input[type="submit"], input[type="reset"],
   .group:hover, .cursor-pointer {
     cursor: pointer;

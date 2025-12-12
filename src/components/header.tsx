@@ -45,7 +45,7 @@ export default function Header() {
                 p.address.toLowerCase().includes(value.toLowerCase())
             )
             setFilteredProperties(filtered);
-            setShowSearchDropdown(false);
+            setShowSearchDropdown(true);
         } else {
             setFilteredProperties([]);
             setShowSearchDropdown(false);
@@ -122,7 +122,7 @@ export default function Header() {
             </div>
 
             {/* right side: settings icon*/}
-            <div className="ml-115 flex items-center gap-3 px-2">
+            <div className="absolute right-8 flex items-center gap-3 px-2">
                 <div className="relative group">
                     <a
                         href="/app/settings"
