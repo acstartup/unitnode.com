@@ -25,54 +25,58 @@ export default function Properties(){
                     {/* Table Header */}
                     <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[52%]">
                                 Property Address
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                                Main Tenant
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[35%]">
+                                Tenant
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[15%]">
                                 Rent
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider">
-                                Occupied
-                            </th>
-                            <th className="px-4 py-2"></th>
+                            <th className="px-4 py-2 w-[10%]"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {properties.map((property) => (
-                            <tr key={property.id}>
-                                <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
-                                <td className="px-4 py-1 text-sm text-gray-500">{property.mainTenant}</td>
-                                <td className="px-4 py-1 text-sm text-gray-500">{property.rent}</td>
-                                <td className="px-4 py-1 text-sm text-gray-500">{property.occupied ? 'Yes' : 'No'}</td>
-                                <td className="px-4 py-1 text-right">
-                                    <div className="relative group inline-block">                                        
-                                        <button
-                                            onClick={() => handleViewDetails(property.id)}
-                                            className="p-1 rounded-2xl hover:bg-gray-100 transition-colors"
-                                            aria-label="Actions"
-                                        >
-                                            <svg
-                                                className="h-5 w-5 text-gray-400"
-                                                fill="currentColor"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <circle cx="12" cy="6" r="2" />
-                                                <circle cx="12" cy="13" r="2" />
-                                                <circle cx="12" cy="20" r="2" />
-                                            </svg>
-                                        </button>
+                        {properties.map((property) => {
+                            const tenantText = property.mainTenant || 'N/A';
+                            const textLength = tenantText.length;
+                            const fontSize = textLength > 50 ? 'text-xs' : textLength > 30 ? 'text-sm' : 'text-sm';
 
-                                        {/* Action Tooltip */}
-                                        <span className="absolute left-1/2 -translate-x-1/2 top-full mt-0 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                                            Details
-                                        </span>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                            return (
+                                <tr key={property.id}>
+                                    <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
+                                    <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
+                                        {tenantText}
+                                    </td>
+                                    <td className="px-4 py-1 text-sm text-gray-500">{property.rent}</td>
+                                    <td className="px-4 py-1 text-right">
+                                        <div className="relative group inline-block">
+                                            <button
+                                                onClick={() => handleViewDetails(property.id)}
+                                                className="p-1 rounded-2xl hover:bg-gray-100 transition-colors"
+                                                aria-label="Actions"
+                                            >
+                                                <svg
+                                                    className="h-5 w-5 text-gray-400"
+                                                    fill="currentColor"
+                                                    viewBox="0 0 24 24"
+                                                >
+                                                    <circle cx="12" cy="6" r="2" />
+                                                    <circle cx="12" cy="13" r="2" />
+                                                    <circle cx="12" cy="20" r="2" />
+                                                </svg>
+                                            </button>
+
+                                            {/* Action Tooltip */}
+                                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-0 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                                                Details
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                     </tbody>
                 </table>
             </div>
