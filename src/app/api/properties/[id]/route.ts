@@ -17,7 +17,7 @@ export async function PATCH(
     }
 
     const body = await request.json();
-    const { ownerName, ownerEmail, ownerPhone, mainTenant, mainTenantPhone, rent, occupied } = body;
+    const { ownerName, ownerEmail, ownerPhone, mainTenant, mainTenantPhone, rent, occupied, tenants } = body;
 
     const { id } = await params;
 
@@ -36,6 +36,26 @@ export async function PATCH(
         )
     }
 
+    // Update tenants if provided
+    if (tenants) {
+        // Delete existing tenants
+        await prisma.tenant.deleteMany({
+            where: { propertyId: id },
+        });
+
+        // Create new tenants
+        if (tenants.length > 0) {
+            await prisma.tenant.createMany({
+                data: tenants.map((tenant: { name: string; phone: string; relation: string }) => ({
+                    name: tenant.name,
+                    phone: tenant.phone,
+                    relation: tenant.relation,
+                    propertyId: id,
+                })),
+            });
+        }
+    }
+
     const property = await prisma.property.update({
         where: { id },
         data: {
@@ -46,7 +66,8 @@ export async function PATCH(
             ...(mainTenantPhone !== undefined && { mainTenantPhone }),
             ...(rent !== undefined && { rent }),
             ...(occupied !== undefined && { occupied }),
-        }
+        },
+        include: { tenants: true },
     })
 
     return NextResponse.json({ success: true, property });

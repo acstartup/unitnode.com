@@ -2,11 +2,19 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+export interface Tenant {
+    id: string;
+    name: string;
+    phone: string;
+    relation: string;
+}
+
 export interface Property {
     id: string;
     address: string;
     mainTenant: string;
     mainTenantPhone?: string;
+    tenants?: Tenant[];
     rent: number;
     occupied: boolean;
     ownerName?: string;

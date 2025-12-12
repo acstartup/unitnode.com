@@ -36,6 +36,20 @@ model Property {
   ownerPhone      String?
   mainTenantPhone String?
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenants         Tenant[]
 
   @@index([userId])
+}
+
+model Tenant {
+  id         String   @id @default(cuid())
+  name       String
+  phone      String
+  relation   String
+  propertyId String
+  property   Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([propertyId])
 }

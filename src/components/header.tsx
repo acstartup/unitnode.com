@@ -42,11 +42,23 @@ export default function Header() {
         setSearchQuery(value);
         if (value.trim()) {
             const searchLower = value.toLowerCase();
-            const filtered = properties.filter(p =>
-                p.address.toLowerCase().includes(searchLower) ||
-                (p.ownerName && p.ownerName.toLowerCase().includes(searchLower)) ||
-                (p.mainTenant && p.mainTenant !== 'N/A' && p.mainTenant.toLowerCase().includes(searchLower))
-            )
+            const filtered = properties.filter(p => {
+                // Search in address
+                if (p.address.toLowerCase().includes(searchLower)) return true;
+
+                // Search in owner name
+                if (p.ownerName && p.ownerName.toLowerCase().includes(searchLower)) return true;
+
+                // Search in main tenant
+                if (p.mainTenant && p.mainTenant !== 'N/A' && p.mainTenant.toLowerCase().includes(searchLower)) return true;
+
+                // Search in all tenants
+                if (p.tenants && p.tenants.length > 0) {
+                    return p.tenants.some(t => t.name.toLowerCase().includes(searchLower));
+                }
+
+                return false;
+            });
             setFilteredProperties(filtered);
             setShowSearchDropdown(true);
         } else {

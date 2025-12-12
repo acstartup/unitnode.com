@@ -515,6 +515,18 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     return;
                                 }
 
+                                // Validate all additional tenants have required fields
+                                for (let i = 1; i < tenants.length; i++) {
+                                    if (!tenants[i].name.trim()) {
+                                        showToast(`Please enter name for tenant ${i + 1} or remove them`, 'error');
+                                        return;
+                                    }
+                                    if (tenants[i].relation === 'Select' || !tenants[i].relation) {
+                                        showToast(`Please select relation for tenant ${i + 1}`, 'error');
+                                        return;
+                                    }
+                                }
+
                                 if (!utilityCost.trim()) {
                                     showToast('Please enter the cost', 'error');
                                     return;
@@ -531,6 +543,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                                 mainTenantPhone: tenants[0].phone,
                                                 rent: parseFloat(utilityCost) || 0,
                                                 occupied: true,
+                                                tenants: tenants.map(({ id, ...tenant }) => tenant),
                                             }),
                                         })
 

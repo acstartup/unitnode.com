@@ -39,15 +39,17 @@ export default function Properties(){
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                         {properties.map((property) => {
-                            const tenantText = property.mainTenant || 'N/A';
-                            const textLength = tenantText.length;
+                            const tenantNames = property.tenants && property.tenants.length > 0
+                                ? property.tenants.map(t => t.name).join(', ')
+                                : property.mainTenant || 'N/A';
+                            const textLength = tenantNames.length;
                             const fontSize = textLength > 50 ? 'text-xs' : textLength > 30 ? 'text-sm' : 'text-sm';
 
                             return (
                                 <tr key={property.id}>
                                     <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
                                     <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
-                                        {tenantText}
+                                        {tenantNames}
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500">{property.rent}</td>
                                     <td className="px-4 py-1 text-right">
