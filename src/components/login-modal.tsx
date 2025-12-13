@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/modal-provider";
 import { useRouter } from "next/navigation";
+import { ForgotPasswordModal } from "@/components/forgot-password-modal";
 
 interface LoginModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
   const [verificationError, setVerificationError] = useState("");
   const [countdown, setCountdown] = useState(300); // 5 minutes in seconds
   const [countdownActive, setCountdownActive] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { openSignupModal } = useModal();
   
   // Update state when prefill props change
@@ -113,10 +115,15 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10" onClick={handleBackdropClick}>
+      {/* Dimmed overlay when forgot password modal is open */}
+      {showForgotPassword && (
+        <div className="absolute inset-0 bg-black/20 z-[1]" />
+      )}
+
       {/* Modal container with translucent white background like navbar */}
       <div className={cn(
         "relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center animate-in fade-in duration-300",
-        showVerificationStep ? "" : "bg-white/80 backdrop-blur-md"
+        showVerificationStep || showForgotPassword ? "" : "bg-white/80 backdrop-blur-md"
       )}>
         {/* Verification Code Step */}
         {showVerificationStep && (
@@ -345,9 +352,15 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
             
             {/* Forgot password link */}
             <div className="flex justify-end mb-6">
-              <a href="#" className="text-xs text-primary hover:underline font-medium">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowForgotPassword(true);
+                }}
+                className="text-xs text-primary hover:underline font-medium"
+              >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             {/* Login button */}
@@ -438,6 +451,12 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
 
         {/* Removed right-side image to keep modal clean and centered */}
       </div>
+
+      {/* Forgot Password Modal */}
+      <ForgotPasswordModal
+        isOpen={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+      />
     </div>
   );
 }
