@@ -3,7 +3,9 @@ import { randomInt } from 'crypto';
 
 // This should be stored in environment variables
 const EMAIL_VERIFICATION_TOKEN_SECRET = process.env.EMAIL_VERIFICATION_TOKEN_SECRET || 'your-fallback-secret-key-for-email-verification';
+const PASSWORD_RESET_TOKEN_SECRET = process.env.PASSWORD_RESET_TOKEN_SECRET || 'your-fallback-secret-key-for-password-reset';
 const TOKEN_EXPIRY = '24h'; // Token expires after 24 hours
+const PASSWORD_RESET_EXPIRY = '1h'; // Password reset token expires after 1 hour
 const VERIFICATION_CODE_EXPIRY = 5 * 60 * 1000; // 5 minutes in milliseconds
 
 // In a real production app, use Redis or a database
@@ -143,4 +145,38 @@ export function verifyCode(inputCode: string): { valid: boolean; email?: string;
   }
   
   return { valid: false };
+}
+
+export interface PasswordResetPayload {
+  email: string;
+}
+
+/**
+ * Generate a JWT token for password reset
+ */
+export function generatePasswordResetToken(email: string): string {
+  return jwt.sign({ email }, PASSWORD_RESET_TOKEN_SECRET, {
+    expiresIn: PASSWORD_RESET_EXPIRY,
+  });
+}
+
+/**
+ * Verify a password reset token
+ */
+export function verifyPasswordResetToken(token: string): PasswordResetPayload | null {
+  try {
+    const decoded = jwt.verify(token, PASSWORD_RESET_TOKEN_SECRET) as PasswordResetPayload;
+    return decoded;
+  } catch (error) {
+    console.error('Password reset token verification failed:', error);
+    return null;
+  }
+}
+
+/**
+ * Generate the password reset URL to be sent in emails
+ */
+export function generatePasswordResetUrl(token: string): string {
+  const baseUrl = process.env.SITE_URL || 'https://unitnode.com';
+  return `${baseUrl}/reset-password?token=${token}`;
 }

@@ -57,8 +57,17 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
         return;
       }
 
-      // TODO: Send password reset email
-      console.log("Sending password reset email to:", email);
+      // Send password reset email
+      const resetResponse = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!resetResponse.ok) {
+        setErrorMessage("Failed to send reset email. Please try again.");
+        return;
+      }
 
       // Show confirmation overlay
       setShowConfirmation(true);

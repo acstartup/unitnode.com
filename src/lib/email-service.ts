@@ -1,4 +1,4 @@
-import { generateVerificationCode, generateEmailVerificationToken, generateVerificationUrl } from './auth-utils';
+import { generateVerificationCode, generateEmailVerificationToken, generateVerificationUrl, generatePasswordResetToken, generatePasswordResetUrl } from './auth-utils';
 
 // Infobip API key and base URL should be stored in environment variables
 const INFOBIP_API_KEY = process.env.INFOBIP_API_KEY || '';
@@ -174,6 +174,61 @@ export async function sendVerificationEmail(
     html
   });
   
+  return emailSent ? token : '';
+}
+
+/**
+ * Send password reset email with link
+ */
+export async function sendPasswordResetEmail(
+  email: string,
+  name?: string
+): Promise<string> {
+  // Generate a password reset token
+  const token = generatePasswordResetToken(email);
+  const resetUrl = generatePasswordResetUrl(token);
+
+  const subject = 'Reset Your Password';
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; color: #000000;">
+      <div style="padding: 20px;">
+        <h2 style="color: #000000; margin-top: 0;">Reset Your Password</h2>
+        <p style="color: #000000;">Hello${name ? ' ' + name : ''},</p>
+        <p style="color: #000000;">We received a request to reset the password for your <span style="font-weight: bold; color: #000000;">UnitNode</span> account. Click the button below to create a new password:</p>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background-color: #000000; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 50px; font-weight: bold; display: inline-block; font-size: 16px;">
+            Reset Password
+          </a>
+        </div>
+
+        <div style="border-left: 4px solid #f0f0f0; padding: 10px; background-color: #f8f9fa; margin: 20px 0; color: #000000;">
+          <p style="margin: 0; font-weight: bold; color: #000000;">Important:</p>
+          <p style="margin: 5px 0 0 0; color: #000000;">• This link is valid for 1 hour and can only be used once.</p>
+          <p style="margin: 5px 0 0 0; color: #000000;">• If you didn't request a password reset, you can safely ignore this email.</p>
+          <p style="margin: 5px 0 0 0; color: #000000;">• Your password will not change unless you click the link and create a new password.</p>
+        </div>
+
+        <p style="color: #000000; margin-top: 25px;">Thank you,</p>
+        <p style="color: #000000;">The <span style="font-weight: bold; color: #000000;">UnitNode</span> Team</p>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+
+      <div style="font-size: 12px; padding: 0 20px 20px; color: #000000;">
+        <p style="color: #000000;"><span style="font-weight: bold; color: #000000;">UnitNode</span> - Automating Property Management</p>
+        <p style="color: #000000;">unitnode.com | support@unitnode.com</p>
+      </div>
+    </div>
+  `;
+
+  const emailSent = await sendEmail({
+    to: email,
+    subject,
+    html
+  });
+
   return emailSent ? token : '';
 }
 
