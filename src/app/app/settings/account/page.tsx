@@ -4,10 +4,12 @@ import React, { useRef, useState } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { useToast } from '@/contexts/ToastContext';
 
 export default function Account() {
     const { user, refreshUser } = useUser();
     const router = useRouter();
+    const { showToast } = useToast();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [uploading, setUploading] = useState(false);
     const [deleting, setDeleting] = useState(false);
@@ -22,12 +24,12 @@ export default function Account() {
         if (!file) return;
 
         if (!file.type.startsWith('image/')) {
-            alert('Please upload an image file');
+            showToast('Please upload an image file', 'error');
             return;
         }
 
         if (file.size > 5 * 1024 * 1024) {
-            alert('File size must be less than 5MB');
+            showToast('File size must be less than 5MB', 'error');
             return;
         }
 
@@ -47,9 +49,10 @@ export default function Account() {
             const data = await response.json();
             console.log('Uploaded:', data);
             await refreshUser();
+            showToast('Logo uploaded successfully', 'success');
         } catch (error) {
             console.error('Upload error:', error);
-            alert('Failed to upload logo. Please try again.');
+            showToast('Failed to upload logo. Please try again.', 'error');
         } finally {
             setUploading(false);
         }
@@ -66,9 +69,10 @@ export default function Account() {
             if (!response.ok) throw new Error('Delete failed');
 
             await refreshUser();
+            showToast('Logo removed successfully', 'success');
         } catch (error) {
             console.error('Delete error:', error);
-            alert('Failed to delete logo. Please try again.');
+            showToast('Failed to delete logo. Please try again.', 'error');
         } finally {
             setDeleting(false);
         }
@@ -98,6 +102,12 @@ export default function Account() {
     };
 
     const handleSave = async () => {
+        // Validate company name has at least one letter
+        if (editedCompanyName.trim().length === 0) {
+            showToast('Company name cannot be empty', 'error');
+            return;
+        }
+
         try {
             const updates: any = {};
             if (editedCompanyName !== (user?.companyName || '')) {
@@ -121,9 +131,11 @@ export default function Account() {
             await refreshUser();
             setIsEditing(false);
             setEditedPassword('');
+            setShowPasswordInput(false);
+            showToast('Company information updated successfully', 'success');
         } catch (error) {
             console.error('Update error:', error);
-            alert('Failed to update account. Please try again.');
+            showToast('Failed to update account. Please try again.', 'error');
         }
     };
 
