@@ -261,7 +261,7 @@ export default function PropertyDetailsPage() {
                     </div>
 
                     {/* Phone */}
-                    <div className="flex items-baseline py-3 mx-1">
+                    <div className="flex items-baseline py-3 mx-1 -px-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Phone</div>
                         {isEditing ? (
                             <input

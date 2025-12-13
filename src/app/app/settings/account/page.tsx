@@ -16,8 +16,8 @@ export default function Account() {
     const [isEditing, setIsEditing] = useState(false);
     const [editedCompanyName, setEditedCompanyName] = useState('');
     const [editedEmail, setEditedEmail] = useState('');
-    const [editedPassword, setEditedPassword] = useState('');
-    const [showPasswordInput, setShowPasswordInput] = useState(false);
+    const [showPasswordResetModal, setShowPasswordResetModal] = useState(false);
+    const [sendingResetEmail, setSendingResetEmail] = useState(false);
 
     const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -82,22 +82,18 @@ export default function Account() {
         setIsEditing(true);
         setEditedCompanyName(user?.companyName || '');
         setEditedEmail(user?.email || '');
-        setEditedPassword('');
     };
 
     const handleCancel = () => {
         setIsEditing(false);
         setEditedCompanyName('');
         setEditedEmail('');
-        setEditedPassword('');
-        setShowPasswordInput(false);
     };
 
     const hasChanges = () => {
         return (
             editedCompanyName !== (user?.companyName || '') ||
-            editedEmail !== (user?.email || '') ||
-            editedPassword !== ''
+            editedEmail !== (user?.email || '')
         );
     };
 
@@ -116,9 +112,6 @@ export default function Account() {
             if (editedEmail !== (user?.email || '')) {
                 updates.email = editedEmail.trim();
             }
-            if (editedPassword) {
-                updates.password = editedPassword;
-            }
 
             const response = await fetch('/api/auth/user/update', {
                 method: 'PATCH',
@@ -130,12 +123,38 @@ export default function Account() {
 
             await refreshUser();
             setIsEditing(false);
-            setEditedPassword('');
-            setShowPasswordInput(false);
             showToast('Company information updated successfully', 'success');
         } catch (error) {
             console.error('Update error:', error);
             showToast('Failed to update account. Please try again.', 'error');
+        }
+    };
+
+    const handleSendPasswordResetEmail = async () => {
+        if (!user?.email) return;
+
+        setSendingResetEmail(true);
+
+        try {
+            const response = await fetch('/api/auth/forgot-password', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: user.email }),
+            });
+
+            if (!response.ok) {
+                showToast('Failed to send password reset email', 'error');
+                setShowPasswordResetModal(false);
+                return;
+            }
+
+            // Keep modal open to show success message
+        } catch (error) {
+            console.error('Password reset email error:', error);
+            showToast('Failed to send password reset email', 'error');
+            setShowPasswordResetModal(false);
+        } finally {
+            setSendingResetEmail(false);
         }
     };
 
@@ -329,14 +348,14 @@ export default function Account() {
                 </div>
 
                 {/* Company Name */}
-                <div className="flex items-baseline py-3 mx-1">
+                <div className="flex items-baseline py-5 mx-1">
                     <div className="w-48 text-sm font-medium text-gray-800">Company Name</div>
                     {isEditing ? (
                         <input
                             type="text"
                             value={editedCompanyName}
                             onChange={(e) => setEditedCompanyName(e.target.value)}
-                            className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="flex-1 max-w-xl px-3 py-1 -my-2 -mx-3.25 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Company name"
                         />
                     ) : (
@@ -345,14 +364,14 @@ export default function Account() {
                 </div>
 
                 {/* Email */}
-                <div className="flex items-baseline py-3 mx-1">
+                <div className="flex items-baseline py-5 mx-1">
                     <div className="w-48 text-sm font-medium text-gray-800">Email</div>
                     {isEditing ? (
                         <input
                             type="email"
                             value={editedEmail}
                             onChange={(e) => setEditedEmail(e.target.value)}
-                            className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="flex-1 max-w-xl px-3 py-1 -my-2 -mx-3.25 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="email@example.com"
                         />
                     ) : (
@@ -361,31 +380,99 @@ export default function Account() {
                 </div>
 
                 {/* Password */}
-                <div className="flex items-baseline py-3 mx-1">
+                <div className="flex items-baseline py-5 mx-1">
                     <div className="w-48 text-sm font-medium text-gray-800">Password</div>
                     {isEditing ? (
-                        showPasswordInput ? (
-                            <input
-                                type="password"
-                                value={editedPassword}
-                                onChange={(e) => setEditedPassword(e.target.value)}
-                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                placeholder="Enter new password"
-                                autoFocus
-                            />
-                        ) : (
-                            <button
-                                onClick={() => setShowPasswordInput(true)}
-                                className="border border-gray-300 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors"
-                            >
-                                Change password
-                            </button>
-                        )
+                        <button
+                            onClick={() => setShowPasswordResetModal(true)}
+                            className="border border-gray-300 px-2 py-1 -my-2 -mx-3.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors"
+                        >
+                            Change password
+                        </button>
                     ) : (
-                        <div className="flex-1 text-sm text-gray-600">••••••••</div>
+                        <div className="flex-1 text-sm text-gray-600">
+                            ••••••••••••
+                        </div>
                     )}
                 </div>
             </div>
+
+            {/* Password Reset Modal */}
+            {showPasswordResetModal && (
+                <div
+                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10"
+                    onClick={() => setShowPasswordResetModal(false)}
+                >
+                    <div
+                        className="relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center bg-white/80 backdrop-blur-md animate-in fade-in duration-300 p-8"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button */}
+                        <button
+                            onClick={() => setShowPasswordResetModal(false)}
+                            className="absolute top-4 right-4 z-20 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-gray-300 shadow-sm hover:bg-gray-100"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+
+                        {/* Content */}
+                        <div className="w-full flex flex-col items-center max-w-md text-center">
+                            {/* UnitNode icon */}
+                            <div className="mb-5">
+                                <Image
+                                    src="/unitnode-icon.svg"
+                                    alt="UnitNode Icon"
+                                    width={40}
+                                    height={40}
+                                />
+                            </div>
+
+                            {!sendingResetEmail ? (
+                                <>
+                                    <h2 className="text-2xl font-bold mb-2">Reset Your Password</h2>
+                                    <p className="text-sm text-gray-600 mb-8 font-medium max-w-sm">
+                                        We&apos;ll send a password reset link to <span className="font-semibold">{user?.email}</span>. Click the link in the email to create a new password.
+                                    </p>
+
+                                    <div className="flex flex-col w-full gap-3 max-w-xs">
+                                        <button
+                                            onClick={handleSendPasswordResetEmail}
+                                            className="w-full py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
+                                        >
+                                            <span className="font-bold">Send Reset Link</span>
+                                        </button>
+                                        <button
+                                            onClick={() => setShowPasswordResetModal(false)}
+                                            className="w-full py-2.5 bg-white/90 text-gray-800 rounded-full font-medium hover:bg-white transition-colors text-sm border border-white/70"
+                                        >
+                                            <span className="font-bold">Cancel</span>
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h2 className="text-2xl font-bold mb-2">Check Your Email</h2>
+                                    <p className="text-sm text-gray-600 mb-8 font-medium max-w-sm">
+                                        We&apos;ve sent a password reset link to <span className="font-semibold">{user?.email}</span>. Please check your inbox and follow the instructions to reset your password.
+                                    </p>
+
+                                    <div className="flex flex-col w-full gap-3 max-w-xs">
+                                        <button
+                                            onClick={() => setShowPasswordResetModal(false)}
+                                            className="w-full py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
+                                        >
+                                            <span className="font-bold">Done</span>
+                                        </button>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 }
