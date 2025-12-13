@@ -64,6 +64,16 @@ export async function POST(req: Request) {
       );
     }
 
+    // Check if new password is the same as current password
+    const isSamePassword = await bcrypt.compare(password, user.password);
+
+    if (isSamePassword) {
+      return NextResponse.json(
+        { success: false, message: 'New password must be different from your current password' },
+        { status: 400 }
+      );
+    }
+
     // Hash the new password
     const hashedPassword = await bcrypt.hash(password, 10);
 
