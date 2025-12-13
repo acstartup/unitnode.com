@@ -52,6 +52,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
     const [originalTenant, setOriginalTenant] = useState({ name: '', phone: ''});
     const [originalCost, setOriginalCost] = useState('');
+    const [originalTenants, setOriginalTenants] = useState<Tenant[]>([]);
 
     useEffect(() => {
         if (isOpen) {
@@ -65,6 +66,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
             setShowPropertyDropdown(false);
             setIsEditingLease(false);
             setOriginalTenant({ name: '', phone: '' });
+            setOriginalTenants([]);
             setOriginalCost('');
         }
     }, [isOpen]);
@@ -126,36 +128,53 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
 
-        // Find if property alraedy has lease
+        // Find if property already has lease
         const selectedProperty = properties.find(p => p.id === propertyId);
-        if (selectedProperty && selectedProperty.mainTenant && selectedProperty.mainTenant !== 'N/A') {
-            // Memory fill form
-                // pre-formats the phone numbers
-            const formattedPhone = formatPhoneNumber(selectedProperty.mainTenantPhone || '');
-            const tenantData = {
-                name: selectedProperty.mainTenant,
-                phone: formattedPhone,
-            };
-            const costData = selectedProperty.rent.toString();
+        const hasLease = (selectedProperty?.tenants && selectedProperty.tenants.length > 0) ||
+                        (selectedProperty?.mainTenant && selectedProperty.mainTenant !== 'N/A');
 
-            setTenants([{
-                id: '1',
-                name: selectedProperty.mainTenant,
-                phone: formattedPhone,
-                relation: 'Main'
-            }]);
+        if (hasLease) {
+            // Load existing tenants or mainTenant
+            let loadedTenants: Tenant[];
+
+            if (selectedProperty.tenants && selectedProperty.tenants.length > 0) {
+                // Load from tenants array
+                loadedTenants = selectedProperty.tenants.map((t, index) => ({
+                    id: (index + 1).toString(),
+                    name: t.name,
+                    phone: formatPhoneNumber(t.phone),
+                    relation: t.relation
+                }));
+            } else {
+                // Load from mainTenant (backward compatibility)
+                const formattedPhone = formatPhoneNumber(selectedProperty.mainTenantPhone || '');
+                loadedTenants = [{
+                    id: '1',
+                    name: selectedProperty.mainTenant,
+                    phone: formattedPhone,
+                    relation: 'Main'
+                }];
+            }
+
+            setTenants(loadedTenants);
             setUtilityCost(selectedProperty.rent.toString());
             setIsEditingLease(true);
 
             // Save original values for change detection
-            setOriginalTenant(tenantData);
-            setOriginalCost(costData);
+            setOriginalTenants(loadedTenants);
+            setOriginalCost(selectedProperty.rent.toString());
+            // Keep for backward compatibility
+            setOriginalTenant({
+                name: loadedTenants[0].name,
+                phone: loadedTenants[0].phone
+            });
         } else {
             setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
             setUtilityCost('');
             setIsEditingLease(false);
 
             // Reset original
+            setOriginalTenants([]);
             setOriginalTenant({ name: '', phone: ''});
             setOriginalCost('');
         }
@@ -163,11 +182,26 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
     const hasChanges = () => {
         if (isEditingLease) {
-            return (
-                tenants[0].name !== originalTenant.name ||
-                tenants[0].phone !== originalTenant.phone ||
-                utilityCost !== originalCost
-            );
+            // Check if cost changed
+            if (utilityCost !== originalCost) return true;
+
+            // Check if number of tenants changed
+            if (tenants.length !== originalTenants.length) return true;
+
+            // Check if any tenant data changed
+            for (let i = 0; i < tenants.length; i++) {
+                const current = tenants[i];
+                const original = originalTenants[i];
+
+                if (!original ||
+                    current.name !== original.name ||
+                    current.phone !== original.phone ||
+                    current.relation !== original.relation) {
+                    return true;
+                }
+            }
+
+            return false;
         } else {
             return tenants[0].name.trim() !== '' && utilityCost.trim() !== '';
         }
