@@ -16,13 +16,17 @@ export default function PropertyDetailsPage() {
     const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
 
     const property = properties.find(p => p.id === propertyId);
-    const hasLease = property?.mainTenant && property.mainTenant !== 'N/A';
 
-    const tenants = hasLease ? [
-        { name: property.mainTenant, phone: property.mainTenantPhone || '', relation: 'Main' } 
-    ] : [];
+    // Use tenants array if available, otherwise fall back to mainTenant
+    const tenants = property?.tenants && property.tenants.length > 0
+        ? property.tenants
+        : (property?.mainTenant && property.mainTenant !== 'N/A'
+            ? [{ name: property.mainTenant, phone: property.mainTenantPhone || '', relation: 'Main' }]
+            : []);
 
-    const utility = hasLease ? [
+    const hasLease = tenants.length > 0;
+
+    const utility = hasLease && property ? [
         { type: 'Rent', recurrence: 'Monthly', cost: `$${property.rent}`}
     ] : [];
 
