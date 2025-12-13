@@ -14,6 +14,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
   const [emailBlurred, setEmailBlurred] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -42,14 +43,25 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
     setErrorMessage("");
 
     try {
-      // TODO: API call to send reset password email will be implemented next
+      // Check if email exists in the system
+      const response = await fetch('/api/auth/check-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.exists) {
+        setErrorMessage("No account found with this email address");
+        return;
+      }
+
+      // TODO: Send password reset email
       console.log("Sending password reset email to:", email);
 
-      // Placeholder for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Close modal after successful submission
-      onClose();
+      // Show confirmation overlay
+      setShowConfirmation(true);
     } catch (error) {
       console.error("Forgot password error:", error);
       setErrorMessage("An error occurred. Please try again.");
@@ -66,9 +78,46 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
       onClick={handleBackdropClick}
     >
       {/* Modal container - same size as login modal */}
-      <div className="relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center bg-white/80 backdrop-blur-md animate-in fade-in duration-300"
+      <div className={cn(
+        "relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center animate-in fade-in duration-300",
+        showConfirmation ? "" : "bg-white/80 backdrop-blur-md"
+      )}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Email Confirmation Step */}
+        {showConfirmation && (
+          <div className="absolute inset-0 bg-white/80 backdrop-blur-md z-10 flex flex-col items-center justify-center p-8 rounded-3xl animate-in fade-in duration-300">
+            <div className="relative w-full mb-5">
+              <div className="flex justify-center">
+                <Image
+                  src="/unitnode-icon.svg"
+                  alt="UnitNode Icon"
+                  width={40}
+                  height={40}
+                />
+              </div>
+            </div>
+            <h2 className="text-2xl font-bold mb-2 text-center">Check your email</h2>
+            <p className="text-gray-600 text-center mb-8 max-w-md">
+              We&apos;ve sent a password reset link to <span className="font-medium">{email}</span>.
+              Please check your inbox and follow the instructions to reset your password.
+            </p>
+
+            <div className="flex flex-col w-full gap-3 max-w-xs">
+              <button
+                onClick={() => {
+                  setShowConfirmation(false);
+                  setEmail("");
+                  setErrorMessage("");
+                  onClose();
+                }}
+                className="py-2.5 px-4 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm w-full"
+              >
+                <span className="font-bold">Back to login</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Close button */}
         <button
@@ -85,6 +134,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
         </button>
 
         {/* Content */}
+        {!showConfirmation && (
         <div className="w-full flex flex-col items-center pt-10 px-6 pb-10">
           {/* UnitNode icon */}
           <div className="mb-5">
@@ -169,6 +219,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );
