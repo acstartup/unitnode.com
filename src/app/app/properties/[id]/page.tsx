@@ -182,9 +182,9 @@ export default function PropertyDetailsPage() {
             {/* Property Section */}
             <div className="px-8 py-4">
                 {/* Sub-header */}
-                <div className="space-y-3">
+                <div>
                     {/* Header with Edit button & Cancel/Save buttons isEdit */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-semibold text-gray-900">Owner</h2>
                         {!isEditing ? (
                             <button
@@ -229,14 +229,14 @@ export default function PropertyDetailsPage() {
                         </div>
 
                     {/* Name */}
-                    <div className="flex items-baseline py-3 mx-1">
+                    <div className="flex items-baseline py-5 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Name</div>
                         {isEditing ? (
                             <input
                                 type="text"
                                 value={editedOwnerName}
                                 onChange={(e) => setEditedOwnerName(e.target.value)}
-                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 -mx-3.25 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="Owner name"
                             />
                         ) : (
@@ -245,14 +245,14 @@ export default function PropertyDetailsPage() {
                     </div>
 
                     {/* Email */}
-                    <div className="flex items-baseline py-3 mx-1">
+                    <div className="flex items-baseline py-5 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Email</div>
                         {isEditing ? (
                             <input
                                 type="email"
                                 value={editedOwnerEmail}
                                 onChange={(e) => setEditedOwnerEmail(e.target.value)}
-                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 -mx-3.25 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="owner@example.com"
                             />
                         ) : (
@@ -261,14 +261,14 @@ export default function PropertyDetailsPage() {
                     </div>
 
                     {/* Phone */}
-                    <div className="flex items-baseline py-3 mx-1 -px-1">
+                    <div className="flex items-baseline py-5 mx-1">
                         <div className="w-48 text-sm font-medium text-gray-800">Phone</div>
                         {isEditing ? (
                             <input
                                 type="tel"
                                 value={editedOwnerPhone}
                                 onChange={(e) => setEditedOwnerPhone(e.target.value)}
-                                className="flex-1 max-w-xl px-3 py-1 -my-2 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="flex-1 max-w-xl px-3 py-1 -my-2 -mx-3.25 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 placeholder="(555) 123-4567"
                             />
                         ) : (
