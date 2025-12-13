@@ -162,13 +162,13 @@ function VerifyEmailContent() {
   }, [token, router, password]);
 
   return (
-    <div className="min-h-screen bg-black/33 flex flex-col items-center justify-center p-4">
-      <div className="w-[95%] max-w-[500px] bg-white rounded-4xl border-2 border-grey-700 shadow-lg p-8 animate-in fade-in duration-300">
-        <div className="flex justify-center mb-6">
-          <Image 
-            src="/unitnode-logo.png" 
-            alt="UnitNode" 
-            width={150} 
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10">
+      <div className="relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center bg-white/80 backdrop-blur-md animate-in fade-in duration-300 p-8">
+        <div className="flex justify-center mb-5">
+          <Image
+            src="/unitnode-icon.svg"
+            alt="UnitNode Icon"
+            width={40}
             height={40}
             priority
           />
@@ -179,27 +179,27 @@ function VerifyEmailContent() {
             <div className="flex justify-center mb-6">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
             </div>
-            <h2 className="text-xl font-bold mb-2">Verifying Your Email</h2>
-            <p className="text-gray-600 text-sm">This will only take a moment...</p>
+            <h2 className="text-2xl font-bold mb-2">Verifying Your Email</h2>
+            <p className="text-gray-600 text-sm font-medium">This will only take a moment...</p>
           </div>
         )}
         
         {verificationState === 'success' && (
-          <div className="text-center">
+          <div className="text-center max-w-md">
             <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-green-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                 <polyline points="22 4 12 14.01 9 11.01"></polyline>
               </svg>
             </div>
-            <h2 className="text-xl font-bold mb-2">Email Verified!</h2>
-            <p className="text-gray-600 text-sm mb-4">
+            <h2 className="text-2xl font-bold mb-2">Email Verified!</h2>
+            <p className="text-gray-600 text-sm font-medium mb-4">
               Your account is now active and ready to use.
             </p>
-            <p className="text-gray-500 mb-6 text-sm">
+            <p className="text-gray-600 mb-8 text-sm font-medium">
               Redirecting in <span className="font-bold text-black">{countdown}</span>...
             </p>
-            <Link 
+            <Link
               href="/"
               onClick={() => {
                 // Ensure the email is saved for login prefill when clicking this button too
@@ -212,18 +212,18 @@ function VerifyEmailContent() {
                     email: email,
                     timestamp: Date.now()
                   };
-                  
+
                   // Add password if available
                   if (password) {
                     loginData.password = password;
                   }
-                  
+
                   localStorage.setItem('unitnode_login_prefill', JSON.stringify(loginData));
                   // Set a flag to auto-open the login modal after redirect
                   localStorage.setItem('unitnode_open_login_modal', 'true');
                 }
               }}
-              className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
+              className="w-full max-w-xs mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
             >
               <span className="font-bold">Go to Login</span>
             </Link>
@@ -231,7 +231,7 @@ function VerifyEmailContent() {
         )}
         
         {verificationState === 'error' && (
-          <div className="text-center">
+          <div className="text-center max-w-md">
             <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
@@ -239,21 +239,21 @@ function VerifyEmailContent() {
                 <line x1="9" y1="9" x2="15" y2="15"></line>
               </svg>
             </div>
-            <h2 className="text-xl font-bold mb-2">Verification Failed</h2>
-            <p className="text-red-500 text-xs mb-4">
+            <h2 className="text-2xl font-bold mb-2">Verification Failed</h2>
+            <p className="text-red-500 text-sm mb-8 font-medium">
               {errorMessage}
             </p>
-            <div className="flex flex-col gap-3">
-              <Link 
+            <div className="flex flex-col gap-3 w-full max-w-xs mx-auto">
+              <Link
                 href="/"
-                className="w-full mx-auto block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
+                className="w-full block py-2.5 bg-black text-white rounded-full font-medium hover:bg-black/90 transition-colors text-sm"
               >
                 <span className="font-bold">Go to Login</span>
               </Link>
               <button
                 onClick={resendVerificationEmail}
                 disabled={resending || !email}
-                className="w-full mx-auto block py-2.5 bg-gray-100 text-gray-800 rounded-full font-medium hover:bg-gray-200 transition-colors text-sm border border-gray-300"
+                className="w-full block py-2.5 bg-white/90 text-gray-800 rounded-full font-medium hover:bg-white transition-colors text-sm border border-white/70"
               >
                 {resending ? (
                   <div className="flex items-center justify-center">
@@ -264,21 +264,15 @@ function VerifyEmailContent() {
                   <span className="font-bold">Resend Email</span>
                 )}
               </button>
-              
+
               {resendSuccess && (
-                <p className="text-green-500 text-xs mt-2 text-center animate-in fade-in">
+                <p className="text-green-600 text-sm mt-2 text-center animate-in fade-in font-medium">
                   Verification email sent! Please check your inbox.
                 </p>
               )}
             </div>
           </div>
         )}
-        
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <p className="text-center text-gray-500 text-xs">
-            © {new Date().getFullYear()} UnitNode
-          </p>
-        </div>
       </div>
     </div>
   );
@@ -287,8 +281,8 @@ function VerifyEmailContent() {
 export default function VerifyEmail() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-black/33 flex flex-col items-center justify-center p-4">
-        <div className="w-[95%] max-w-[500px] bg-white rounded-4xl border-2 border-grey-700 shadow-lg p-8 animate-in fade-in duration-300 flex items-center justify-center">
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/33 overflow-y-auto py-10">
+        <div className="relative w-[95%] max-w-[800px] h-auto min-h-[600px] md:min-h-[640px] rounded-3xl border border-white/60 shadow-xl flex flex-col items-center justify-center bg-white/80 backdrop-blur-md animate-in fade-in duration-300">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-black"></div>
         </div>
       </div>
