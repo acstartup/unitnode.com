@@ -39,8 +39,8 @@ export default function Home() {
           UnitNode launching MVP 1/30/25... (re-launch in TypeScript)
         </div>
         <TypingAnimation 
-          text="Where real estate runs itself."
-          className="text-white text-4xl md:text-4xl lg:text-6xl font-bold tracking-tight text-center drop-shadow"
+          text="Replacing outsourced property management."
+          className="text-white text-4xl md:text-4xl lg:text-5xl font-bold tracking-tight text-center drop-shadow"
           speed={40}
           cursorHeight="h-12"
         />
