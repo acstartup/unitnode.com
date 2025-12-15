@@ -169,13 +169,6 @@ export default function PropertyDetailsPage() {
                             </svg>
                         </button>
 
-                        {/* Tooltip */}
-                        {!showLeaseMenu && (
-                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
-                                Actions
-                            </span>
-                        )}
-
                         {/* Dropdown Menu */}
                         {showLeaseMenu && (
                             <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-10 animate-in fade-in slide-in-from-top-2 duration-200">
