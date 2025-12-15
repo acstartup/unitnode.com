@@ -110,7 +110,16 @@ export default function PropertyDetailsPage() {
             {/* Lease Section */}
             <div className="px-8 py-5">
                 {/* Sub-header: Lease */}
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Lease</h2>
+                <div className="flex items-center justify-between mb-4 mx-1">
+                    <h2 className="text-xl font-semibold text-gray-900">Lease</h2>
+                    <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
+                        <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                            <circle cx="8" cy="3" r="1.5"/>
+                            <circle cx="8" cy="8" r="1.5"/>
+                            <circle cx="8" cy="13" r="1.5"/>
+                        </svg>
+                    </button>
+                </div>
 
                 {/* Sub-sub-header */}
                 <h3 className="text-md font-medium text-gray-900 mb-4 mx-1">Tenants</h3>
