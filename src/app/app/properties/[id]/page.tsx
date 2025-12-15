@@ -14,6 +14,7 @@ export default function PropertyDetailsPage() {
     const [editedOwnerName, setEditedOwnerName] = useState('');
     const [editedOwnerEmail, setEditedOwnerEmail] = useState('');
     const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
+    const [showLeaseMenu, setShowLeaseMenu] = useState(false);
 
     const property = properties.find(p => p.id === propertyId);
 
@@ -112,13 +113,25 @@ export default function PropertyDetailsPage() {
                 {/* Sub-header: Lease */}
                 <div className="flex items-center justify-between mb-4 mx-1">
                     <h2 className="text-xl font-semibold text-gray-900">Lease</h2>
-                    <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
-                        <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
-                            <circle cx="8" cy="3" r="1.5"/>
-                            <circle cx="8" cy="8" r="1.5"/>
-                            <circle cx="8" cy="13" r="1.5"/>
-                        </svg>
-                    </button>
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowLeaseMenu(!showLeaseMenu)}
+                            className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors"
+                        >
+                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                <circle cx="8" cy="3" r="1.5"/>
+                                <circle cx="8" cy="8" r="1.5"/>
+                                <circle cx="8" cy="13" r="1.5"/>
+                            </svg>
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {showLeaseMenu && (
+                            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                                {/* Menu items will go here */}
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* Sub-sub-header */}
