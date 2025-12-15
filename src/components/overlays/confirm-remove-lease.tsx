@@ -24,11 +24,11 @@ export default function ConfirmRemoveLease({ isOpen, onClose, onConfirm, propert
       onClick={handleBackdropClick}
     >
       <div
-        className="relative w-[95%] max-w-[420px] rounded-lg border border-white/20 shadow-xl bg-white backdrop-blur-md animate-in fade-in duration-300 p-4"
+        className="relative w-[95%] max-w-[400px] rounded-lg border border-white/20 shadow-xl bg-white backdrop-blur-md animate-in fade-in duration-300 p-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-2 mb-3 border-gray-200">
+        <div className="px-0 mb-3 border-gray-200 -my-1">
           <h2 className="text-md font-semibold text-gray-900">Remove lease</h2>
         </div>
 
