@@ -160,7 +160,7 @@ export default function PropertyDetailsPage() {
                     <div className="relative group" ref={leaseMenuRef}>
                         <button
                             onClick={() => setShowLeaseMenu(!showLeaseMenu)}
-                            className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors"
+                            className="p-1.5 hover:bg-gray-50 rounded-md border border-gray-300 transition-colors"
                         >
                             <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
                                 <circle cx="8" cy="3" r="1.5"/>
@@ -295,7 +295,7 @@ export default function PropertyDetailsPage() {
                         {!isEditing ? (
                             <button
                                 onClick={handleEditClick}
-                                className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors">
+                                className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
                                 <svg
                                     className="h-3.5 w-3.5"
                                     fill="none"
@@ -315,7 +315,7 @@ export default function PropertyDetailsPage() {
                                 <div className="flex gap-3 mx-1">
                                     <button
                                         onClick={handleCancel}
-                                        className="px-2 py-1.25 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:border-gray-400 transition-colors"
+                                        className="px-2 py-1.25 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
                                     >
                                         Cancel
                                     </button>
