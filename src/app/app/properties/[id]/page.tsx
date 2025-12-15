@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
+import ConfirmRemoveLease from '@/components/overlays/confirm-remove-lease';
 
 export default function PropertyDetailsPage() {
     const params = useParams();
@@ -15,6 +16,7 @@ export default function PropertyDetailsPage() {
     const [editedOwnerEmail, setEditedOwnerEmail] = useState('');
     const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
     const [showLeaseMenu, setShowLeaseMenu] = useState(false);
+    const [showRemoveLeaseConfirm, setShowRemoveLeaseConfirm] = useState(false);
     const leaseMenuRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
@@ -94,6 +96,30 @@ export default function PropertyDetailsPage() {
         )
     }
 
+    const handleRemoveLease = async () => {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tenants: [],
+                    mainTenant: 'N/A',
+                    mainTenantPhone: '',
+                    rent: 0,
+                }),
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to remove lease');
+            }
+        } catch (error) {
+            console.error('Error removing lease:', error);
+            alert('Failed to remove lease');
+        }
+    }
+
     return (
         <div className="w-full bg-white">
             {/* Breadcrumbs */}
@@ -155,8 +181,8 @@ export default function PropertyDetailsPage() {
                             <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-10 animate-in fade-in slide-in-from-top-2 duration-200">
                                 <button
                                     onClick={() => {
-                                        // Handle remove lease
                                         setShowLeaseMenu(false);
+                                        setShowRemoveLeaseConfirm(true);
                                     }}
                                     className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center rounded-md gap-3"
                                 >
@@ -364,6 +390,17 @@ export default function PropertyDetailsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Remove Lease Confirmation Overlay */}
+            <ConfirmRemoveLease
+                isOpen={showRemoveLeaseConfirm}
+                onClose={() => setShowRemoveLeaseConfirm(false)}
+                onConfirm={() => {
+                    setShowRemoveLeaseConfirm(false);
+                    handleRemoveLease();
+                }}
+                propertyAddress={property?.address}
+            />
         </div>
     )
 }
