@@ -131,7 +131,7 @@ export default function PropertyDetailsPage() {
                 {/* Sub-header: Lease */}
                 <div className="flex items-center justify-between mb-4 mx-1">
                     <h2 className="text-xl font-semibold text-gray-900">Lease</h2>
-                    <div className="relative" ref={leaseMenuRef}>
+                    <div className="relative group" ref={leaseMenuRef}>
                         <button
                             onClick={() => setShowLeaseMenu(!showLeaseMenu)}
                             className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors"
@@ -142,6 +142,13 @@ export default function PropertyDetailsPage() {
                                 <circle cx="8" cy="13" r="1.5"/>
                             </svg>
                         </button>
+
+                        {/* Tooltip */}
+                        {!showLeaseMenu && (
+                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-2 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity">
+                                Actions
+                            </span>
+                        )}
 
                         {/* Dropdown Menu */}
                         {showLeaseMenu && (
