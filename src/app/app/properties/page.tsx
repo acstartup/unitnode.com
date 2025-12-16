@@ -19,6 +19,7 @@ export default function Properties(){
     const [activeRentRange, setActiveRentRange] = useState<{min: number | null, max: number | null} | null>(null);
     const [showVacantOnly, setShowVacantOnly] = useState(false);
     const [rentSortOrder, setRentSortOrder] = useState<'asc' | 'desc' | null>(null);
+    const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
@@ -113,6 +114,28 @@ export default function Properties(){
         } else {
             setRentSortOrder(null);
         }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedProperties.length === filteredProperties.length) {
+            setSelectedProperties([]);
+        } else {
+            setSelectedProperties(filteredProperties.map(p => p.id));
+        }
+    };
+
+    const toggleSelectProperty = (propertyId: string) => {
+        setSelectedProperties(prev => {
+            if (prev.includes(propertyId)) {
+                return prev.filter(id => id !== propertyId);
+            } else {
+                return [...prev, propertyId];
+            }
+        });
+    };
+
+    const deselectAll = () => {
+        setSelectedProperties([]);
     };
 
     // Filter properties based on selected owners, locations, rent range, and vacancy
@@ -438,6 +461,21 @@ export default function Properties(){
                         Clear all
                     </button>
                 )}
+
+                {/* Selection Counter and Deselect */}
+                {selectedProperties.length > 0 && (
+                    <>
+                        <span className="text-xs text-gray-700 font-medium">
+                            {selectedProperties.length} selected
+                        </span>
+                        <button
+                            onClick={deselectAll}
+                            className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                        >
+                            Deselect all
+                        </button>
+                    </>
+                )}
             </div>
 
             {/* Table Container */}
@@ -446,7 +484,15 @@ export default function Properties(){
                     {/* Table Header */}
                     <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[45%]">
+                            <th className="px-4 py-2 w-[3%]">
+                                <input
+                                    type="checkbox"
+                                    checked={filteredProperties.length > 0 && selectedProperties.length === filteredProperties.length}
+                                    onChange={toggleSelectAll}
+                                    className="w-3.5 h-3.5 rounded border-gray-200 text-gray-900 focus:ring-2 focus:ring-offset-0 focus:ring-gray-900/20 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                />
+                            </th>
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[42%]">
                                 Property Address
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[18%]">
@@ -493,6 +539,14 @@ export default function Properties(){
 
                             return (
                                 <tr key={property.id}>
+                                    <td className="px-4 py-1">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedProperties.includes(property.id)}
+                                            onChange={() => toggleSelectProperty(property.id)}
+                                            className="w-3.5 h-3.5 rounded-md border-gray-50 text-gray-900 focus:ring-gray-900 cursor-pointer"
+                                        />
+                                    </td>
                                     <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500">{property.ownerName || '—'}</td>
                                     <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
