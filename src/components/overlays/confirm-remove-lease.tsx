@@ -60,7 +60,7 @@ export default function ConfirmRemoveLease({ isOpen, onClose, onConfirm, propert
               onClick={onConfirm}
               className="px-4 py-1 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-650 transition-colors"
             >
-              Remove Lease
+              Remove lease
             </button>
           </div>
         </div>

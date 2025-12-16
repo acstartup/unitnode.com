@@ -23,10 +23,12 @@ export default function Properties(){
     const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
     const tableScrollRef = useRef<HTMLDivElement>(null);
+    const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
 
     const removeOwnerFilter = (owner: string) => {
         setSelectedOwners(prev => prev.filter(o => o !== owner));
@@ -48,16 +50,23 @@ export default function Properties(){
             if (rentFilterRef.current && !rentFilterRef.current.contains(event.target as Node)) {
                 setShowRentFilter(false);
             }
+            // Close property dropdown if clicked outside
+            if (openDropdownId && dropdownRefs.current[openDropdownId]) {
+                const dropdownElement = dropdownRefs.current[openDropdownId];
+                if (dropdownElement && !dropdownElement.contains(event.target as Node)) {
+                    setOpenDropdownId(null);
+                }
+            }
         };
 
-        if (showOwnerFilter || showLocationFilter || showRentFilter) {
+        if (showOwnerFilter || showLocationFilter || showRentFilter || openDropdownId) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showOwnerFilter, showLocationFilter, showRentFilter]);
+    }, [showOwnerFilter, showLocationFilter, showRentFilter, openDropdownId]);
 
     // Track horizontal scroll position
     useEffect(() => {
@@ -642,23 +651,45 @@ export default function Properties(){
                                         </div>
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
-                                    <td className="px-4 py-1 -pr-1 text-right sticky right-0 bg-white z-10">
-                                        <div className="relative group inline-block">
+                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white ${openDropdownId === property.id ? 'z-50' : 'z-10'}`}>
+                                        <div
+                                            className="relative inline-block"
+                                            ref={(el) => { dropdownRefs.current[property.id] = el; }}
+                                        >
                                             <button
-                                                onClick={() => handleViewDetails(property.id)}
-                                                className=" rounded-2xl hover:bg-gray-100 transition-colors"
-                                                aria-label="Actions"
+                                                onClick={() => setOpenDropdownId(openDropdownId === property.id ? null : property.id)}
+                                                className="p-1.5 hover:bg-gray-50 rounded-md border border-gray-300 transition-colors"
                                             >
-                                                <svg
-                                                    className="h-5 w-5 text-gray-400"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <circle cx="12" cy="6" r="2" />
-                                                    <circle cx="12" cy="13" r="2" />
-                                                    <circle cx="12" cy="20" r="2" />
+                                                <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="3" r="1.5"/>
+                                                    <circle cx="8" cy="8" r="1.5"/>
+                                                    <circle cx="8" cy="13" r="1.5"/>
                                                 </svg>
                                             </button>
+
+                                            {/* Dropdown Menu */}
+                                            {openDropdownId === property.id && (
+                                                <div className="absolute right-0 mt-0.5 w-32 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                                    <button
+                                                        onClick={() => {
+                                                            setOpenDropdownId(null);
+                                                            handleViewDetails(property.id);
+                                                        }}
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                    >
+                                                        Details
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setOpenDropdownId(null);
+                                                            // Handle invoice action
+                                                        }}
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                    >
+                                                        Invoice
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

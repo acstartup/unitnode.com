@@ -111,7 +111,7 @@ export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, prop
                   : 'bg-gray-400 cursor-not-allowed'
               }`}
             >
-              {isMultiple ? 'Delete Properties' : 'Delete Property'}
+              {isMultiple ? 'Delete properties' : 'Delete property'}
             </button>
           </div>
         </div>
