@@ -611,7 +611,7 @@ export default function Properties(){
                                     </div>
                                 </button>
                             </th>
-                            <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-10 border-l border-gray-200"></th>
+                            <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-10"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
