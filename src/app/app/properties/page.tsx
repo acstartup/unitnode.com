@@ -636,8 +636,10 @@ export default function Properties(){
                                     </td>
                                     <td className={`pr-4 py-1 text-sm text-gray-900 whitespace-nowrap sticky left-[40px] bg-white z-10 transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>{property.address}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{property.ownerName || '—'}</td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">
-                                        {tenantNames}
+                                    <td className="px-4 py-1 text-sm text-gray-500">
+                                        <div className="max-w-[350px] truncate">
+                                            {tenantNames}
+                                        </div>
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
                                     <td className="px-4 py-1 -pr-1 text-right sticky right-0 bg-white z-10">
