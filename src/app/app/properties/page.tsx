@@ -421,8 +421,8 @@ export default function Properties(){
             </div>
 
             {/* Table Container */}
-            <div className="border border-gray-200 rounded-lg mx-8">
-                <table className="w-full overflow-visible rounded-lg">
+            <div className="border border-gray-200 rounded-lg mx-8 overflow-hidden">
+                <table className="w-full">
                     {/* Table Header */}
                     <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
