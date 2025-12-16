@@ -22,9 +22,11 @@ export default function Properties(){
     const [rentSortOrder, setRentSortOrder] = useState<'asc' | 'desc' | null>(null);
     const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
+    const tableScrollRef = useRef<HTMLDivElement>(null);
 
     const removeOwnerFilter = (owner: string) => {
         setSelectedOwners(prev => prev.filter(o => o !== owner));
@@ -56,6 +58,26 @@ export default function Properties(){
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, [showOwnerFilter, showLocationFilter, showRentFilter]);
+
+    // Track horizontal scroll position
+    useEffect(() => {
+        const handleScroll = () => {
+            if (tableScrollRef.current) {
+                setIsScrolled(tableScrollRef.current.scrollLeft > 0);
+            }
+        };
+
+        const scrollElement = tableScrollRef.current;
+        if (scrollElement) {
+            scrollElement.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            if (scrollElement) {
+                scrollElement.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, []);
 
     const handleViewDetails = (propertyId: string) => {
         router.push(`/app/properties/${propertyId}`);
@@ -540,12 +562,12 @@ export default function Properties(){
 
             {/* Table Container */}
             <div className="mx-8">
-                <div className="overflow-x-scroll overflow-y-hidden mb-10">
+                <div ref={tableScrollRef} className="overflow-x-scroll overflow-y-hidden mb-10">
                     <table className="w-full min-w-[900px]">
                     {/* Table Header */}
                     <thead className="bg-white border-b border-gray-200">
                         <tr>
-                            <th className="pl-4 pr-4 py-2 w-[3%]">
+                            <th className="pl-4 pr-4 py-2 w-[3%] sticky left-0 bg-white z-10">
                                 <input
                                     type="checkbox"
                                     checked={filteredProperties.length > 0 && selectedProperties.length === filteredProperties.length}
@@ -556,7 +578,7 @@ export default function Properties(){
                                     }}
                                 />
                             </th>
-                            <th className="pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%]">
+                            <th className={`pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%] sticky left-[40px] bg-white z-10 transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>
                                 Property Address
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[18%]">
@@ -589,7 +611,7 @@ export default function Properties(){
                                     </div>
                                 </button>
                             </th>
-                            <th className="px-4 py-2 w-[5%]"></th>
+                            <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-10 border-l border-gray-200"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -601,7 +623,7 @@ export default function Properties(){
 
                             return (
                                 <tr key={property.id}>
-                                    <td className="pl-4 py-1">
+                                    <td className="pl-4 py-1 sticky left-0 bg-white z-10">
                                         <input
                                             type="checkbox"
                                             checked={selectedProperties.includes(property.id)}
@@ -612,13 +634,13 @@ export default function Properties(){
                                             }}
                                         />
                                     </td>
-                                    <td className="pr-4 py-1 text-sm text-gray-900 whitespace-nowrap">{property.address}</td>
+                                    <td className={`pr-4 py-1 text-sm text-gray-900 whitespace-nowrap sticky left-[40px] bg-white z-10 transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>{property.address}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{property.ownerName || '—'}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">
                                         {tenantNames}
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
-                                    <td className="px-4 py-1 text-right">
+                                    <td className="px-4 py-1 text-right sticky right-0 bg-white z-10 border-l border-gray-200">
                                         <div className="relative group inline-block">
                                             <button
                                                 onClick={() => handleViewDetails(property.id)}
