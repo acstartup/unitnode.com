@@ -108,7 +108,12 @@ export default function Properties(){
     let filteredProperties = properties;
 
     if (selectedOwners.length > 0) {
-        filteredProperties = filteredProperties.filter(p => p.ownerName && selectedOwners.includes(p.ownerName));
+        filteredProperties = filteredProperties.filter(p => {
+            if (!p.ownerName) return false;
+            return selectedOwners.some(owner =>
+                p.ownerName!.toLowerCase().includes(owner.toLowerCase())
+            );
+        });
     }
 
     if (selectedLocations.length > 0) {
