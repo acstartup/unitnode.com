@@ -142,7 +142,6 @@ export default function Properties(){
                                 }}
                                 placeholder=""
                                 className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent mb-2"
-                                autoFocus
                             />
                             <div className="flex justify-center">
                                 <button
