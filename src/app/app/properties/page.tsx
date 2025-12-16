@@ -181,6 +181,20 @@ export default function Properties(){
 
     return (
         <div className="w-full bg-white">
+            <style jsx>{`
+                @keyframes checkboxCheck {
+                    0% {
+                        opacity: 0;
+                    }
+                    100% {
+                        opacity: 1;
+                    }
+                }
+
+                input[type="checkbox"]:checked {
+                    animation: checkboxCheck 0.15s ease-in;
+                }
+            `}</style>
             {/* Page Header */}
             <div className="mb-1">
                 <h1 className="text-3xl font-semibold text-gray-900 px-8 py-6">Properties</h1>
@@ -484,12 +498,15 @@ export default function Properties(){
                     {/* Table Header */}
                     <thead className="bg-gray-50 border-b border-gray-200">
                         <tr>
-                            <th className="px-4 py-2 w-[3%]">
+                            <th className="pl-4 pr-2 py-2 w-[3%]">
                                 <input
                                     type="checkbox"
                                     checked={filteredProperties.length > 0 && selectedProperties.length === filteredProperties.length}
                                     onChange={toggleSelectAll}
-                                    className="w-3.5 h-3.5 rounded border-gray-200 text-gray-900 focus:ring-2 focus:ring-offset-0 focus:ring-gray-900/20 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                    className="w-3.5 h-3.5 rounded-md border-gray-200 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                    style={{
+                                        accentColor: '#374151'
+                                    }}
                                 />
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[42%]">
@@ -539,12 +556,15 @@ export default function Properties(){
 
                             return (
                                 <tr key={property.id}>
-                                    <td className="px-4 py-1">
+                                    <td className="pl-4 pr-2 py-1">
                                         <input
                                             type="checkbox"
                                             checked={selectedProperties.includes(property.id)}
                                             onChange={() => toggleSelectProperty(property.id)}
-                                            className="w-3.5 h-3.5 rounded-md border-gray-50 text-gray-900 focus:ring-gray-900 cursor-pointer"
+                                            className="w-3.5 h-3.5 rounded-md border-gray-200 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                            style={{
+                                                accentColor: '#374151'
+                                            }}
                                         />
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
