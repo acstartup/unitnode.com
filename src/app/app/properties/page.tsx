@@ -18,6 +18,7 @@ export default function Properties(){
     const [rentMax, setRentMax] = useState('');
     const [activeRentRange, setActiveRentRange] = useState<{min: number | null, max: number | null} | null>(null);
     const [showVacantOnly, setShowVacantOnly] = useState(false);
+    const [rentSortOrder, setRentSortOrder] = useState<'asc' | 'desc' | null>(null);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
@@ -104,6 +105,16 @@ export default function Properties(){
         setShowVacantOnly(false);
     };
 
+    const toggleRentSort = () => {
+        if (rentSortOrder === null) {
+            setRentSortOrder('desc');
+        } else if (rentSortOrder === 'desc') {
+            setRentSortOrder('asc');
+        } else {
+            setRentSortOrder(null);
+        }
+    };
+
     // Filter properties based on selected owners, locations, rent range, and vacancy
     let filteredProperties = properties;
 
@@ -133,6 +144,15 @@ export default function Properties(){
             const hasNoTenants = (!p.tenants || p.tenants.length === 0) &&
                                  (!p.mainTenant || p.mainTenant === 'N/A');
             return hasNoTenants;
+        });
+    }
+
+    // Sort properties by rent if sort order is active
+    if (rentSortOrder) {
+        filteredProperties = [...filteredProperties].sort((a, b) => {
+            const rentA = a.rent || 0;
+            const rentB = b.rent || 0;
+            return rentSortOrder === 'asc' ? rentA - rentB : rentB - rentA;
         });
     }
 
@@ -436,7 +456,28 @@ export default function Properties(){
                                 Tenant
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[12%]">
-                                Rent
+                                <button
+                                    onClick={toggleRentSort}
+                                    className="inline-flex items-center gap-1 hover:text-gray-700 transition-colors"
+                                >
+                                    Rent
+                                    <div className="flex flex-col -space-y-2 -mx-0.5">
+                                        <svg
+                                            className={`w-3 h-3 ${rentSortOrder === 'asc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z" />
+                                        </svg>
+                                        <svg
+                                            className={`w-3 h-3 ${rentSortOrder === 'desc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z" />
+                                        </svg>
+                                    </div>
+                                </button>
                             </th>
                             <th className="px-4 py-2 w-[5%]"></th>
                         </tr>
