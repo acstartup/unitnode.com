@@ -76,7 +76,7 @@ export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, prop
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               placeholder={requiredText}
               autoFocus
             />
