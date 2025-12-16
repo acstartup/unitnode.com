@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
 import ConfirmRemoveLease from '@/components/overlays/confirm-remove-lease';
+import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
 
 export default function PropertyDetailsPage() {
     const params = useParams();
@@ -17,6 +18,7 @@ export default function PropertyDetailsPage() {
     const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
     const [showLeaseMenu, setShowLeaseMenu] = useState(false);
     const [showRemoveLeaseConfirm, setShowRemoveLeaseConfirm] = useState(false);
+    const [showDeletePropertyConfirm, setShowDeletePropertyConfirm] = useState(false);
     const leaseMenuRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
@@ -120,6 +122,24 @@ export default function PropertyDetailsPage() {
         }
     }
 
+    const handleDeleteProperty = async () => {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (response.ok) {
+                router.push('/app/properties');
+            } else {
+                alert('Failed to delete property');
+            }
+        } catch (error) {
+            console.error('Error deleting property:', error);
+            alert('Failed to delete property');
+        }
+    }
+
     return (
         <div className="w-full bg-white">
             {/* Breadcrumbs */}
@@ -194,8 +214,8 @@ export default function PropertyDetailsPage() {
                                 </button>
                                 <button
                                     onClick={() => {
-                                        // Handle delete property
                                         setShowLeaseMenu(false);
+                                        setShowDeletePropertyConfirm(true);
                                     }}
                                     className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center rounded-md gap-3"
                                 >
@@ -391,6 +411,17 @@ export default function PropertyDetailsPage() {
                 onConfirm={() => {
                     setShowRemoveLeaseConfirm(false);
                     handleRemoveLease();
+                }}
+                propertyAddress={property?.address}
+            />
+
+            {/* Delete Property Confirmation Overlay */}
+            <ConfirmDeleteProperty
+                isOpen={showDeletePropertyConfirm}
+                onClose={() => setShowDeletePropertyConfirm(false)}
+                onConfirm={() => {
+                    setShowDeletePropertyConfirm(false);
+                    handleDeleteProperty();
                 }}
                 propertyAddress={property?.address}
             />
