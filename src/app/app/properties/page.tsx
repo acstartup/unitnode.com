@@ -68,10 +68,10 @@ export default function Properties(){
                 <div className="relative" ref={filterRef}>
                     <button
                         onClick={() => setShowOwnerFilter(!showOwnerFilter)}
-                        className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border border-dashed transition-colors ${
+                        className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
                             selectedOwners.length > 0
-                                ? 'bg-gray-900 text-white border-gray-900'
-                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                                ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                                : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
                         }`}
                     >
                         <svg
@@ -83,11 +83,6 @@ export default function Properties(){
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                         </svg>
                         Owner
-                        {selectedOwners.length > 0 && (
-                            <span className="ml-0.5 px-1 py-0.5 text-[10px] font-semibold bg-white text-gray-900 rounded">
-                                {selectedOwners.length}
-                            </span>
-                        )}
                     </button>
 
                     {/* Dropdown */}
