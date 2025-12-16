@@ -493,10 +493,10 @@ export default function Properties(){
             </div>
 
             {/* Table Container */}
-            <div className="border border-gray-200 rounded-lg mx-8 overflow-hidden">
+            <div className=" border-gray-200 rounded-lg mx-8 overflow-hidden">
                 <table className="w-full">
                     {/* Table Header */}
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-white border-b border-gray-200">
                         <tr>
                             <th className="pl-4 pr-2 py-2 w-[3%]">
                                 <input
@@ -509,19 +509,19 @@ export default function Properties(){
                                     }}
                                 />
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[42%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%]">
                                 Property Address
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[18%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[18%]">
                                 Owner
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[25%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[25%]">
                                 Tenant
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[12%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[12%]">
                                 <button
                                     onClick={toggleRentSort}
-                                    className="inline-flex items-center gap-1 hover:text-gray-700 transition-colors"
+                                    className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors"
                                 >
                                     Rent
                                     <div className="flex flex-col -space-y-2 -mx-0.5">
