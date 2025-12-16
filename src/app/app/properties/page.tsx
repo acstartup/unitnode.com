@@ -9,10 +9,12 @@ export default function Properties(){
     const router = useRouter();
     const [showOwnerFilter, setShowOwnerFilter] = useState(false);
     const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
+    const [ownerFilterInput, setOwnerFilterInput] = useState('');
     const filterRef = useRef<HTMLDivElement>(null);
 
-    // Get unique owners
-    const uniqueOwners = Array.from(new Set(properties.map(p => p.ownerName).filter(Boolean))) as string[];
+    const removeOwnerFilter = (owner: string) => {
+        setSelectedOwners(prev => prev.filter(o => o !== owner));
+    };
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -35,16 +37,18 @@ export default function Properties(){
         router.push(`/app/properties/${propertyId}`);
     }
 
-    const toggleOwner = (owner: string) => {
-        setSelectedOwners(prev =>
-            prev.includes(owner)
-                ? prev.filter(o => o !== owner)
-                : [...prev, owner]
-        );
+    const applyFilter = () => {
+        const trimmedInput = ownerFilterInput.trim();
+        if (trimmedInput && !selectedOwners.includes(trimmedInput)) {
+            setSelectedOwners([...selectedOwners, trimmedInput]);
+        }
+        setOwnerFilterInput('');
+        setShowOwnerFilter(false);
     };
 
     const clearFilters = () => {
         setSelectedOwners([]);
+        setOwnerFilterInput('');
     };
 
     // Filter properties based on selected owners
@@ -60,7 +64,7 @@ export default function Properties(){
             </div>
 
             {/* Filter Bar */}
-            <div className="px-8 mb-2 flex items-center gap-2">
+            <div className="px-8 mb-2 flex items-center gap-2 flex-wrap">
                 <div className="relative" ref={filterRef}>
                     <button
                         onClick={() => setShowOwnerFilter(!showOwnerFilter)}
@@ -88,42 +92,67 @@ export default function Properties(){
 
                     {/* Dropdown */}
                     {showOwnerFilter && (
-                        <div className="absolute top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200">
-                            <div className="p-2 max-h-64 overflow-y-auto">
-                                {uniqueOwners.length > 0 ? (
-                                    uniqueOwners.map((owner) => (
-                                        <label
-                                            key={owner}
-                                            className="flex items-center gap-2 px-2 py-1.5 hover:bg-gray-50 rounded cursor-pointer"
-                                        >
-                                            <input
-                                                type="checkbox"
-                                                checked={selectedOwners.includes(owner)}
-                                                onChange={() => toggleOwner(owner)}
-                                                className="w-3.5 h-3.5 text-gray-900 border-gray-300 rounded focus:ring-gray-900 focus:ring-1"
-                                            />
-                                            <span className="text-sm text-gray-700">{owner}</span>
-                                        </label>
-                                    ))
-                                ) : (
-                                    <div className="px-2 py-3 text-xs text-gray-500 text-center">
-                                        No owners found
-                                    </div>
-                                )}
+                        <div className="absolute top-full mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3">
+                            <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                                Filter by: Owner Name
+                            </label>
+                            <input
+                                type="text"
+                                value={ownerFilterInput}
+                                onChange={(e) => setOwnerFilterInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        applyFilter();
+                                    }
+                                }}
+                                placeholder=""
+                                className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent mb-2"
+                                autoFocus
+                            />
+                            <div className="flex justify-center">
+                                <button
+                                    onClick={applyFilter}
+                                    className="px-3 py-1 bg-gray-900 text-white text-xs font-medium rounded-md hover:bg-gray-800 transition-colors -mb-1"
+                                >
+                                    Apply
+                                </button>
                             </div>
-                            {selectedOwners.length > 0 && (
-                                <div className="border-t border-gray-200 p-2">
-                                    <button
-                                        onClick={clearFilters}
-                                        className="w-full px-2 py-1.5 text-xs font-medium text-gray-700 hover:bg-gray-50 rounded transition-colors"
-                                    >
-                                        Clear filters
-                                    </button>
-                                </div>
-                            )}
                         </div>
                     )}
                 </div>
+
+                {/* Active Filter Chips */}
+                {selectedOwners.map((owner) => (
+                    <div
+                        key={owner}
+                        className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300"
+                    >
+                        <span>{owner}</span>
+                        <button
+                            onClick={() => removeOwnerFilter(owner)}
+                            className="hover:text-gray-900 transition-colors"
+                        >
+                            <svg
+                                className="w-3 h-3"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                ))}
+
+                {/* Clear All Filters */}
+                {selectedOwners.length > 0 && (
+                    <button
+                        onClick={clearFilters}
+                        className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                    >
+                        Clear all
+                    </button>
+                )}
             </div>
 
             {/* Table Container */}
