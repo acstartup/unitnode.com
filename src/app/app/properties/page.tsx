@@ -146,7 +146,12 @@ export default function Properties(){
                             <div className="flex justify-center">
                                 <button
                                     onClick={applyFilter}
-                                    className="px-3 py-1 bg-gray-900 text-white text-xs font-medium rounded-md hover:bg-gray-800 transition-colors -mb-1"
+                                    disabled={!ownerFilterInput.trim()}
+                                    className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                        ownerFilterInput.trim()
+                                            ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                            : 'bg-gray-400 cursor-not-allowed'
+                                    }`}
                                 >
                                     Apply
                                 </button>
@@ -229,7 +234,12 @@ export default function Properties(){
                             <div className="flex justify-center">
                                 <button
                                     onClick={applyRentFilter}
-                                    className="px-3 py-1 bg-gray-900 text-white text-xs font-medium rounded-md hover:bg-gray-800 transition-colors -mb-1"
+                                    disabled={!rentMin.trim() && !rentMax.trim()}
+                                    className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                        rentMin.trim() || rentMax.trim()
+                                            ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                            : 'bg-gray-400 cursor-not-allowed'
+                                    }`}
                                 >
                                     Apply
                                 </button>
