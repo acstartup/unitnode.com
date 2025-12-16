@@ -17,6 +17,7 @@ export default function Properties(){
     const [rentMin, setRentMin] = useState('');
     const [rentMax, setRentMax] = useState('');
     const [activeRentRange, setActiveRentRange] = useState<{min: number | null, max: number | null} | null>(null);
+    const [showVacantOnly, setShowVacantOnly] = useState(false);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
@@ -100,9 +101,10 @@ export default function Properties(){
         setActiveRentRange(null);
         setRentMin('');
         setRentMax('');
+        setShowVacantOnly(false);
     };
 
-    // Filter properties based on selected owners, locations, and rent range
+    // Filter properties based on selected owners, locations, rent range, and vacancy
     let filteredProperties = properties;
 
     if (selectedOwners.length > 0) {
@@ -123,6 +125,14 @@ export default function Properties(){
             if (activeRentRange.min !== null && rent < activeRentRange.min) return false;
             if (activeRentRange.max !== null && rent > activeRentRange.max) return false;
             return true;
+        });
+    }
+
+    if (showVacantOnly) {
+        filteredProperties = filteredProperties.filter(p => {
+            const hasNoTenants = (!p.tenants || p.tenants.length === 0) &&
+                                 (!p.mainTenant || p.mainTenant === 'N/A');
+            return hasNoTenants;
         });
     }
 
@@ -379,8 +389,28 @@ export default function Properties(){
                     </div>
                 )}
 
+                {/* Vacant Filter Button */}
+                <button
+                    onClick={() => setShowVacantOnly(!showVacantOnly)}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        showVacantOnly
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Vacant
+                </button>
+
                 {/* Clear All Filters */}
-                {(selectedOwners.length > 0 || selectedLocations.length > 0 || activeRentRange) && (
+                {(selectedOwners.length > 0 || selectedLocations.length > 0 || activeRentRange || showVacantOnly) && (
                     <button
                         onClick={clearFilters}
                         className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
