@@ -539,8 +539,9 @@ export default function Properties(){
             </div>
 
             {/* Table Container */}
-            <div className=" border-gray-200 rounded-lg mx-8 overflow-hidden">
-                <table className="w-full">
+            <div className="mx-8">
+                <div className="overflow-x-scroll overflow-y-hidden mb-10">
+                    <table className="w-full min-w-[900px]">
                     {/* Table Header */}
                     <thead className="bg-white border-b border-gray-200">
                         <tr>
@@ -596,8 +597,6 @@ export default function Properties(){
                             const tenantNames = property.tenants && property.tenants.length > 0
                                 ? property.tenants.map(t => t.name).join(', ')
                                 : (property.mainTenant && property.mainTenant !== 'N/A' ? property.mainTenant : '—');
-                            const textLength = tenantNames.length;
-                            const fontSize = textLength > 50 ? 'text-xs' : textLength > 30 ? 'text-sm' : 'text-sm';
                             const rentDisplay = property.rent === 0 ? '—' : property.rent;
 
                             return (
@@ -613,12 +612,12 @@ export default function Properties(){
                                             }}
                                         />
                                     </td>
-                                    <td className="pr-4 py-1 text-sm text-gray-900">{property.address}</td>
-                                    <td className="px-4 py-1 text-sm text-gray-500">{property.ownerName || '—'}</td>
-                                    <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
+                                    <td className="pr-4 py-1 text-sm text-gray-900 whitespace-nowrap">{property.address}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{property.ownerName || '—'}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">
                                         {tenantNames}
                                     </td>
-                                    <td className="px-4 py-1 text-sm text-gray-500">{rentDisplay}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
                                     <td className="px-4 py-1 text-right">
                                         <div className="relative group inline-block">
                                             <button
@@ -648,6 +647,7 @@ export default function Properties(){
                         })}
                     </tbody>
                 </table>
+                </div>
             </div>
 
             {/* Delete Confirmation Overlay */}
