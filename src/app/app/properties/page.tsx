@@ -544,7 +544,7 @@ export default function Properties(){
                     {/* Table Header */}
                     <thead className="bg-white border-b border-gray-200">
                         <tr>
-                            <th className="pl-4 pr-5 py-2 w-[3%]">
+                            <th className="pl-4 pr-4 py-2 w-[3%]">
                                 <input
                                     type="checkbox"
                                     checked={filteredProperties.length > 0 && selectedProperties.length === filteredProperties.length}
@@ -555,7 +555,7 @@ export default function Properties(){
                                     }}
                                 />
                             </th>
-                            <th className="-px-8 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%]">
+                            <th className="pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%]">
                                 Property Address
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[18%]">
@@ -602,7 +602,7 @@ export default function Properties(){
 
                             return (
                                 <tr key={property.id}>
-                                    <td className="pl-4 -px-2 py-1">
+                                    <td className="pl-4 py-1">
                                         <input
                                             type="checkbox"
                                             checked={selectedProperties.includes(property.id)}
@@ -613,7 +613,7 @@ export default function Properties(){
                                             }}
                                         />
                                     </td>
-                                    <td className="-px-10 py-1 text-sm text-gray-900">{property.address}</td>
+                                    <td className="pr-4 py-1 text-sm text-gray-900">{property.address}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500">{property.ownerName || '—'}</td>
                                     <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
                                         {tenantNames}
