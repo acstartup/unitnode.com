@@ -3,6 +3,7 @@
 import { useProperties } from '@/contexts/PropertyContext';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
 
 export default function Properties(){
     const { properties } = useProperties();
@@ -20,6 +21,7 @@ export default function Properties(){
     const [showVacantOnly, setShowVacantOnly] = useState(false);
     const [rentSortOrder, setRentSortOrder] = useState<'asc' | 'desc' | null>(null);
     const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
@@ -136,6 +138,29 @@ export default function Properties(){
 
     const deselectAll = () => {
         setSelectedProperties([]);
+    };
+
+    const handleDeleteProperties = async () => {
+        try {
+            // Delete all selected properties
+            await Promise.all(
+                selectedProperties.map(propertyId =>
+                    fetch(`/api/properties/${propertyId}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                    })
+                )
+            );
+
+            // Clear selection after successful deletion
+            setSelectedProperties([]);
+
+            // Refresh the page to show updated list
+            router.refresh();
+        } catch (error) {
+            console.error('Error deleting properties:', error);
+            alert('Failed to delete properties');
+        }
     };
 
     // Filter properties based on selected owners, locations, rent range, and vacancy
@@ -488,6 +513,27 @@ export default function Properties(){
                         >
                             Deselect all
                         </button>
+                        <div className="ml-auto">
+                            <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-650 rounded-md transition-colors"
+                            >
+                                <svg
+                                    className="w-3.5 h-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                </svg>
+                                {selectedProperties.length === 1 ? 'Delete property' : 'Delete properties'}
+                            </button>
+                        </div>
                     </>
                 )}
             </div>
@@ -498,7 +544,7 @@ export default function Properties(){
                     {/* Table Header */}
                     <thead className="bg-white border-b border-gray-200">
                         <tr>
-                            <th className="pl-4 pr-2 py-2 w-[3%]">
+                            <th className="pl-4 pr-5 py-2 w-[3%]">
                                 <input
                                     type="checkbox"
                                     checked={filteredProperties.length > 0 && selectedProperties.length === filteredProperties.length}
@@ -509,7 +555,7 @@ export default function Properties(){
                                     }}
                                 />
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%]">
+                            <th className="-px-8 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%]">
                                 Property Address
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[18%]">
@@ -556,7 +602,7 @@ export default function Properties(){
 
                             return (
                                 <tr key={property.id}>
-                                    <td className="pl-4 pr-2 py-1">
+                                    <td className="pl-4 -px-2 py-1">
                                         <input
                                             type="checkbox"
                                             checked={selectedProperties.includes(property.id)}
@@ -567,7 +613,7 @@ export default function Properties(){
                                             }}
                                         />
                                     </td>
-                                    <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
+                                    <td className="-px-10 py-1 text-sm text-gray-900">{property.address}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500">{property.ownerName || '—'}</td>
                                     <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
                                         {tenantNames}
@@ -604,6 +650,16 @@ export default function Properties(){
                 </table>
             </div>
 
+            {/* Delete Confirmation Overlay */}
+            <ConfirmDeleteProperty
+                isOpen={showDeleteConfirm}
+                onClose={() => setShowDeleteConfirm(false)}
+                onConfirm={() => {
+                    setShowDeleteConfirm(false);
+                    handleDeleteProperties();
+                }}
+                propertyCount={selectedProperties.length}
+            />
         </div>
     );
 }
