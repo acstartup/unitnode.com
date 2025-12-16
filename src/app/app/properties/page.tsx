@@ -640,11 +640,11 @@ export default function Properties(){
                                         {tenantNames}
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
-                                    <td className="px-4 py-1 text-right sticky right-0 bg-white z-10 border-l border-gray-200">
+                                    <td className="px-4 py-1 -pr-1 text-right sticky right-0 bg-white z-10">
                                         <div className="relative group inline-block">
                                             <button
                                                 onClick={() => handleViewDetails(property.id)}
-                                                className="p-1 rounded-2xl hover:bg-gray-100 transition-colors"
+                                                className=" rounded-2xl hover:bg-gray-100 transition-colors"
                                                 aria-label="Actions"
                                             >
                                                 <svg
@@ -657,11 +657,6 @@ export default function Properties(){
                                                     <circle cx="12" cy="20" r="2" />
                                                 </svg>
                                             </button>
-
-                                            {/* Action Tooltip */}
-                                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-0 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                                                Details
-                                            </span>
                                         </div>
                                     </td>
                                 </tr>
