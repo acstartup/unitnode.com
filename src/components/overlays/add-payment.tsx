@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useProperties } from '@/contexts/PropertyContext';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -20,7 +21,12 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     const [isUtilizeCreditChecked, setIsUtilizeCreditChecked] = useState(false);
     const [isAddToCreditChecked, setIsAddToCreditChecked] = useState(false);
     const [addToCreditAmount, setAddToCreditAmount] = useState('');
+    const [mounted, setMounted] = useState(false);
     const { showToast } = useToast();
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     // This would come from the property's credit balance in the future
     const availableCredit = 0; // Placeholder for available credit amount
@@ -80,18 +86,18 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         setFilteredProperties([]);
     }
 
-    if (!isOpen) return null;
+    if (!isOpen || !mounted) return null;
 
-    return (
+    return createPortal(
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/20 bg-opacity-50 z-1 transition-opacity"
+                className="fixed inset-0 bg-black/20 bg-opacity-50 z-[9998] transition-opacity"
                 onClick={onClose}
             />
 
             {/* Overlay Content */}
-            <div className="fixed inset-0 z-2 flex items-center justify-center p-4 pointer-events-none">
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
                 <div
                     className="bg-white border shadow-lg rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto pointer-events-auto animate-in fade-in zone-in-95 duration-200 relative"
                     onClick={(e) => e.stopPropagation()}
@@ -190,9 +196,10 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                         disabled={!selectedPropertyId}
                                         className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
                                     >
-                                        <option value="Rent">Rent</option>
-                                        <option value="Utilities">Utilities</option>
-                                        <option value="Maintenance">Maintenance</option>
+                                        <option value="Rent">Cash</option>
+                                        <option value="Utilities">Check</option>
+                                        <option value="Maintenance">Credit</option>
+                                        <option value="Maintenance">Money Order</option>
                                         <option value="Other">Other</option>
                                     </select>
                                     <svg
@@ -360,6 +367,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                     </div>
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     )
 }
