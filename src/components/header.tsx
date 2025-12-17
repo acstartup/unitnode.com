@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import AddPropertyOverlay from './overlays/app-property';
 import AddLeaseOverlay from './overlays/add-lease';
+import AddBillOverlay from './overlays/add-bill';
 import { useProperties } from '@/contexts/PropertyContext';
 
 export default function Header() {
@@ -14,6 +15,7 @@ export default function Header() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
     const [isAddLeaseOpen, setIsAddLeaseOpen] = useState(false);
+    const [isAddBillOpen, setIsAddBillOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -314,6 +316,30 @@ export default function Header() {
                                 </svg>
                                 <span className="text-sm text-black">Lease</span>
                             </button>
+
+                            {/* Add Bill Button */}
+                            <button
+                                onClick={() => {
+                                    setIsAddBillOpen(true);
+                                    setIsDropdownOpen(false);
+                                }}
+                                className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md"
+                            >
+                                <svg
+                                    className="h-4.5 w-4.5 flex-shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="black"
+                                    strokeWidth={2}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"
+                                    />
+                                </svg>
+                                <span className="text-sm text-black">Bill</span>
+                            </button>
                         </div>
                     )}
 
@@ -322,9 +348,14 @@ export default function Header() {
                                 onClose={() => setIsAddPropertyOpen(false)}
                     />
 
-                    <AddLeaseOverlay  
+                    <AddLeaseOverlay
                         isOpen={isAddLeaseOpen}
                         onClose={() => setIsAddLeaseOpen(false)}
+                    />
+
+                    <AddBillOverlay
+                        isOpen={isAddBillOpen}
+                        onClose={() => setIsAddBillOpen(false)}
                     />
                 </div>
             </div>
