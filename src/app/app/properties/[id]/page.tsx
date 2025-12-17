@@ -1,19 +1,40 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
+import ConfirmRemoveLease from '@/components/overlays/confirm-remove-lease';
 
 export default function PropertyDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const { properties } = useProperties();
     const propertyId = params.id as string;
-     
+
     const [isEditing, setIsEditing] = useState(false);
     const [editedOwnerName, setEditedOwnerName] = useState('');
     const [editedOwnerEmail, setEditedOwnerEmail] = useState('');
     const [editedOwnerPhone, setEditedOwnerPhone] = useState('');
+    const [showLeaseMenu, setShowLeaseMenu] = useState(false);
+    const [showRemoveLeaseConfirm, setShowRemoveLeaseConfirm] = useState(false);
+    const leaseMenuRef = useRef<HTMLDivElement>(null);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (leaseMenuRef.current && !leaseMenuRef.current.contains(event.target as Node)) {
+                setShowLeaseMenu(false);
+            }
+        };
+
+        if (showLeaseMenu) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showLeaseMenu]);
 
     const property = properties.find(p => p.id === propertyId);
 
@@ -75,6 +96,30 @@ export default function PropertyDetailsPage() {
         )
     }
 
+    const handleRemoveLease = async () => {
+        try {
+            const response = await fetch(`/api/properties/${propertyId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    tenants: [],
+                    mainTenant: 'N/A',
+                    mainTenantPhone: '',
+                    rent: 0,
+                }),
+            });
+
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to remove lease');
+            }
+        } catch (error) {
+            console.error('Error removing lease:', error);
+            alert('Failed to remove lease');
+        }
+    }
+
     return (
         <div className="w-full bg-white">
             {/* Breadcrumbs */}
@@ -110,7 +155,68 @@ export default function PropertyDetailsPage() {
             {/* Lease Section */}
             <div className="px-8 py-5">
                 {/* Sub-header: Lease */}
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Lease</h2>
+                <div className="flex items-center justify-between mb-4 mx-1">
+                    <h2 className="text-xl font-semibold text-gray-900">Lease</h2>
+                    <div className="relative group" ref={leaseMenuRef}>
+                        <button
+                            onClick={() => setShowLeaseMenu(!showLeaseMenu)}
+                            className="p-1.5 hover:bg-gray-50 rounded-md border border-gray-300 transition-colors"
+                        >
+                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                <circle cx="8" cy="3" r="1.5"/>
+                                <circle cx="8" cy="8" r="1.5"/>
+                                <circle cx="8" cy="13" r="1.5"/>
+                            </svg>
+                        </button>
+
+                        {/* Dropdown Menu */}
+                        {showLeaseMenu && (
+                            <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-10 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <button
+                                    onClick={() => {
+                                        setShowLeaseMenu(false);
+                                        setShowRemoveLeaseConfirm(true);
+                                    }}
+                                    className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center rounded-md gap-3"
+                                >
+                                    <svg
+                                    className="w-4.5 h-4.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                        <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    Remove lease
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        // Handle delete property
+                                        setShowLeaseMenu(false);
+                                    }}
+                                    className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center rounded-md gap-3"
+                                >
+                                    <svg
+                                    className="w-4.5 h-4.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                        <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        <line x1="6" y1="6" x2="18" y2="18" strokeWidth={2} />
+                                    </svg>
+                                    Delete property
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
 
                 {/* Sub-sub-header */}
                 <h3 className="text-md font-medium text-gray-900 mb-4 mx-1">Tenants</h3>
@@ -189,7 +295,7 @@ export default function PropertyDetailsPage() {
                         {!isEditing ? (
                             <button
                                 onClick={handleEditClick}
-                                className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:border-gray-400 rounded-md transition-colors">
+                                className="flex items-center border border-gray-300 gap-1.5 mx-1 px-2 py-1.25 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-md transition-colors">
                                 <svg
                                     className="h-3.5 w-3.5"
                                     fill="none"
@@ -209,7 +315,7 @@ export default function PropertyDetailsPage() {
                                 <div className="flex gap-3 mx-1">
                                     <button
                                         onClick={handleCancel}
-                                        className="px-2 py-1.25 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:border-gray-400 transition-colors"
+                                        className="px-2 py-1.25 bg-white border border-gray-300 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-50 transition-colors"
                                     >
                                         Cancel
                                     </button>
@@ -277,6 +383,17 @@ export default function PropertyDetailsPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Remove Lease Confirmation Overlay */}
+            <ConfirmRemoveLease
+                isOpen={showRemoveLeaseConfirm}
+                onClose={() => setShowRemoveLeaseConfirm(false)}
+                onConfirm={() => {
+                    setShowRemoveLeaseConfirm(false);
+                    handleRemoveLease();
+                }}
+                propertyAddress={property?.address}
+            />
         </div>
     )
 }
