@@ -314,7 +314,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                     Allocated: <span className="font-medium">${totalAllocated.toFixed(2)}</span>
                                 </span>
                                 <span className={!selectedPropertyId ? 'text-gray-400' : 'text-gray-600'}>
-                                    Unallocated: <span className="font-medium">${undistributedBalance.toFixed(2)}</span>
+                                    Remaining: <span className="font-medium">${undistributedBalance.toFixed(2)}</span>
                                 </span>
                             </div>
                         </div>
