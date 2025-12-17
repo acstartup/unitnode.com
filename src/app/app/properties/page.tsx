@@ -24,11 +24,13 @@ export default function Properties(){
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+    const [dropdownPosition, setDropdownPosition] = useState<{top: number, right: number} | null>(null);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
     const tableScrollRef = useRef<HTMLDivElement>(null);
     const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+    const buttonRefs = useRef<{[key: string]: HTMLButtonElement | null}>({});
 
     const removeOwnerFilter = (owner: string) => {
         setSelectedOwners(prev => prev.filter(o => o !== owner));
@@ -651,13 +653,22 @@ export default function Properties(){
                                         </div>
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
-                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white ${openDropdownId === property.id ? 'z-50' : 'z-10'}`}>
+                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white ${openDropdownId === property.id ? 'z-[9999]' : 'z-10'}`}>
                                         <div
                                             className="relative inline-block"
                                             ref={(el) => { dropdownRefs.current[property.id] = el; }}
                                         >
                                             <button
-                                                onClick={() => setOpenDropdownId(openDropdownId === property.id ? null : property.id)}
+                                                ref={(el) => { buttonRefs.current[property.id] = el; }}
+                                                onClick={(e) => {
+                                                    const button = e.currentTarget;
+                                                    const rect = button.getBoundingClientRect();
+                                                    setDropdownPosition({
+                                                        top: rect.bottom + 2,
+                                                        right: window.innerWidth - rect.right
+                                                    });
+                                                    setOpenDropdownId(openDropdownId === property.id ? null : property.id);
+                                                }}
                                                 className="p-1.5 hover:bg-gray-50 rounded-md border border-gray-300 transition-colors"
                                             >
                                                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
@@ -668,8 +679,14 @@ export default function Properties(){
                                             </button>
 
                                             {/* Dropdown Menu */}
-                                            {openDropdownId === property.id && (
-                                                <div className="absolute right-0 mt-0.5 w-32 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            {openDropdownId === property.id && dropdownPosition && (
+                                                <div
+                                                    className="fixed w-18 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[9999] animate-in fade-in slide-in-from-top-2 duration-200"
+                                                    style={{
+                                                        top: `${dropdownPosition.top}px`,
+                                                        right: `${dropdownPosition.right}px`
+                                                    }}
+                                                >
                                                     <button
                                                         onClick={() => {
                                                             setOpenDropdownId(null);
