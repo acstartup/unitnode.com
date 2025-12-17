@@ -16,7 +16,7 @@ export interface Bill {
     type: string;
     balance: number;
     description: string;
-    status: 'Pending' | 'Paid' | 'Overdue';
+    status: 'Unpaid' | 'Partial Paid' | 'Paid';
     createdAt: Date;
 }
 
@@ -113,7 +113,7 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         const newBill: Bill = {
             ...bill,
             id: Date.now().toString(),
-            status: 'Pending',
+            status: 'Unpaid',
             createdAt: new Date(),
         };
 

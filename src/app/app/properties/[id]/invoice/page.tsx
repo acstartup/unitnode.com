@@ -27,6 +27,14 @@ export default function InvoicePage() {
         return `${month}/${day}/${year}`;
     };
 
+    const isLate = (dueBy: string, status: string) => {
+        if (status === 'Paid') return false;
+        const dueDate = new Date(dueBy + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return dueDate < today;
+    };
+
     return (
     <div className="w-full bg-white">
         {/* Breadcrumbs */}
@@ -94,15 +102,22 @@ export default function InvoicePage() {
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{formatDateCreated(bill.createdAt)}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{bill.type}</td>
                                     <td className="px-4 py-1 text-sm whitespace-nowrap">
-                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                            bill.status === 'Paid'
-                                                ? 'bg-green-100 text-green-800'
-                                                : bill.status === 'Overdue'
-                                                ? 'bg-red-100 text-red-800'
-                                                : 'bg-yellow-100 text-yellow-800'
-                                        }`}>
-                                            {bill.status}
-                                        </span>
+                                        <div className="flex items-center gap-2">
+                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                                bill.status === 'Paid'
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : bill.status === 'Partial Paid'
+                                                    ? 'bg-yellow-100 text-yellow-800'
+                                                    : 'bg-gray-100 text-gray-800'
+                                            }`}>
+                                                {bill.status}
+                                            </span>
+                                            {isLate(bill.dueBy, bill.status) && (
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                    Late
+                                                </span>
+                                            )}
+                                        </div>
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap"></td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">${bill.balance.toFixed(2)}</td>
