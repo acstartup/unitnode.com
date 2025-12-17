@@ -259,7 +259,7 @@ export default function Properties(){
             </div>
 
             {/* Filter Bar */}
-            <div className="px-8 mb-2 flex items-center gap-2 flex-wrap">
+            <div className="px-8 mb-2 min-h-[32px] flex items-center gap-2 flex-wrap">
                 <div className="relative" ref={filterRef}>
                     <button
                         onClick={() => setShowOwnerFilter(!showOwnerFilter)}
