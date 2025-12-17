@@ -9,6 +9,17 @@ export interface Tenant {
     relation: string;
 }
 
+export interface Bill {
+    id: string;
+    propertyId: string;
+    dueBy: string;
+    type: string;
+    balance: number;
+    description: string;
+    status: 'Pending' | 'Paid' | 'Overdue';
+    createdAt: Date;
+}
+
 export interface Property {
     id: string;
     address: string;
@@ -26,6 +37,9 @@ export interface Property {
 interface PropertyContextType {
     properties: Property[];
     addProperty: (property: Omit<Property, 'id' | 'createdAt'>) => Promise<void>;
+    bills: Bill[];
+    addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'status'>) => Promise<void>;
+    getBillsByProperty: (propertyId: string) => Bill[];
     isLoading: boolean;
 }
 
@@ -41,6 +55,7 @@ export function useProperties() {
 
 export function PropertyProvider({ children }: { children: ReactNode }) {
     const [properties, setProperties] = useState<Property[]>([]);
+    const [bills, setBills] = useState<Bill[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Fetch properties on mount
@@ -93,8 +108,42 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const addBill = async (bill: Omit<Bill, 'id' | 'createdAt' | 'status'>) => {
+        // For now, store bills in memory (localStorage)
+        const newBill: Bill = {
+            ...bill,
+            id: Date.now().toString(),
+            status: 'Pending',
+            createdAt: new Date(),
+        };
+
+        setBills(prev => [newBill, ...prev]);
+
+        // Store in localStorage
+        const storedBills = localStorage.getItem('bills');
+        const billsArray = storedBills ? JSON.parse(storedBills) : [];
+        billsArray.push(newBill);
+        localStorage.setItem('bills', JSON.stringify(billsArray));
+    };
+
+    const getBillsByProperty = (propertyId: string) => {
+        return bills.filter(bill => bill.propertyId === propertyId);
+    };
+
+    // Load bills from localStorage on mount
+    useEffect(() => {
+        const storedBills = localStorage.getItem('bills');
+        if (storedBills) {
+            const billsArray = JSON.parse(storedBills);
+            setBills(billsArray.map((b: Bill) => ({
+                ...b,
+                createdAt: new Date(b.createdAt),
+            })));
+        }
+    }, []);
+
     return (
-        <PropertyContext.Provider value={{ properties, addProperty, isLoading }}>
+        <PropertyContext.Provider value={{ properties, addProperty, bills, addBill, getBillsByProperty, isLoading }}>
             {children}
         </PropertyContext.Provider>
     );

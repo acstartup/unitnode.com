@@ -6,10 +6,26 @@ import { useProperties } from '@/contexts/PropertyContext';
 export default function InvoicePage() {
     const params = useParams();
     const router = useRouter();
-    const { properties } = useProperties();
+    const { properties, getBillsByProperty } = useProperties();
     const propertyId = params.id as string;
 
     const property = properties.find(p => p.id === propertyId);
+    const bills = getBillsByProperty(propertyId);
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString + 'T00:00:00');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
+    };
+
+    const formatDateCreated = (date: Date) => {
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
+    };
 
     return (
     <div className="w-full bg-white">
@@ -64,26 +80,45 @@ export default function InvoicePage() {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {/* Sample row - replace with actual data */}
-                        <tr className="group hover:bg-gray-50 transition-colors">
-                            <td className="pl-4 py-1"></td>
-                            <td className="pr-4 py-1 text-sm text-gray-900 whitespace-nowrap">—</td>
-                            <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">—</td>
-                            <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">—</td>
-                            <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">—</td>
-                            <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">—</td>
-                            <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">—</td>
-                            <td className="px-4 py-1 text-sm text-gray-500">—</td>
-                            <td className="px-4 py-1 text-right">
-                                <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
-                                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
-                                        <circle cx="8" cy="3" r="1.5"/>
-                                        <circle cx="8" cy="8" r="1.5"/>
-                                        <circle cx="8" cy="13" r="1.5"/>
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
+                        {bills.length === 0 ? (
+                            <tr>
+                                <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-500">
+                                    No bills found for this property
+                                </td>
+                            </tr>
+                        ) : (
+                            bills.map((bill) => (
+                                <tr key={bill.id} className="group hover:bg-gray-50 transition-colors">
+                                    <td className="pl-4 py-1"></td>
+                                    <td className="pr-4 py-1 text-sm text-gray-900 whitespace-nowrap">{formatDate(bill.dueBy)}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{formatDateCreated(bill.createdAt)}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{bill.type}</td>
+                                    <td className="px-4 py-1 text-sm whitespace-nowrap">
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                            bill.status === 'Paid'
+                                                ? 'bg-green-100 text-green-800'
+                                                : bill.status === 'Overdue'
+                                                ? 'bg-red-100 text-red-800'
+                                                : 'bg-yellow-100 text-yellow-800'
+                                        }`}>
+                                            {bill.status}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap"></td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">${bill.balance.toFixed(2)}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500">{bill.description || '—'}</td>
+                                    <td className="px-4 py-1 text-right">
+                                        <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
+                                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                                <circle cx="8" cy="3" r="1.5"/>
+                                                <circle cx="8" cy="8" r="1.5"/>
+                                                <circle cx="8" cy="13" r="1.5"/>
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>

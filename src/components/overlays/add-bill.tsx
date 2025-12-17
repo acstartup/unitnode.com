@@ -19,7 +19,7 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const { showToast } = useToast();
 
-    const { properties } = useProperties();
+    const { properties, addBill } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
@@ -339,8 +339,14 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                                         className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
                                     >
                                         <option value="Rent">Rent</option>
-                                        <option value="Utilities">Utilities</option>
+                                        <option value="Water">Water</option>
+                                        <option value="Electricity">Electricity</option>
+                                        <option value="Gas">Gas</option>
+                                        <option value="Internet">Internet</option>
+                                        <option value="Garbage">Garbage</option>
+                                        <option value="HOA">HOA</option>
                                         <option value="Maintenance">Maintenance</option>
+                                        <option value="Insurance">Insurance</option>
                                         <option value="Other">Other</option>
                                     </select>
                                     <svg
@@ -400,13 +406,32 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                             Cancel
                         </button>
                         <button
-                            onClick={() => {
+                            onClick={async () => {
                                 if (!selectedPropertyId) {
                                     showToast('Please select a property first', 'error');
                                     return;
                                 }
 
-                                // TODO: Add bill submission logic
+                                if (!dueBy || !balance) {
+                                    showToast('Please fill in all required fields', 'error');
+                                    return;
+                                }
+
+                                try {
+                                    await addBill({
+                                        propertyId: selectedPropertyId,
+                                        dueBy,
+                                        type,
+                                        balance: parseFloat(balance),
+                                        description,
+                                    });
+
+                                    showToast('Bill added successfully', 'success');
+                                    onClose();
+                                } catch (error) {
+                                    console.error('Error adding bill:', error);
+                                    showToast('Failed to add bill', 'error');
+                                }
                             }}
                             disabled={!selectedPropertyId}
                             className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
