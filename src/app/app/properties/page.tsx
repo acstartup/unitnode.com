@@ -630,7 +630,7 @@ export default function Properties(){
                             const tenantNames = property.tenants && property.tenants.length > 0
                                 ? property.tenants.map(t => t.name).join(', ')
                                 : (property.mainTenant && property.mainTenant !== 'N/A' ? property.mainTenant : '—');
-                            const rentDisplay = property.rent === 0 ? '—' : property.rent;
+                            const rentDisplay = property.rent === 0 ? '—' : `$${property.rent}`;
 
                             return (
                                 <tr key={property.id} className="group hover:bg-gray-50 transition-colors">
