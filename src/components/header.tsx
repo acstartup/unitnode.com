@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import AddPropertyOverlay from './overlays/app-property';
 import AddLeaseOverlay from './overlays/add-lease';
 import AddBillOverlay from './overlays/add-bill';
+import AddPaymentOverlay from './overlays/add-payment';
 import { useProperties } from '@/contexts/PropertyContext';
 
 export default function Header() {
@@ -16,6 +17,7 @@ export default function Header() {
     const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
     const [isAddLeaseOpen, setIsAddLeaseOpen] = useState(false);
     const [isAddBillOpen, setIsAddBillOpen] = useState(false);
+    const [isAddPaymentOpen, setIsAddPaymentOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -340,6 +342,30 @@ export default function Header() {
                                 </svg>
                                 <span className="text-sm text-black">Bill</span>
                             </button>
+
+                            {/* Add Payment Button */}
+                            <button
+                                onClick={() => {
+                                    setIsAddPaymentOpen(true);
+                                    setIsDropdownOpen(false);
+                                }}
+                                className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md"
+                            >
+                                <svg
+                                    className="h-4.5 w-4.5 flex-shrink-0"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="black"
+                                    strokeWidth={2}
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                                    />
+                                </svg>
+                                <span className="text-sm text-black">Payment</span>
+                            </button>
                         </div>
                     )}
 
@@ -356,6 +382,11 @@ export default function Header() {
                     <AddBillOverlay
                         isOpen={isAddBillOpen}
                         onClose={() => setIsAddBillOpen(false)}
+                    />
+
+                    <AddPaymentOverlay
+                        isOpen={isAddPaymentOpen}
+                        onClose={() => setIsAddPaymentOpen(false)}
                     />
                 </div>
             </div>

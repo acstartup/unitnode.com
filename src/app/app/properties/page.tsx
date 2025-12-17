@@ -583,7 +583,7 @@ export default function Properties(){
                     {/* Table Header */}
                     <thead className="bg-white border-b border-gray-200">
                         <tr>
-                            <th className="pl-4 pr-4 py-2 w-[3%] sticky left-0 bg-white z-10">
+                            <th className="pl-4 pr-4 py-2 w-[3%] sticky left-0 bg-white z-[100]">
                                 <input
                                     type="checkbox"
                                     checked={filteredProperties.length > 0 && selectedProperties.length === filteredProperties.length}
@@ -594,7 +594,7 @@ export default function Properties(){
                                     }}
                                 />
                             </th>
-                            <th className={`pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%] sticky left-[40px] bg-white z-10 transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>
+                            <th className={`pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%] sticky left-[40px] bg-white z-[100] transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>
                                 Property Address
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[18%]">
@@ -627,7 +627,7 @@ export default function Properties(){
                                     </div>
                                 </button>
                             </th>
-                            <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-10"></th>
+                            <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-[100]"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -639,7 +639,7 @@ export default function Properties(){
 
                             return (
                                 <tr key={property.id} className="group hover:bg-gray-50 transition-colors">
-                                    <td className="pl-4 py-1 sticky left-0 bg-white group-hover:bg-gray-50 z-10 transition-colors">
+                                    <td className="pl-4 py-1 sticky left-0 bg-white group-hover:bg-gray-50 z-[100] transition-colors">
                                         <input
                                             type="checkbox"
                                             checked={selectedProperties.includes(property.id)}
@@ -650,7 +650,7 @@ export default function Properties(){
                                             }}
                                         />
                                     </td>
-                                    <td className={`pr-4 py-1 text-sm text-gray-900 whitespace-nowrap sticky left-[40px] bg-white group-hover:bg-gray-50 z-10 transition-all duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>{property.address}</td>
+                                    <td className={`pr-4 py-1 text-sm text-gray-900 whitespace-nowrap sticky left-[40px] bg-white group-hover:bg-gray-50 z-[100] transition-all duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>{property.address}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{property.ownerName || '—'}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500">
                                         <div className="max-w-[350px] truncate">
@@ -658,7 +658,7 @@ export default function Properties(){
                                         </div>
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
-                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white group-hover:bg-gray-50 transition-colors ${openDropdownId === property.id ? 'z-[9999]' : 'z-10'}`}>
+                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white group-hover:bg-gray-50 transition-colors ${openDropdownId === property.id ? 'z-[200]' : 'z-[100]'}`}>
                                         <div
                                             className="relative inline-block"
                                             ref={(el) => { dropdownRefs.current[property.id] = el; }}
@@ -686,7 +686,7 @@ export default function Properties(){
                                             {/* Dropdown Menu */}
                                             {openDropdownId === property.id && dropdownPosition && (
                                                 <div
-                                                    className="fixed w-18 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[9999] animate-in fade-in slide-in-from-top-2 duration-200"
+                                                    className="fixed w-18 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[200] animate-in fade-in slide-in-from-top-2 duration-200"
                                                     style={{
                                                         top: `${dropdownPosition.top}px`,
                                                         right: `${dropdownPosition.right}px`

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useProperties } from '@/contexts/PropertyContext';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -119,16 +120,16 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
 
     if (!isOpen) return null;
 
-    return (
+    return createPortal(
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/20 bg-opacity-50 z-1 transition-opacity"
+                className="fixed inset-0 bg-black/20 bg-opacity-50 z-[9998] transition-opacity"
                 onClick={onClose}
             />
 
             {/* Overlay Content */}
-            <div className="fixed inset-0 z-2 flex items-center justify-center p-4 pointer-events-none">
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
                 <div
                     className="bg-white border shadow-lg rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto pointer-events-auto animate-in fade-in zone-in-95 duration-200 relative"
                     onClick={(e) => e.stopPropagation()}
@@ -441,6 +442,7 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                     </div>
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     )
 }

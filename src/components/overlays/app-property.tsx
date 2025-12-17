@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLoadScript } from '@react-google-maps/api';
 import PlacesAutocomplete from '../PlacesAutocomplete';
 import { useProperties } from '@/contexts/PropertyContext';
@@ -36,6 +37,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
     const [ownerName, setOwnerName] = useState('');
     const [ownerEmail, setOwnerEmail] = useState('');
     const [ownerPhone, setOwnerPhone] = useState('');
+    const [mounted, setMounted] = useState(false);
     const { addProperty } = useProperties();
     const { showToast } = useToast();
 
@@ -43,8 +45,12 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
         libraries,
     })
-   
-    if (!isOpen) return null;
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!isOpen || !mounted) return null;
 
     const handleSubmit = async () => {
         if (!address.trim()) {
@@ -76,16 +82,16 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
         }
     }
 
-    return (
+    return createPortal(
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 bg-black/20 bg-opacity-50 z-1 transition-opacity"
+                className="fixed inset-0 bg-black/20 bg-opacity-50 z-[9998] transition-opacity"
                 onClick={onClose}
             />
 
             {/* Overlay Content */}
-            <div className="fixed inset-0 z-2 flex items-center justify-center p-4 pointer-events-none">
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
                 <div
                     className="bg-white border shadow-lg rounded-lg w-full max-w-xl h-110 pointer-events-auto animate-in fade-in zoom-in-95 duration-200 relative"
                     onClick={(e) => e.stopPropagation()}
@@ -207,6 +213,7 @@ export default function AddPropertyOverlay({ isOpen, onClose }: AddPropertyOverl
                     </div>
                 </div>
             </div>
-        </>
+        </>,
+        document.body
     )
 }
