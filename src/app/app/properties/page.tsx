@@ -635,7 +635,7 @@ export default function Properties(){
                             const tenantNames = property.tenants && property.tenants.length > 0
                                 ? property.tenants.map(t => t.name).join(', ')
                                 : (property.mainTenant && property.mainTenant !== 'N/A' ? property.mainTenant : '—');
-                            const rentDisplay = property.rent === 0 ? '—' : property.rent;
+                            const rentDisplay = property.rent === 0 ? '—' : `$${property.rent}`;
 
                             return (
                                 <tr key={property.id} className="group hover:bg-gray-50 transition-colors">
@@ -697,16 +697,16 @@ export default function Properties(){
                                                             setOpenDropdownId(null);
                                                             handleViewDetails(property.id);
                                                         }}
-                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
                                                     >
                                                         Details
                                                     </button>
                                                     <button
                                                         onClick={() => {
                                                             setOpenDropdownId(null);
-                                                            // Handle invoice action
+                                                            router.push(`/app/properties/${property.id}/invoice`);
                                                         }}
-                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
                                                     >
                                                         Invoice
                                                     </button>
