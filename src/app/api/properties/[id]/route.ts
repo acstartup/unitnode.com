@@ -77,5 +77,56 @@ export async function PATCH(
         { success: false, message: 'Failed to update property' },
         { status: 500 }
     )
-  } 
+  }
+}
+
+export async function DELETE(
+    _request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const session = await getSession();
+
+        if (!session) {
+            return NextResponse.json(
+                { success: false, message: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const { id } = await params;
+
+        // Verify the property belongs to the user
+        const existingProperty = await prisma.property.findFirst({
+            where: {
+                id,
+                userId: session.userId,
+            },
+        });
+
+        if (!existingProperty) {
+            return NextResponse.json(
+                { success: false, message: 'Property not found' },
+                { status: 404 }
+            );
+        }
+
+        // Delete all associated tenants first (due to foreign key constraint)
+        await prisma.tenant.deleteMany({
+            where: { propertyId: id },
+        });
+
+        // Delete the property
+        await prisma.property.delete({
+            where: { id },
+        });
+
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        console.error('Error deleting property:', error);
+        return NextResponse.json(
+            { success: false, message: 'Failed to delete property' },
+            { status: 500 }
+        );
+    }
 }
