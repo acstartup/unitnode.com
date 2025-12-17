@@ -31,10 +31,11 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     // This would come from the property's credit balance in the future
     const availableCredit = 0; // Placeholder for available credit amount
 
-    const { properties } = useProperties();
+    const { properties, getBillsByProperty, addPayment } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
+    const [selectedBillIds, setSelectedBillIds] = useState<Set<string>>(new Set());
 
     useEffect(() => {
         if (isOpen) {
@@ -51,8 +52,47 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setIsUtilizeCreditChecked(false);
             setIsAddToCreditChecked(false);
             setAddToCreditAmount('');
+            setSelectedBillIds(new Set());
         }
     }, [isOpen]);
+
+    // Get bills for selected property
+    const bills = selectedPropertyId ? getBillsByProperty(selectedPropertyId) : [];
+
+    // Update selected bills total when bill selection changes
+    useEffect(() => {
+        const total = bills
+            .filter(bill => selectedBillIds.has(bill.id))
+            .reduce((sum, bill) => sum + bill.balance, 0);
+        setSelectedBillsTotal(total);
+        setSelectedBillsCount(selectedBillIds.size);
+    }, [selectedBillIds, bills]);
+
+    const toggleBillSelection = (billId: string) => {
+        const newSelected = new Set(selectedBillIds);
+        if (newSelected.has(billId)) {
+            newSelected.delete(billId);
+        } else {
+            newSelected.add(billId);
+        }
+        setSelectedBillIds(newSelected);
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString + 'T00:00:00');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
+    };
+
+    const isLate = (dueBy: string, status: string) => {
+        if (status === 'Paid') return false;
+        const dueDate = new Date(dueBy + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return dueDate < today;
+    };
 
     // Calculate undistributed balance
     const paymentAmount = parseFloat(balance) || 0;
@@ -180,7 +220,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         {/* Payment Section */}
-                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Payment information</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-400'}`}>Payment information</h2>
 
                         {/* First Row: Type, Reference #, Balance */}
                         <div className="flex gap-3 mb-3">
@@ -265,7 +305,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         {/* Bill Selection Section */}
-                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Bill selection</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-400'}`}>Bill selection</h2>
 
                         {/* Credit Checkboxes and Summary - Same Row */}
                         <div className="mb-2 flex justify-between items-center">
@@ -327,14 +367,63 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         <div className="-mb-1">
-                            <div className={`min-h-[150px] px-3 py-3 bg-white border border-gray-300 rounded-md ${!selectedPropertyId ? 'bg-gray-100' : ''}`}>
+                            <div className={`min-h-[150px] max-h-[200px] overflow-y-auto px-3 py-3 bg-white border border-gray-300 rounded-md ${!selectedPropertyId ? 'bg-gray-100' : ''}`}>
                                 {!selectedPropertyId ? (
                                     <div className="flex items-center justify-center h-[144px] text-sm text-gray-400">
                                         Select a property to view bills
                                     </div>
-                                ) : (
+                                ) : bills.length === 0 ? (
                                     <div className="flex items-center justify-center h-[144px] text-sm text-gray-500">
                                         No bills available for this property
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {bills.map((bill) => (
+                                            <div
+                                                key={bill.id}
+                                                onClick={() => toggleBillSelection(bill.id)}
+                                                className="flex items-start gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedBillIds.has(bill.id)}
+                                                    onChange={() => toggleBillSelection(bill.id)}
+                                                    className="mt-0.5 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                        <span className="text-xs font-medium text-gray-900">{bill.type}</span>
+                                                        <span className="text-xs font-semibold text-gray-900">${bill.balance.toFixed(2)}</span>
+                                                        <div className="flex items-center gap-1">
+                                                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                                                bill.status === 'Paid'
+                                                                    ? 'bg-green-100 text-green-800'
+                                                                    : bill.status === 'Partial Paid'
+                                                                    ? 'bg-yellow-100 text-yellow-800'
+                                                                    : 'bg-gray-100 text-gray-800'
+                                                            }`}>
+                                                                {bill.status}
+                                                            </span>
+                                                            {isLate(bill.dueBy, bill.status) && (
+                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800">
+                                                                    Late
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-[11px] text-gray-500">
+                                                        <span>Due: {formatDate(bill.dueBy)}</span>
+                                                        {bill.description && (
+                                                            <>
+                                                                <span>•</span>
+                                                                <span className="truncate">{bill.description}</span>
+                                                            </>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 )}
                             </div>
@@ -351,13 +440,32 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                             Cancel
                         </button>
                         <button
-                            onClick={() => {
+                            onClick={async () => {
                                 if (!selectedPropertyId) {
                                     showToast('Please select a property first', 'error');
                                     return;
                                 }
 
-                                // TODO: Add payment submission logic
+                                if (!balance) {
+                                    showToast('Please enter a payment amount', 'error');
+                                    return;
+                                }
+
+                                try {
+                                    await addPayment({
+                                        propertyId: selectedPropertyId,
+                                        type,
+                                        referenceNumber,
+                                        balance: parseFloat(balance),
+                                        description,
+                                    });
+
+                                    showToast('Payment added successfully', 'success');
+                                    onClose();
+                                } catch (error) {
+                                    console.error('Error adding payment:', error);
+                                    showToast('Failed to add payment', 'error');
+                                }
                             }}
                             disabled={!selectedPropertyId}
                             className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"

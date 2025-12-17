@@ -20,6 +20,16 @@ export interface Bill {
     createdAt: Date;
 }
 
+export interface Payment {
+    id: string;
+    propertyId: string;
+    type: string;
+    referenceNumber: string;
+    balance: number;
+    description: string;
+    createdAt: Date;
+}
+
 export interface Property {
     id: string;
     address: string;
@@ -40,6 +50,9 @@ interface PropertyContextType {
     bills: Bill[];
     addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'status'>) => Promise<void>;
     getBillsByProperty: (propertyId: string) => Bill[];
+    payments: Payment[];
+    addPayment: (payment: Omit<Payment, 'id' | 'createdAt'>) => Promise<void>;
+    getPaymentsByProperty: (propertyId: string) => Payment[];
     isLoading: boolean;
 }
 
@@ -56,6 +69,7 @@ export function useProperties() {
 export function PropertyProvider({ children }: { children: ReactNode }) {
     const [properties, setProperties] = useState<Property[]>([]);
     const [bills, setBills] = useState<Bill[]>([]);
+    const [payments, setPayments] = useState<Payment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Fetch properties on mount
@@ -130,6 +144,26 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         return bills.filter(bill => bill.propertyId === propertyId);
     };
 
+    const addPayment = async (payment: Omit<Payment, 'id' | 'createdAt'>) => {
+        const newPayment: Payment = {
+            ...payment,
+            id: Date.now().toString(),
+            createdAt: new Date(),
+        };
+
+        setPayments(prev => [newPayment, ...prev]);
+
+        // Store in localStorage
+        const storedPayments = localStorage.getItem('payments');
+        const paymentsArray = storedPayments ? JSON.parse(storedPayments) : [];
+        paymentsArray.push(newPayment);
+        localStorage.setItem('payments', JSON.stringify(paymentsArray));
+    };
+
+    const getPaymentsByProperty = (propertyId: string) => {
+        return payments.filter(payment => payment.propertyId === propertyId);
+    };
+
     // Load bills from localStorage on mount
     useEffect(() => {
         const storedBills = localStorage.getItem('bills');
@@ -142,8 +176,20 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    // Load payments from localStorage on mount
+    useEffect(() => {
+        const storedPayments = localStorage.getItem('payments');
+        if (storedPayments) {
+            const paymentsArray = JSON.parse(storedPayments);
+            setPayments(paymentsArray.map((p: Payment) => ({
+                ...p,
+                createdAt: new Date(p.createdAt),
+            })));
+        }
+    }, []);
+
     return (
-        <PropertyContext.Provider value={{ properties, addProperty, bills, addBill, getBillsByProperty, isLoading }}>
+        <PropertyContext.Provider value={{ properties, addProperty, bills, addBill, getBillsByProperty, payments, addPayment, getPaymentsByProperty, isLoading }}>
             {children}
         </PropertyContext.Provider>
     );

@@ -6,11 +6,47 @@ import { useProperties } from '@/contexts/PropertyContext';
 export default function InvoicePage() {
     const params = useParams();
     const router = useRouter();
-    const { properties, getBillsByProperty } = useProperties();
+    const { properties, getBillsByProperty, getPaymentsByProperty } = useProperties();
     const propertyId = params.id as string;
 
     const property = properties.find(p => p.id === propertyId);
     const bills = getBillsByProperty(propertyId);
+    const payments = getPaymentsByProperty(propertyId);
+
+    // Combine bills and payments into a single array for the invoice
+    type InvoiceItem = {
+        id: string;
+        type: 'bill' | 'payment';
+        date: Date;
+        dueBy?: string;
+        itemType: string;
+        balance: number;
+        description: string;
+        status?: 'Unpaid' | 'Partial Paid' | 'Paid';
+        referenceNumber?: string;
+    };
+
+    const invoiceItems: InvoiceItem[] = [
+        ...bills.map(bill => ({
+            id: bill.id,
+            type: 'bill' as const,
+            date: bill.createdAt,
+            dueBy: bill.dueBy,
+            itemType: bill.type,
+            balance: bill.balance,
+            description: bill.description,
+            status: bill.status,
+        })),
+        ...payments.map(payment => ({
+            id: payment.id,
+            type: 'payment' as const,
+            date: payment.createdAt,
+            itemType: payment.type,
+            balance: payment.balance,
+            description: payment.description,
+            referenceNumber: payment.referenceNumber,
+        })),
+    ].sort((a, b) => b.date.getTime() - a.date.getTime());
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString + 'T00:00:00');
@@ -88,40 +124,54 @@ export default function InvoicePage() {
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                        {bills.length === 0 ? (
+                        {invoiceItems.length === 0 ? (
                             <tr>
                                 <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-500">
-                                    No bills found for this property
+                                    No transactions found for this property
                                 </td>
                             </tr>
                         ) : (
-                            bills.map((bill) => (
-                                <tr key={bill.id} className="group hover:bg-gray-50 transition-colors">
+                            invoiceItems.map((item) => (
+                                <tr key={item.id} className="group hover:bg-gray-50 transition-colors">
                                     <td className="pl-4 py-1"></td>
-                                    <td className="pr-4 py-1 text-sm text-gray-900 whitespace-nowrap">{formatDate(bill.dueBy)}</td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{formatDateCreated(bill.createdAt)}</td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{bill.type}</td>
-                                    <td className="px-4 py-1 text-sm whitespace-nowrap">
-                                        <div className="flex items-center gap-2">
-                                            <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                                bill.status === 'Paid'
-                                                    ? 'bg-green-100 text-green-800'
-                                                    : bill.status === 'Partial Paid'
-                                                    ? 'bg-yellow-100 text-yellow-800'
-                                                    : 'bg-gray-100 text-gray-800'
-                                            }`}>
-                                                {bill.status}
-                                            </span>
-                                            {isLate(bill.dueBy, bill.status) && (
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                                    Late
-                                                </span>
-                                            )}
-                                        </div>
+                                    <td className="pr-4 py-1 text-sm text-gray-900 whitespace-nowrap">
+                                        {item.type === 'bill' && item.dueBy ? formatDate(item.dueBy) : '—'}
                                     </td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap"></td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">${bill.balance.toFixed(2)}</td>
-                                    <td className="px-4 py-1 text-sm text-gray-500">{bill.description || '—'}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{formatDateCreated(item.date)}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{item.itemType}</td>
+                                    <td className="px-4 py-1 text-sm whitespace-nowrap">
+                                        {item.type === 'bill' && item.status ? (
+                                            <div className="flex items-center gap-2">
+                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                                    item.status === 'Paid'
+                                                        ? 'bg-green-100 text-green-800'
+                                                        : item.status === 'Partial Paid'
+                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                        : 'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                    {item.status}
+                                                </span>
+                                                {item.dueBy && isLate(item.dueBy, item.status) && (
+                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                        Late
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <span>—</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">
+                                        {item.type === 'payment' && item.referenceNumber ? item.referenceNumber : ''}
+                                    </td>
+                                    <td className="px-4 py-1 text-sm whitespace-nowrap">
+                                        {item.type === 'bill' ? (
+                                            <span className="text-red-600 font-medium">-${item.balance.toFixed(2)}</span>
+                                        ) : (
+                                            <span className="text-green-600 font-medium">+${item.balance.toFixed(2)}</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-1 text-sm text-gray-500">{item.description || '—'}</td>
                                     <td className="px-4 py-1 text-right">
                                         <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
                                             <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
