@@ -15,6 +15,8 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     const [referenceNumber, setReferenceNumber] = useState('');
     const [balance, setBalance] = useState('');
     const [description, setDescription] = useState('');
+    const [selectedBillsTotal, setSelectedBillsTotal] = useState(0);
+    const [selectedBillsCount, setSelectedBillsCount] = useState(0);
     const { showToast } = useToast();
 
     const { properties } = useProperties();
@@ -32,8 +34,14 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setReferenceNumber('');
             setBalance('');
             setDescription('');
+            setSelectedBillsTotal(0);
+            setSelectedBillsCount(0);
         }
     }, [isOpen]);
+
+    // Calculate undistributed balance
+    const paymentAmount = parseFloat(balance) || 0;
+    const undistributedBalance = paymentAmount - selectedBillsTotal;
 
     const handlePropertyAddressChange = (value: string) => {
         setPropertyAddress(value);
@@ -220,7 +228,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         {/* Second Row: Description */}
-                        <div className="-mb-1">
+                        <div className="">
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Description
                             </label>
@@ -232,6 +240,35 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                 className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed resize-none"
                                 placeholder="Additional notes or details about this payment..."
                             />
+                        </div>
+
+                        {/* Bill Selection Section */}
+                        <div className="flex justify-between items-center py-2">
+                            <h2 className={`text-sm font-semibold ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Bill selection</h2>
+
+                            {/* Selected Bills Summary */}
+                            <div className="flex gap-3 text-xs">
+                                <span className={!selectedPropertyId ? 'text-gray-400' : 'text-gray-600'}>
+                                    Allocated: <span className="font-medium">${selectedBillsTotal.toFixed(2)}</span>
+                                </span>
+                                <span className={!selectedPropertyId ? 'text-gray-400' : 'text-gray-600'}>
+                                    Unallocated: <span className="font-medium">${undistributedBalance.toFixed(2)}</span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="-mb-1">
+                            <div className={`min-h-[150px] px-3 py-3 bg-white border border-gray-300 rounded-md ${!selectedPropertyId ? 'bg-gray-100' : ''}`}>
+                                {!selectedPropertyId ? (
+                                    <div className="flex items-center justify-center h-[144px] text-sm text-gray-400">
+                                        Select a property to view bills
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center h-[144px] text-sm text-gray-500">
+                                        No bills available for this property
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
 
