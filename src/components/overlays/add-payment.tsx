@@ -17,7 +17,13 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     const [description, setDescription] = useState('');
     const [selectedBillsTotal, setSelectedBillsTotal] = useState(0);
     const [selectedBillsCount, setSelectedBillsCount] = useState(0);
+    const [isUtilizeCreditChecked, setIsUtilizeCreditChecked] = useState(false);
+    const [isAddToCreditChecked, setIsAddToCreditChecked] = useState(false);
+    const [addToCreditAmount, setAddToCreditAmount] = useState('');
     const { showToast } = useToast();
+
+    // This would come from the property's credit balance in the future
+    const availableCredit = 0; // Placeholder for available credit amount
 
     const { properties } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
@@ -36,12 +42,21 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setDescription('');
             setSelectedBillsTotal(0);
             setSelectedBillsCount(0);
+            setIsUtilizeCreditChecked(false);
+            setIsAddToCreditChecked(false);
+            setAddToCreditAmount('');
         }
     }, [isOpen]);
 
     // Calculate undistributed balance
     const paymentAmount = parseFloat(balance) || 0;
-    const undistributedBalance = paymentAmount - selectedBillsTotal;
+    const addToCreditValue = parseFloat(addToCreditAmount) || 0;
+
+    // Allocated includes: selected bills + add to credit (if checked)
+    const totalAllocated = selectedBillsTotal + (isAddToCreditChecked ? addToCreditValue : 0);
+
+    // Unallocated is what's left after allocation (utilize credit adds available credit to balance)
+    const undistributedBalance = paymentAmount + (isUtilizeCreditChecked ? availableCredit : 0) - totalAllocated;
 
     const handlePropertyAddressChange = (value: string) => {
         setPropertyAddress(value);
@@ -243,13 +258,60 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         {/* Bill Selection Section */}
-                        <div className="flex justify-between items-center py-2">
-                            <h2 className={`text-sm font-semibold ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Bill selection</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Bill selection</h2>
 
-                            {/* Selected Bills Summary */}
-                            <div className="flex gap-3 text-xs">
+                        {/* Credit Checkboxes and Summary - Same Row */}
+                        <div className="mb-2 flex justify-between items-center">
+                            <div className="flex gap-4">
+                                {/* Utilize Credit */}
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="utilizeCreditCheckbox"
+                                        checked={isUtilizeCreditChecked}
+                                        onChange={(e) => setIsUtilizeCreditChecked(e.target.checked)}
+                                        disabled={!selectedPropertyId || availableCredit === 0}
+                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    />
+                                    <label
+                                        htmlFor="utilizeCreditCheckbox"
+                                        className={`text-sm ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
+                                    >
+                                        Utilize Credit: <span className="font-medium">${availableCredit.toFixed(2)}</span>
+                                    </label>
+                                </div>
+
+                                {/* Add to Credit */}
+                                <div className="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="addToCreditCheckbox"
+                                        checked={isAddToCreditChecked}
+                                        onChange={(e) => setIsAddToCreditChecked(e.target.checked)}
+                                        disabled={!selectedPropertyId}
+                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                    />
+                                    <label
+                                        htmlFor="addToCreditCheckbox"
+                                        className={`text-sm ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
+                                    >
+                                        Add to Credit:
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={addToCreditAmount}
+                                        onChange={(e) => setAddToCreditAmount(e.target.value)}
+                                        disabled={!selectedPropertyId || !isAddToCreditChecked}
+                                        placeholder="$0.00"
+                                        className="w-24 px-2 py-1 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Selected Bills Summary - Same Row, Right Side */}
+                            <div className="flex gap-3 text-xs -mb-4">
                                 <span className={!selectedPropertyId ? 'text-gray-400' : 'text-gray-600'}>
-                                    Allocated: <span className="font-medium">${selectedBillsTotal.toFixed(2)}</span>
+                                    Allocated: <span className="font-medium">${totalAllocated.toFixed(2)}</span>
                                 </span>
                                 <span className={!selectedPropertyId ? 'text-gray-400' : 'text-gray-600'}>
                                     Unallocated: <span className="font-medium">${undistributedBalance.toFixed(2)}</span>
