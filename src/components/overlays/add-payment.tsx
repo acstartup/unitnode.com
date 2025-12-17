@@ -11,6 +11,10 @@ interface AddPaymentOverlayProps {
 
 export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlayProps) {
     const [propertyAddress, setPropertyAddress] = useState('');
+    const [type, setType] = useState('Rent');
+    const [referenceNumber, setReferenceNumber] = useState('');
+    const [balance, setBalance] = useState('');
+    const [description, setDescription] = useState('');
     const { showToast } = useToast();
 
     const { properties } = useProperties();
@@ -24,6 +28,10 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setSelectedPropertyId('');
             setFilteredProperties([]);
             setShowPropertyDropdown(false);
+            setType('Rent');
+            setReferenceNumber('');
+            setBalance('');
+            setDescription('');
         }
     }, [isOpen]);
 
@@ -142,7 +150,89 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                             </div>
                         </div>
 
-                        {/* TODO: Add payment form fields here */}
+                        {/* Payment Section */}
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Payment information</h2>
+
+                        {/* First Row: Type, Reference #, Balance */}
+                        <div className="flex gap-3 mb-3">
+                            {/* Type Dropdown */}
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Type
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={type}
+                                        onChange={(e) => setType(e.target.value)}
+                                        disabled={!selectedPropertyId}
+                                        className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
+                                    >
+                                        <option value="Rent">Rent</option>
+                                        <option value="Utilities">Utilities</option>
+                                        <option value="Maintenance">Maintenance</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <svg
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600 pointer-events-none"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M6 9l6 6 6-6"
+                                        />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {/* Reference # */}
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Reference #
+                                </label>
+                                <input
+                                    type="text"
+                                    value={referenceNumber}
+                                    onChange={(e) => setReferenceNumber(e.target.value)}
+                                    disabled={!selectedPropertyId}
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
+                                    placeholder="REF123456"
+                                />
+                            </div>
+
+                            {/* Balance */}
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Balance
+                                </label>
+                                <input
+                                    type="text"
+                                    value={balance}
+                                    onChange={(e) => setBalance(e.target.value)}
+                                    disabled={!selectedPropertyId}
+                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
+                                    placeholder="$1200"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Second Row: Description */}
+                        <div className="-mb-1">
+                            <label className="block text-sm font-medium text-gray-900 mb-2">
+                                Description
+                            </label>
+                            <textarea
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                disabled={!selectedPropertyId}
+                                rows={3}
+                                className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed resize-none"
+                                placeholder="Additional notes or details about this payment..."
+                            />
+                        </div>
                     </div>
 
 
