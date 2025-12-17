@@ -699,7 +699,7 @@ export default function Properties(){
                                                     <button
                                                         onClick={() => {
                                                             setOpenDropdownId(null);
-                                                            // Handle invoice action
+                                                            router.push(`/app/properties/${property.id}/invoice`);
                                                         }}
                                                         className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
                                                     >
