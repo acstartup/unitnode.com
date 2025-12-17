@@ -15,6 +15,8 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
     const [type, setType] = useState('Rent');
     const [balance, setBalance] = useState('');
     const [description, setDescription] = useState('');
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [currentMonth, setCurrentMonth] = useState(new Date());
     const { showToast } = useToast();
 
     const { properties } = useProperties();
@@ -28,7 +30,14 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
             setSelectedPropertyId('');
             setFilteredProperties([]);
             setShowPropertyDropdown(false);
-            setDueBy('');
+
+            // Set default due date to one month from today
+            const today = new Date();
+            const oneMonthFromNow = new Date(today);
+            oneMonthFromNow.setMonth(today.getMonth() + 1);
+            const formattedDate = oneMonthFromNow.toISOString().split('T')[0];
+            setDueBy(formattedDate);
+
             setType('Rent');
             setBalance('');
             setDescription('');
@@ -56,6 +65,57 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
     }
+
+    // Calendar helper functions
+    const getDaysInMonth = (date: Date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+
+        return { daysInMonth, startingDayOfWeek };
+    };
+
+    const formatDateForInput = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const formatDateForDisplay = (dateString: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString + 'T00:00:00');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+    };
+
+    const handleDateSelect = (day: number) => {
+        const selectedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+        setDueBy(formatDateForInput(selectedDate));
+        setShowCalendar(false);
+    };
+
+    const changeMonth = (direction: number) => {
+        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + direction, 1));
+    };
+
+    const isSelectedDate = (day: number) => {
+        if (!dueBy) return false;
+        const selected = new Date(dueBy + 'T00:00:00');
+        return selected.getDate() === day &&
+               selected.getMonth() === currentMonth.getMonth() &&
+               selected.getFullYear() === currentMonth.getFullYear();
+    };
+
+    const isToday = (day: number) => {
+        const today = new Date();
+        return today.getDate() === day &&
+               today.getMonth() === currentMonth.getMonth() &&
+               today.getFullYear() === currentMonth.getFullYear();
+    };
 
     if (!isOpen) return null;
 
@@ -151,22 +211,119 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                         </div>
 
                         {/* Bill Section */}
-                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Bill information</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-400'}`}>Bill information</h2>
 
                         {/* First Row: Due By, Type, Balance */}
                         <div className="flex gap-3 mb-3">
                             {/* Due By */}
-                            <div className="flex-1">
+                            <div className="flex-1 relative">
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Due By
                                 </label>
-                                <input
-                                    type="date"
-                                    value={dueBy}
-                                    onChange={(e) => setDueBy(e.target.value)}
-                                    disabled={!selectedPropertyId}
-                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed"
-                                />
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={formatDateForDisplay(dueBy)}
+                                        onFocus={() => selectedPropertyId && setShowCalendar(true)}
+                                        readOnly
+                                        disabled={!selectedPropertyId}
+                                        className="w-full px-3 py-1.5 pr-10 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed cursor-pointer"
+                                        placeholder="Select date"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => selectedPropertyId && setShowCalendar(!showCalendar)}
+                                        disabled={!selectedPropertyId}
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                {/* Calendar Dropdown */}
+                                {showCalendar && selectedPropertyId && (
+                                    <>
+                                        <div
+                                            className="fixed inset-0 z-[10000]"
+                                            onClick={() => setShowCalendar(false)}
+                                        />
+                                        <div className="absolute z-[10001] mt-1 w-50 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                                            {/* Calendar Header */}
+                                            <div className="flex items-center justify-between mb-1 -mt-0.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => changeMonth(-1)}
+                                                    className=" hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                    </svg>
+                                                </button>
+                                                <div className="text-xs font-semibold">
+                                                    {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => changeMonth(1)}
+                                                    className="hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            {/* Day Labels */}
+                                            <div className="grid grid-cols-7 gap-0 -mb-0">
+                                                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                                                    <div key={day} className="text-center text-[10px] font-medium text-gray-600 py-0.25">
+                                                        {day}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Calendar Days */}
+                                            <div className="grid grid-cols-7 gap-0 -mb-2">
+                                                {(() => {
+                                                    const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
+                                                    const days = [];
+
+                                                    // Empty cells before first day
+                                                    for (let i = 0; i < startingDayOfWeek; i++) {
+                                                        days.push(<div key={`empty-${i}`} className="h-6" />);
+                                                    }
+
+                                                    // Days of month
+                                                    for (let day = 1; day <= daysInMonth; day++) {
+                                                        const selected = isSelectedDate(day);
+                                                        const today = isToday(day);
+
+                                                        days.push(
+                                                            <button
+                                                                key={day}
+                                                                type="button"
+                                                                onClick={() => handleDateSelect(day)}
+                                                                className={`h-6 text-xs rounded transition-colors ${
+                                                                    selected
+                                                                        ? 'bg-black text-white font-semibold'
+                                                                        : today
+                                                                        ? 'bg-gray-200 font-semibold hover:bg-gray-300'
+                                                                        : 'hover:bg-gray-100'
+                                                                }`}
+                                                            >
+                                                                {day}
+                                                            </button>
+                                                        );
+                                                    }
+
+                                                    return days;
+                                                })()}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Type Dropdown */}
