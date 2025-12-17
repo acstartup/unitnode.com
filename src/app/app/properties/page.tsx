@@ -633,8 +633,8 @@ export default function Properties(){
                             const rentDisplay = property.rent === 0 ? '—' : property.rent;
 
                             return (
-                                <tr key={property.id}>
-                                    <td className="pl-4 py-1 sticky left-0 bg-white z-10">
+                                <tr key={property.id} className="group hover:bg-gray-50 transition-colors">
+                                    <td className="pl-4 py-1 sticky left-0 bg-white group-hover:bg-gray-50 z-10 transition-colors">
                                         <input
                                             type="checkbox"
                                             checked={selectedProperties.includes(property.id)}
@@ -645,7 +645,7 @@ export default function Properties(){
                                             }}
                                         />
                                     </td>
-                                    <td className={`pr-4 py-1 text-sm text-gray-900 whitespace-nowrap sticky left-[40px] bg-white z-10 transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>{property.address}</td>
+                                    <td className={`pr-4 py-1 text-sm text-gray-900 whitespace-nowrap sticky left-[40px] bg-white group-hover:bg-gray-50 z-10 transition-all duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>{property.address}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{property.ownerName || '—'}</td>
                                     <td className="px-4 py-1 text-sm text-gray-500">
                                         <div className="max-w-[350px] truncate">
@@ -653,7 +653,7 @@ export default function Properties(){
                                         </div>
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
-                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white ${openDropdownId === property.id ? 'z-[9999]' : 'z-10'}`}>
+                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white group-hover:bg-gray-50 transition-colors ${openDropdownId === property.id ? 'z-[9999]' : 'z-10'}`}>
                                         <div
                                             className="relative inline-block"
                                             ref={(el) => { dropdownRefs.current[property.id] = el; }}
@@ -669,7 +669,7 @@ export default function Properties(){
                                                     });
                                                     setOpenDropdownId(openDropdownId === property.id ? null : property.id);
                                                 }}
-                                                className="p-1.5 hover:bg-gray-50 rounded-md border border-gray-300 transition-colors"
+                                                className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors"
                                             >
                                                 <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
                                                     <circle cx="8" cy="3" r="1.5"/>
