@@ -692,7 +692,7 @@ export default function Properties(){
                                                             setOpenDropdownId(null);
                                                             handleViewDetails(property.id);
                                                         }}
-                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
                                                     >
                                                         Details
                                                     </button>
@@ -701,7 +701,7 @@ export default function Properties(){
                                                             setOpenDropdownId(null);
                                                             // Handle invoice action
                                                         }}
-                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
                                                     >
                                                         Invoice
                                                     </button>
