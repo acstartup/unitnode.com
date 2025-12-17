@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import AddPropertyOverlay from './overlays/app-property';
 import AddLeaseOverlay from './overlays/add-lease';
+import AddBillOverlay from './overlays/add-bill';
 import { useProperties } from '@/contexts/PropertyContext';
 
 export default function Header() {
@@ -14,6 +15,7 @@ export default function Header() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isAddPropertyOpen, setIsAddPropertyOpen] = useState(false);
     const [isAddLeaseOpen, setIsAddLeaseOpen] = useState(false);
+    const [isAddBillOpen, setIsAddBillOpen] = useState(false);
     const isActive = (path: string) => pathname === path;
     const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -318,6 +320,7 @@ export default function Header() {
                             {/* Add Bill Button */}
                             <button
                                 onClick={() => {
+                                    setIsAddBillOpen(true);
                                     setIsDropdownOpen(false);
                                 }}
                                 className="w-full px-2 py-1 flex items-center gap-3 hover:bg-gray-100 transition-colors text-left rounded-md"
@@ -345,9 +348,14 @@ export default function Header() {
                                 onClose={() => setIsAddPropertyOpen(false)}
                     />
 
-                    <AddLeaseOverlay  
+                    <AddLeaseOverlay
                         isOpen={isAddLeaseOpen}
                         onClose={() => setIsAddLeaseOpen(false)}
+                    />
+
+                    <AddBillOverlay
+                        isOpen={isAddBillOpen}
+                        onClose={() => setIsAddBillOpen(false)}
                     />
                 </div>
             </div>
