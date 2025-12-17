@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import AddPropertyOverlay from './overlays/app-property';
 import AddLeaseOverlay from './overlays/add-lease';
 import AddBillOverlay from './overlays/add-bill';
+import AddPaymentOverlay from './overlays/add-payment';
 import { useProperties } from '@/contexts/PropertyContext';
 
 export default function Header() {
@@ -381,6 +382,11 @@ export default function Header() {
                     <AddBillOverlay
                         isOpen={isAddBillOpen}
                         onClose={() => setIsAddBillOpen(false)}
+                    />
+
+                    <AddPaymentOverlay
+                        isOpen={isAddPaymentOpen}
+                        onClose={() => setIsAddPaymentOpen(false)}
                     />
                 </div>
             </div>
