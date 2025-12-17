@@ -3,6 +3,7 @@
 import { useProperties } from '@/contexts/PropertyContext';
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
 
 export default function Properties(){
     const { properties } = useProperties();
@@ -18,9 +19,18 @@ export default function Properties(){
     const [rentMax, setRentMax] = useState('');
     const [activeRentRange, setActiveRentRange] = useState<{min: number | null, max: number | null} | null>(null);
     const [showVacantOnly, setShowVacantOnly] = useState(false);
+    const [rentSortOrder, setRentSortOrder] = useState<'asc' | 'desc' | null>(null);
+    const [selectedProperties, setSelectedProperties] = useState<string[]>([]);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+    const [dropdownPosition, setDropdownPosition] = useState<{top: number, right: number} | null>(null);
     const filterRef = useRef<HTMLDivElement>(null);
     const locationFilterRef = useRef<HTMLDivElement>(null);
     const rentFilterRef = useRef<HTMLDivElement>(null);
+    const tableScrollRef = useRef<HTMLDivElement>(null);
+    const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+    const buttonRefs = useRef<{[key: string]: HTMLButtonElement | null}>({});
 
     const removeOwnerFilter = (owner: string) => {
         setSelectedOwners(prev => prev.filter(o => o !== owner));
@@ -42,16 +52,43 @@ export default function Properties(){
             if (rentFilterRef.current && !rentFilterRef.current.contains(event.target as Node)) {
                 setShowRentFilter(false);
             }
+            // Close property dropdown if clicked outside
+            if (openDropdownId && dropdownRefs.current[openDropdownId]) {
+                const dropdownElement = dropdownRefs.current[openDropdownId];
+                if (dropdownElement && !dropdownElement.contains(event.target as Node)) {
+                    setOpenDropdownId(null);
+                }
+            }
         };
 
-        if (showOwnerFilter || showLocationFilter || showRentFilter) {
+        if (showOwnerFilter || showLocationFilter || showRentFilter || openDropdownId) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showOwnerFilter, showLocationFilter, showRentFilter]);
+    }, [showOwnerFilter, showLocationFilter, showRentFilter, openDropdownId]);
+
+    // Track horizontal scroll position
+    useEffect(() => {
+        const handleScroll = () => {
+            if (tableScrollRef.current) {
+                setIsScrolled(tableScrollRef.current.scrollLeft > 0);
+            }
+        };
+
+        const scrollElement = tableScrollRef.current;
+        if (scrollElement) {
+            scrollElement.addEventListener('scroll', handleScroll);
+        }
+
+        return () => {
+            if (scrollElement) {
+                scrollElement.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, []);
 
     const handleViewDetails = (propertyId: string) => {
         router.push(`/app/properties/${propertyId}`);
@@ -104,6 +141,61 @@ export default function Properties(){
         setShowVacantOnly(false);
     };
 
+    const toggleRentSort = () => {
+        if (rentSortOrder === null) {
+            setRentSortOrder('desc');
+        } else if (rentSortOrder === 'desc') {
+            setRentSortOrder('asc');
+        } else {
+            setRentSortOrder(null);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedProperties.length === filteredProperties.length) {
+            setSelectedProperties([]);
+        } else {
+            setSelectedProperties(filteredProperties.map(p => p.id));
+        }
+    };
+
+    const toggleSelectProperty = (propertyId: string) => {
+        setSelectedProperties(prev => {
+            if (prev.includes(propertyId)) {
+                return prev.filter(id => id !== propertyId);
+            } else {
+                return [...prev, propertyId];
+            }
+        });
+    };
+
+    const deselectAll = () => {
+        setSelectedProperties([]);
+    };
+
+    const handleDeleteProperties = async () => {
+        try {
+            // Delete all selected properties
+            await Promise.all(
+                selectedProperties.map(propertyId =>
+                    fetch(`/api/properties/${propertyId}`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                    })
+                )
+            );
+
+            // Clear selection after successful deletion
+            setSelectedProperties([]);
+
+            // Refresh the page to show updated list
+            router.refresh();
+        } catch (error) {
+            console.error('Error deleting properties:', error);
+            alert('Failed to delete properties');
+        }
+    };
+
     // Filter properties based on selected owners, locations, rent range, and vacancy
     let filteredProperties = properties;
 
@@ -141,15 +233,38 @@ export default function Properties(){
         });
     }
 
+    // Sort properties by rent if sort order is active
+    if (rentSortOrder) {
+        filteredProperties = [...filteredProperties].sort((a, b) => {
+            const rentA = a.rent || 0;
+            const rentB = b.rent || 0;
+            return rentSortOrder === 'asc' ? rentA - rentB : rentB - rentA;
+        });
+    }
+
     return (
         <div className="w-full bg-white">
+            <style jsx>{`
+                @keyframes checkboxCheck {
+                    0% {
+                        opacity: 0;
+                    }
+                    100% {
+                        opacity: 1;
+                    }
+                }
+
+                input[type="checkbox"]:checked {
+                    animation: checkboxCheck 0.15s ease-in;
+                }
+            `}</style>
             {/* Page Header */}
             <div className="mb-1">
                 <h1 className="text-3xl font-semibold text-gray-900 px-8 py-6">Properties</h1>
             </div>
 
             {/* Filter Bar */}
-            <div className="px-8 mb-2 flex items-center gap-2 flex-wrap">
+            <div className="px-8 mb-2 min-h-[32px] flex items-center gap-2 flex-wrap">
                 <div className="relative" ref={filterRef}>
                     <button
                         onClick={() => setShowOwnerFilter(!showOwnerFilter)}
@@ -423,27 +538,96 @@ export default function Properties(){
                         Clear all
                     </button>
                 )}
+
+                {/* Selection Counter and Deselect */}
+                {selectedProperties.length > 0 && (
+                    <>
+                        <span className="text-xs text-gray-700 font-medium">
+                            {selectedProperties.length} selected
+                        </span>
+                        <button
+                            onClick={deselectAll}
+                            className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                        >
+                            Deselect all
+                        </button>
+                        <div className="ml-auto">
+                            <button
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-650 rounded-md transition-colors"
+                            >
+                                <svg
+                                    className="w-3.5 h-3.5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth={2}
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                    />
+                                </svg>
+                                {selectedProperties.length === 1 ? 'Delete property' : 'Delete properties'}
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
 
             {/* Table Container */}
-            <div className="border border-gray-200 rounded-lg mx-8">
-                <table className="w-full overflow-visible rounded-lg">
+            <div className="mx-8">
+                <div ref={tableScrollRef} className="overflow-x-scroll overflow-y-hidden mb-10">
+                    <table className="w-full min-w-[900px]">
                     {/* Table Header */}
-                    <thead className="bg-gray-50 border-b border-gray-200">
+                    <thead className="bg-white border-b border-gray-200">
                         <tr>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[45%]">
+                            <th className="pl-4 pr-4 py-2 w-[3%] sticky left-0 bg-white z-10">
+                                <input
+                                    type="checkbox"
+                                    checked={filteredProperties.length > 0 && selectedProperties.length === filteredProperties.length}
+                                    onChange={toggleSelectAll}
+                                    className="w-3.5 h-3.5 rounded-md border-gray-200 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                    style={{
+                                        accentColor: '#374151'
+                                    }}
+                                />
+                            </th>
+                            <th className={`pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%] sticky left-[40px] bg-white z-10 transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>
                                 Property Address
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[18%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[18%]">
                                 Owner
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[25%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[25%]">
                                 Tenant
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-gray-500 uppercase tracking-wider w-[12%]">
-                                Rent
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[12%]">
+                                <button
+                                    onClick={toggleRentSort}
+                                    className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors"
+                                >
+                                    Rent
+                                    <div className="flex flex-col -space-y-2 -mx-0.5">
+                                        <svg
+                                            className={`w-3 h-3 ${rentSortOrder === 'asc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z" />
+                                        </svg>
+                                        <svg
+                                            className={`w-3 h-3 ${rentSortOrder === 'desc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z" />
+                                        </svg>
+                                    </div>
+                                </button>
                             </th>
-                            <th className="px-4 py-2 w-[5%]"></th>
+                            <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-10"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
@@ -451,40 +635,83 @@ export default function Properties(){
                             const tenantNames = property.tenants && property.tenants.length > 0
                                 ? property.tenants.map(t => t.name).join(', ')
                                 : (property.mainTenant && property.mainTenant !== 'N/A' ? property.mainTenant : '—');
-                            const textLength = tenantNames.length;
-                            const fontSize = textLength > 50 ? 'text-xs' : textLength > 30 ? 'text-sm' : 'text-sm';
                             const rentDisplay = property.rent === 0 ? '—' : property.rent;
 
                             return (
-                                <tr key={property.id}>
-                                    <td className="px-4 py-1 text-sm text-gray-900">{property.address}</td>
-                                    <td className="px-4 py-1 text-sm text-gray-500">{property.ownerName || '—'}</td>
-                                    <td className={`px-4 py-1 ${fontSize} text-gray-500 truncate max-w-0`}>
-                                        {tenantNames}
+                                <tr key={property.id} className="group hover:bg-gray-50 transition-colors">
+                                    <td className="pl-4 py-1 sticky left-0 bg-white group-hover:bg-gray-50 z-10 transition-colors">
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedProperties.includes(property.id)}
+                                            onChange={() => toggleSelectProperty(property.id)}
+                                            className="w-3.5 h-3.5 rounded-md border-gray-200 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                            style={{
+                                                accentColor: '#374151'
+                                            }}
+                                        />
                                     </td>
-                                    <td className="px-4 py-1 text-sm text-gray-500">{rentDisplay}</td>
-                                    <td className="px-4 py-1 text-right">
-                                        <div className="relative group inline-block">
+                                    <td className={`pr-4 py-1 text-sm text-gray-900 whitespace-nowrap sticky left-[40px] bg-white group-hover:bg-gray-50 z-10 transition-all duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>{property.address}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{property.ownerName || '—'}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500">
+                                        <div className="max-w-[350px] truncate">
+                                            {tenantNames}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
+                                    <td className={`px-4 py-1 text-right sticky right-0 bg-white group-hover:bg-gray-50 transition-colors ${openDropdownId === property.id ? 'z-[9999]' : 'z-10'}`}>
+                                        <div
+                                            className="relative inline-block"
+                                            ref={(el) => { dropdownRefs.current[property.id] = el; }}
+                                        >
                                             <button
-                                                onClick={() => handleViewDetails(property.id)}
-                                                className="p-1 rounded-2xl hover:bg-gray-100 transition-colors"
-                                                aria-label="Actions"
+                                                ref={(el) => { buttonRefs.current[property.id] = el; }}
+                                                onClick={(e) => {
+                                                    const button = e.currentTarget;
+                                                    const rect = button.getBoundingClientRect();
+                                                    setDropdownPosition({
+                                                        top: rect.bottom + 2,
+                                                        right: window.innerWidth - rect.right
+                                                    });
+                                                    setOpenDropdownId(openDropdownId === property.id ? null : property.id);
+                                                }}
+                                                className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors"
                                             >
-                                                <svg
-                                                    className="h-5 w-5 text-gray-400"
-                                                    fill="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <circle cx="12" cy="6" r="2" />
-                                                    <circle cx="12" cy="13" r="2" />
-                                                    <circle cx="12" cy="20" r="2" />
+                                                <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                                    <circle cx="8" cy="3" r="1.5"/>
+                                                    <circle cx="8" cy="8" r="1.5"/>
+                                                    <circle cx="8" cy="13" r="1.5"/>
                                                 </svg>
                                             </button>
 
-                                            {/* Action Tooltip */}
-                                            <span className="absolute left-1/2 -translate-x-1/2 top-full mt-0 px-2 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                                                Details
-                                            </span>
+                                            {/* Dropdown Menu */}
+                                            {openDropdownId === property.id && dropdownPosition && (
+                                                <div
+                                                    className="fixed w-18 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[9999] animate-in fade-in slide-in-from-top-2 duration-200"
+                                                    style={{
+                                                        top: `${dropdownPosition.top}px`,
+                                                        right: `${dropdownPosition.right}px`
+                                                    }}
+                                                >
+                                                    <button
+                                                        onClick={() => {
+                                                            setOpenDropdownId(null);
+                                                            handleViewDetails(property.id);
+                                                        }}
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                    >
+                                                        Details
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
+                                                            setOpenDropdownId(null);
+                                                            // Handle invoice action
+                                                        }}
+                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-md"
+                                                    >
+                                                        Invoice
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>
@@ -492,8 +719,19 @@ export default function Properties(){
                         })}
                     </tbody>
                 </table>
+                </div>
             </div>
 
+            {/* Delete Confirmation Overlay */}
+            <ConfirmDeleteProperty
+                isOpen={showDeleteConfirm}
+                onClose={() => setShowDeleteConfirm(false)}
+                onConfirm={() => {
+                    setShowDeleteConfirm(false);
+                    handleDeleteProperties();
+                }}
+                propertyCount={selectedProperties.length}
+            />
         </div>
     );
 }

@@ -7,15 +7,19 @@ interface ConfirmDeletePropertyProps {
   onClose: () => void;
   onConfirm: () => void;
   propertyAddress?: string;
+  propertyCount?: number;
 }
 
-export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, propertyAddress }: ConfirmDeletePropertyProps) {
+export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, propertyAddress, propertyCount }: ConfirmDeletePropertyProps) {
   const [inputValue, setInputValue] = useState("");
 
   if (!isOpen) return null;
 
-  // Extract the first part of the address (street address before the first comma)
-  const requiredText = propertyAddress?.split(',')[0].trim() || "";
+  // For multiple properties, require typing the count, for single property require the address
+  const isMultiple = propertyCount && propertyCount > 1;
+  const requiredText = isMultiple
+    ? `${propertyCount} properties`
+    : propertyAddress?.split(',')[0].trim() || "";
   const isDeleteEnabled = inputValue.trim() === requiredText;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -48,7 +52,9 @@ export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, prop
       >
         {/* Header */}
         <div className="px-0 mb-3 border-gray-200 -my-1">
-          <h2 className="text-md font-semibold text-gray-900">Delete property</h2>
+          <h2 className="text-md font-semibold text-gray-900">
+            {isMultiple ? 'Delete properties' : 'Delete property'}
+          </h2>
         </div>
 
         {/* Content */}
@@ -57,14 +63,20 @@ export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, prop
           <p className="text-sm text-gray-600 mb-2 font-medium">
             Are you sure you want to delete
           </p>
-          {propertyAddress && (
+          {isMultiple ? (
             <p className="text-sm text-gray-900 font-semibold mb-2">
-              {propertyAddress}?
+              {propertyCount} properties?
             </p>
+          ) : (
+            propertyAddress && (
+              <p className="text-sm text-gray-900 font-semibold mb-2">
+                {propertyAddress}?
+              </p>
+            )
           )}
 
           <p className="text-xs text-gray-500 mb-3 font-medium">
-            This will permanently delete the property and all associated lease, tenant, and utility information.
+            This will permanently delete the {isMultiple ? 'properties' : 'property'} and all associated lease, tenant, and utility information.
           </p>
 
           {/* Input field */}
@@ -76,7 +88,7 @@ export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, prop
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              className="w-full px-3 py-1 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
               placeholder={requiredText}
               autoFocus
             />
@@ -99,7 +111,7 @@ export default function ConfirmDeleteProperty({ isOpen, onClose, onConfirm, prop
                   : 'bg-gray-400 cursor-not-allowed'
               }`}
             >
-              Delete Property
+              {isMultiple ? 'Delete properties' : 'Delete property'}
             </button>
           </div>
         </div>
