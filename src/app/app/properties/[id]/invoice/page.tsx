@@ -96,8 +96,8 @@ export default function InvoicePage() {
         </div>
 
         {/* Header */}
-        <div className="mb-1">
-            <h1 className="text-3xl font-semibold text-gray-900 px-8 py-6">Invoice</h1>
+        <div className="mb-8">
+            <h1 className="text-3xl font-semibold text-gray-900 px-8">Invoice</h1>
         </div>
 
         {/* Table Container */}
