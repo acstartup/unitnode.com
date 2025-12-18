@@ -245,7 +245,7 @@ export default function InvoicePage() {
                                                     }`}
                                                 >
                                                     <td className="pl-4 py-4"></td>
-                                                    <td className="pr-4 py-1 text-sm text-gray-400 whitespace-nowrap pl-8">—</td>
+                                                    <td className="pr-4 py-1 text-sm text-gray-400 whitespace-nowrap pl-8"></td>
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {formatDateCreated(payment.createdAt)}
                                                     </td>

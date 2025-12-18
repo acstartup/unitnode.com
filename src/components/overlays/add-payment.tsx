@@ -562,7 +562,6 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                 <button
                                     onClick={() => {
                                         setShowCreditConfirmation(false);
-                                        handleAddPayment(false);
                                     }}
                                     className="px-3 py-1 bg-white border border-gray-300 text-gray-700 text-sm font-small rounded-md hover:bg-gray-50 transition-colors"
                                 >
