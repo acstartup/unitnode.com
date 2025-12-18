@@ -264,7 +264,15 @@ export default function InvoicePage() {
                                                     <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {payment.description || '—'}
                                                     </td>
-                                                    <td className="px-4 py-1 text-right"></td>
+                                                    <td className="px-4 py-1 text-right">
+                                                        <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
+                                                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                                                <circle cx="8" cy="3" r="1.5"/>
+                                                                <circle cx="8" cy="8" r="1.5"/>
+                                                                <circle cx="8" cy="13" r="1.5"/>
+                                                            </svg>
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                             );
                                         })}
