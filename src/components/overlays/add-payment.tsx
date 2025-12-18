@@ -22,6 +22,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     const [isAddToCreditChecked, setIsAddToCreditChecked] = useState(false);
     const [addToCreditAmount, setAddToCreditAmount] = useState('');
     const [mounted, setMounted] = useState(false);
+    const [showCreditConfirmation, setShowCreditConfirmation] = useState(false);
     const { showToast } = useToast();
 
     useEffect(() => {
@@ -147,6 +148,46 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
     }
+
+    const handleAddPayment = async (creditRemainingAmount = false) => {
+        try {
+            // Calculate how to distribute the payment across selected bills
+            const paymentAmountValue = parseFloat(balance);
+            const selectedBills = bills.filter(bill => selectedBillIds.has(bill.id));
+
+            const appliedToBills = selectedBills.map(bill => ({
+                billId: bill.id,
+                amount: getRemainingBalance(bill.id, bill.balance)
+            }));
+
+            // If payment is split across bills, distribute proportionally
+            if (selectedBills.length > 0) {
+                const totalBillAmount = selectedBills.reduce((sum, bill) => sum + getRemainingBalance(bill.id, bill.balance), 0);
+                const paymentToDistribute = Math.min(paymentAmountValue, totalBillAmount);
+
+                appliedToBills.forEach((applied, index) => {
+                    const bill = selectedBills[index];
+                    const billRemainingBalance = getRemainingBalance(bill.id, bill.balance);
+                    applied.amount = (billRemainingBalance / totalBillAmount) * paymentToDistribute;
+                });
+            }
+
+            await addPayment({
+                propertyId: selectedPropertyId,
+                type,
+                referenceNumber,
+                balance: paymentAmountValue,
+                description,
+                appliedToBills: appliedToBills,
+            });
+
+            showToast('Payment added successfully', 'success');
+            onClose();
+        } catch (error) {
+            console.error('Error adding payment:', error);
+            showToast('Failed to add payment', 'error');
+        }
+    };
 
     if (!isOpen || !mounted) return null;
 
@@ -416,7 +457,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-0.5">
                                                         <span className="text-xs font-medium text-gray-900">{bill.type}</span>
-                                                        <span className="text-xs font-semibold text-gray-900">${getRemainingBalance(bill.id, bill.balance).toFixed(2)}</span>
+                                                        <span className="text-xs font-semibold text-red-600">-${getRemainingBalance(bill.id, bill.balance).toFixed(2)}</span>
                                                         <div className="flex items-center gap-1">
                                                             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                                                 bill.status === 'Paid'
@@ -462,7 +503,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                             Cancel
                         </button>
                         <button
-                            onClick={async () => {
+                            onClick={() => {
                                 if (!selectedPropertyId) {
                                     showToast('Please select a property first', 'error');
                                     return;
@@ -473,42 +514,14 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                     return;
                                 }
 
-                                try {
-                                    // Calculate how to distribute the payment across selected bills
-                                    const paymentAmountValue = parseFloat(balance);
-                                    const selectedBills = bills.filter(bill => selectedBillIds.has(bill.id));
-
-                                    const appliedToBills = selectedBills.map(bill => ({
-                                        billId: bill.id,
-                                        amount: bill.balance // For now, apply full bill balance, but this will be split proportionally
-                                    }));
-
-                                    // If payment is split across bills, distribute proportionally
-                                    if (selectedBills.length > 0) {
-                                        const totalBillAmount = selectedBills.reduce((sum, bill) => sum + bill.balance, 0);
-                                        const paymentToDistribute = Math.min(paymentAmountValue, totalBillAmount);
-
-                                        appliedToBills.forEach((applied, index) => {
-                                            const bill = selectedBills[index];
-                                            applied.amount = (bill.balance / totalBillAmount) * paymentToDistribute;
-                                        });
-                                    }
-
-                                    await addPayment({
-                                        propertyId: selectedPropertyId,
-                                        type,
-                                        referenceNumber,
-                                        balance: paymentAmountValue,
-                                        description,
-                                        appliedToBills: appliedToBills,
-                                    });
-
-                                    showToast('Payment added successfully', 'success');
-                                    onClose();
-                                } catch (error) {
-                                    console.error('Error adding payment:', error);
-                                    showToast('Failed to add payment', 'error');
+                                // Check if there's unallocated balance
+                                if (undistributedBalance > 0 && !isAddToCreditChecked) {
+                                    setShowCreditConfirmation(true);
+                                    return;
                                 }
+
+                                // Proceed with payment
+                                handleAddPayment();
                             }}
                             disabled={!selectedPropertyId}
                             className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
@@ -518,6 +531,59 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                     </div>
                 </div>
             </div>
+
+            {/* Credit Confirmation Overlay */}
+            {showCreditConfirmation && (
+                <div
+                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/20 overflow-y-auto"
+                    onClick={() => setShowCreditConfirmation(false)}
+                >
+                    <div
+                        className="relative w-[95%] max-w-[400px] rounded-lg border border-white/20 shadow-xl bg-white backdrop-blur-md animate-in fade-in duration-300 p-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="px-0 mb-3 border-gray-200 -my-1">
+                            <h2 className="text-md font-semibold text-gray-900">Remaining balance</h2>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex flex-col items-center text-center">
+                            {/* Description */}
+                            <p className="text-sm text-gray-600 mb-2 font-medium">
+                                You have <span className="font-semibold text-gray-900">${undistributedBalance.toFixed(2)}</span> remaining unallocated.
+                            </p>
+                            <p className="text-sm text-gray-600 mb-4 font-medium">
+                                Would you like to add this to credit?
+                            </p>
+
+                            {/* Buttons */}
+                            <div className="flex justify-end gap-3 w-full">
+                                <button
+                                    onClick={() => {
+                                        setShowCreditConfirmation(false);
+                                        handleAddPayment(false);
+                                    }}
+                                    className="px-3 py-1 bg-white border border-gray-300 text-gray-700 text-sm font-small rounded-md hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowCreditConfirmation(false);
+                                        setIsAddToCreditChecked(true);
+                                        setAddToCreditAmount(undistributedBalance.toFixed(2));
+                                        handleAddPayment(true);
+                                    }}
+                                    className="px-4 py-1 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+                                >
+                                    Add to credit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>,
         document.body
     )
