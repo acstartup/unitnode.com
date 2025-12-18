@@ -83,6 +83,18 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         if (newSelected.has(billId)) {
             newSelected.delete(billId);
         } else {
+            // Check if adding this bill would exceed the available balance
+            const bill = bills.find(b => b.id === billId);
+            if (bill) {
+                const billRemainingBalance = getRemainingBalance(bill.id, bill.balance);
+                const newTotal = selectedBillsTotal + billRemainingBalance;
+                const availableBalance = paymentAmount + (isUtilizeCreditChecked ? availableCredit : 0);
+
+                if (newTotal > availableBalance) {
+                    showToast('Cannot select bill: total would exceed payment balance', 'error');
+                    return; // Don't select the bill if it would exceed available balance
+                }
+            }
             newSelected.add(billId);
         }
         setSelectedBillIds(newSelected);
@@ -377,7 +389,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         <div className="-mb-1">
-                            <div className={`min-h-[150px] max-h-[200px] overflow-y-auto px-3 py-3 bg-white border border-gray-300 rounded-md ${!selectedPropertyId ? 'bg-gray-100' : ''}`}>
+                            <div className={`min-h-[150px] max-h-[200px] overflow-y-auto px-3 py-3 border border-gray-300 rounded-md ${!selectedPropertyId ? 'bg-gray-100' : 'bg-white'}`}>
                                 {!selectedPropertyId ? (
                                     <div className="flex items-center justify-center h-[144px] text-sm text-gray-400">
                                         Select a property to view bills
