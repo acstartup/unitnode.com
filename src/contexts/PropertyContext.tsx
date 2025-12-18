@@ -27,6 +27,7 @@ export interface Payment {
     referenceNumber: string;
     balance: number;
     description: string;
+    appliedToBills: { billId: string; amount: number }[];
     createdAt: Date;
 }
 

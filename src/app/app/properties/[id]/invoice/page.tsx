@@ -2,6 +2,7 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useProperties } from '@/contexts/PropertyContext';
+import { useState } from 'react';
 
 export default function InvoicePage() {
     const params = useParams();
@@ -13,40 +14,42 @@ export default function InvoicePage() {
     const bills = getBillsByProperty(propertyId);
     const payments = getPaymentsByProperty(propertyId);
 
-    // Combine bills and payments into a single array for the invoice
-    type InvoiceItem = {
-        id: string;
-        type: 'bill' | 'payment';
-        date: Date;
-        dueBy?: string;
-        itemType: string;
-        balance: number;
-        description: string;
-        status?: 'Unpaid' | 'Partial Paid' | 'Paid';
-        referenceNumber?: string;
+    // Track which bills are expanded
+    const [expandedBills, setExpandedBills] = useState<Set<string>>(new Set());
+
+    const toggleBillExpansion = (billId: string) => {
+        const newExpanded = new Set(expandedBills);
+        if (newExpanded.has(billId)) {
+            newExpanded.delete(billId);
+        } else {
+            newExpanded.add(billId);
+        }
+        setExpandedBills(newExpanded);
     };
 
-    const invoiceItems: InvoiceItem[] = [
-        ...bills.map(bill => ({
-            id: bill.id,
-            type: 'bill' as const,
-            date: bill.createdAt,
-            dueBy: bill.dueBy,
-            itemType: bill.type,
-            balance: bill.balance,
-            description: bill.description,
-            status: bill.status,
-        })),
-        ...payments.map(payment => ({
-            id: payment.id,
-            type: 'payment' as const,
-            date: payment.createdAt,
-            itemType: payment.type,
-            balance: payment.balance,
-            description: payment.description,
-            referenceNumber: payment.referenceNumber,
-        })),
-    ].sort((a, b) => b.date.getTime() - a.date.getTime());
+    // Calculate total paid for each bill
+    const getBillPayments = (billId: string) => {
+        return payments.filter(payment =>
+            payment.appliedToBills?.some(applied => applied.billId === billId)
+        );
+    };
+
+    const getTotalPaidForBill = (billId: string) => {
+        return payments.reduce((total, payment) => {
+            const applied = payment.appliedToBills?.find((a: { billId: string; amount: number }) => a.billId === billId);
+            return total + (applied?.amount || 0);
+        }, 0);
+    };
+
+    const getRemainingBalance = (billId: string, billBalance: number) => {
+        const totalPaid = getTotalPaidForBill(billId);
+        return billBalance - totalPaid;
+    };
+
+    const getPaymentAmountForBill = (payment: any, billId: string) => {
+        const applied = payment.appliedToBills?.find((a: { billId: string; amount: number }) => a.billId === billId);
+        return applied?.amount || 0;
+    };
 
     const formatDate = (dateString: string) => {
         const date = new Date(dateString + 'T00:00:00');
@@ -63,12 +66,19 @@ export default function InvoicePage() {
         return `${month}/${day}/${year}`;
     };
 
-    const isLate = (dueBy: string, status: string) => {
-        if (status === 'Paid') return false;
+    const isLate = (dueBy: string, remainingBalance: number) => {
+        if (remainingBalance <= 0) return false;
         const dueDate = new Date(dueBy + 'T00:00:00');
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         return dueDate < today;
+    };
+
+    const getBillStatus = (billId: string, billBalance: number) => {
+        const remaining = getRemainingBalance(billId, billBalance);
+        if (remaining <= 0) return 'Paid';
+        if (remaining < billBalance) return 'Partial Paid';
+        return 'Unpaid';
     };
 
     return (
@@ -123,66 +133,131 @@ export default function InvoicePage() {
                             <th className="w-[5%]"></th>
                         </tr>
                     </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                        {invoiceItems.length === 0 ? (
+                    <tbody className="bg-white">
+                        {bills.length === 0 ? (
                             <tr>
                                 <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-500">
                                     No transactions found for this property
                                 </td>
                             </tr>
                         ) : (
-                            invoiceItems.map((item) => (
-                                <tr key={item.id} className="group hover:bg-gray-50 transition-colors">
-                                    <td className="pl-4 py-1"></td>
-                                    <td className="pr-4 py-1 text-sm text-gray-900 whitespace-nowrap">
-                                        {item.type === 'bill' && item.dueBy ? formatDate(item.dueBy) : '—'}
-                                    </td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{formatDateCreated(item.date)}</td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{item.itemType}</td>
-                                    <td className="px-4 py-1 text-sm whitespace-nowrap">
-                                        {item.type === 'bill' && item.status ? (
-                                            <div className="flex items-center gap-2">
-                                                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                                                    item.status === 'Paid'
-                                                        ? 'bg-green-100 text-green-800'
-                                                        : item.status === 'Partial Paid'
-                                                        ? 'bg-yellow-100 text-yellow-800'
-                                                        : 'bg-gray-100 text-gray-800'
-                                                }`}>
-                                                    {item.status}
-                                                </span>
-                                                {item.dueBy && isLate(item.dueBy, item.status) && (
-                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
-                                                        Late
-                                                    </span>
+                            bills.map((bill) => {
+                                const billPayments = getBillPayments(bill.id);
+                                const remainingBalance = getRemainingBalance(bill.id, bill.balance);
+                                const status = getBillStatus(bill.id, bill.balance);
+                                const isExpanded = expandedBills.has(bill.id);
+                                const isPaid = remainingBalance <= 0;
+
+                                return (
+                                    <>
+                                        {/* Bill Row */}
+                                        <tr
+                                            key={bill.id}
+                                            className={`group border-b border-gray-200 transition-colors ${
+                                                isPaid ? 'bg-gray-50 hover:bg-gray-100' : 'hover:bg-gray-50'
+                                            }`}
+                                        >
+                                            <td className="pl-4 py-1">
+                                                {billPayments.length > 0 && (
+                                                    <button
+                                                        onClick={() => toggleBillExpansion(bill.id)}
+                                                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                                    >
+                                                        <svg
+                                                            className={`w-3 h-3 text-gray-600 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+                                                            fill="none"
+                                                            stroke="currentColor"
+                                                            viewBox="0 0 24 24"
+                                                        >
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                                        </svg>
+                                                    </button>
                                                 )}
-                                            </div>
-                                        ) : (
-                                            <span>—</span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">
-                                        {item.type === 'payment' && item.referenceNumber ? item.referenceNumber : ''}
-                                    </td>
-                                    <td className="px-4 py-1 text-sm whitespace-nowrap">
-                                        {item.type === 'bill' ? (
-                                            <span className="text-red-600 font-medium">-${item.balance.toFixed(2)}</span>
-                                        ) : (
-                                            <span className="text-green-600 font-medium">+${item.balance.toFixed(2)}</span>
-                                        )}
-                                    </td>
-                                    <td className="px-4 py-1 text-sm text-gray-500">{item.description || '—'}</td>
-                                    <td className="px-4 py-1 text-right">
-                                        <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
-                                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
-                                                <circle cx="8" cy="3" r="1.5"/>
-                                                <circle cx="8" cy="8" r="1.5"/>
-                                                <circle cx="8" cy="13" r="1.5"/>
-                                            </svg>
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                                            </td>
+                                            <td className={`pr-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-500' : 'text-gray-900'}`}>
+                                                {formatDate(bill.dueBy)}
+                                            </td>
+                                            <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                {formatDateCreated(bill.createdAt)}
+                                            </td>
+                                            <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                {bill.type}
+                                            </td>
+                                            <td className="px-4 py-1 text-sm whitespace-nowrap">
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
+                                                        status === 'Paid'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : status === 'Partial Paid'
+                                                            ? 'bg-yellow-100 text-yellow-800'
+                                                            : 'bg-gray-100 text-gray-800'
+                                                    }`}>
+                                                        {status}
+                                                    </span>
+                                                    {isLate(bill.dueBy, remainingBalance) && (
+                                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                                                            Late
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
+                                            <td className="px-4 py-1 text-sm whitespace-nowrap">
+                                                <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-red-600'}`}>
+                                                    -${bill.balance.toFixed(2)}
+                                                </span>
+                                            </td>
+                                            <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                {bill.description || '—'}
+                                            </td>
+                                            <td className="px-4 py-1 text-right">
+                                                <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
+                                                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                                        <circle cx="8" cy="3" r="1.5"/>
+                                                        <circle cx="8" cy="8" r="1.5"/>
+                                                        <circle cx="8" cy="13" r="1.5"/>
+                                                    </svg>
+                                                </button>
+                                            </td>
+                                        </tr>
+
+                                        {/* Payment Rows (Nested) */}
+                                        {isExpanded && billPayments.map((payment) => {
+                                            const paymentAmount = getPaymentAmountForBill(payment, bill.id);
+                                            return (
+                                                <tr
+                                                    key={`payment-${payment.id}-${bill.id}`}
+                                                    className={`border-b border-gray-100 transition-colors ${
+                                                        isPaid ? 'bg-gray-50 hover:bg-gray-100' : 'bg-gray-50 hover:bg-gray-100'
+                                                    }`}
+                                                >
+                                                    <td className="pl-4 py-4"></td>
+                                                    <td className="pr-4 py-1 text-sm text-gray-400 whitespace-nowrap pl-8">—</td>
+                                                    <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                        {formatDateCreated(payment.createdAt)}
+                                                    </td>
+                                                    <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                        {payment.type}
+                                                    </td>
+                                                    <td className="px-4 py-1 text-sm whitespace-nowrap">—</td>
+                                                    <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                        {payment.referenceNumber || ''}
+                                                    </td>
+                                                    <td className="px-4 py-1 text-sm whitespace-nowrap">
+                                                        <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-green-600'}`}>
+                                                            +${paymentAmount.toFixed(2)}
+                                                        </span>
+                                                    </td>
+                                                    <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                        {payment.description || '—'}
+                                                    </td>
+                                                    <td className="px-4 py-1 text-right"></td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </>
+                                );
+                            })
                         )}
                     </tbody>
                 </table>

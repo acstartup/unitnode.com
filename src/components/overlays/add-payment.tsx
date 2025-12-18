@@ -12,7 +12,7 @@ interface AddPaymentOverlayProps {
 
 export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlayProps) {
     const [propertyAddress, setPropertyAddress] = useState('');
-    const [type, setType] = useState('Rent');
+    const [type, setType] = useState('Cash');
     const [referenceNumber, setReferenceNumber] = useState('');
     const [balance, setBalance] = useState('');
     const [description, setDescription] = useState('');
@@ -43,7 +43,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setSelectedPropertyId('');
             setFilteredProperties([]);
             setShowPropertyDropdown(false);
-            setType('Rent');
+            setType('Cash');
             setReferenceNumber('');
             setBalance('');
             setDescription('');
@@ -236,10 +236,10 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                         disabled={!selectedPropertyId}
                                         className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
                                     >
-                                        <option value="Rent">Cash</option>
-                                        <option value="Utilities">Check</option>
-                                        <option value="Maintenance">Credit</option>
-                                        <option value="Maintenance">Money Order</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Check">Check</option>
+                                        <option value="Credit">Credit</option>
+                                        <option value="Money Order">Money Order</option>
                                         <option value="Other">Other</option>
                                     </select>
                                     <svg
@@ -452,12 +452,33 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                 }
 
                                 try {
+                                    // Calculate how to distribute the payment across selected bills
+                                    const paymentAmountValue = parseFloat(balance);
+                                    const selectedBills = bills.filter(bill => selectedBillIds.has(bill.id));
+
+                                    const appliedToBills = selectedBills.map(bill => ({
+                                        billId: bill.id,
+                                        amount: bill.balance // For now, apply full bill balance, but this will be split proportionally
+                                    }));
+
+                                    // If payment is split across bills, distribute proportionally
+                                    if (selectedBills.length > 0) {
+                                        const totalBillAmount = selectedBills.reduce((sum, bill) => sum + bill.balance, 0);
+                                        const paymentToDistribute = Math.min(paymentAmountValue, totalBillAmount);
+
+                                        appliedToBills.forEach((applied, index) => {
+                                            const bill = selectedBills[index];
+                                            applied.amount = (bill.balance / totalBillAmount) * paymentToDistribute;
+                                        });
+                                    }
+
                                     await addPayment({
                                         propertyId: selectedPropertyId,
                                         type,
                                         referenceNumber,
-                                        balance: parseFloat(balance),
+                                        balance: paymentAmountValue,
                                         description,
+                                        appliedToBills: appliedToBills,
                                     });
 
                                     showToast('Payment added successfully', 'success');
