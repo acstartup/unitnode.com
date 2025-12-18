@@ -252,7 +252,7 @@ export default function InvoicePage() {
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {payment.type}
                                                     </td>
-                                                    <td className="px-4 py-1 text-sm whitespace-nowrap">—</td>
+                                                    <td className="px-4 py-1 text-sm whitespace-nowrap"></td>
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {payment.referenceNumber || ''}
                                                     </td>
