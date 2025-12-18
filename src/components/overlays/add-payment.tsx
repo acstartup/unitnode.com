@@ -31,7 +31,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     // This would come from the property's credit balance in the future
     const availableCredit = 0; // Placeholder for available credit amount
 
-    const { properties, getBillsByProperty, addPayment } = useProperties();
+    const { properties, getBillsByProperty, addPayment, payments, getPaymentsByProperty } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
@@ -56,17 +56,27 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         }
     }, [isOpen]);
 
-    // Get bills for selected property
+    // Get bills and payments for selected property
     const bills = selectedPropertyId ? getBillsByProperty(selectedPropertyId) : [];
+    const propertyPayments = selectedPropertyId ? getPaymentsByProperty(selectedPropertyId) : [];
+
+    // Calculate remaining balance for a bill
+    const getRemainingBalance = (billId: string, billBalance: number) => {
+        const totalPaid = propertyPayments.reduce((total, payment) => {
+            const applied = payment.appliedToBills?.find(a => a.billId === billId);
+            return total + (applied?.amount || 0);
+        }, 0);
+        return billBalance - totalPaid;
+    };
 
     // Update selected bills total when bill selection changes
     useEffect(() => {
         const total = bills
             .filter(bill => selectedBillIds.has(bill.id))
-            .reduce((sum, bill) => sum + bill.balance, 0);
+            .reduce((sum, bill) => sum + getRemainingBalance(bill.id, bill.balance), 0);
         setSelectedBillsTotal(total);
         setSelectedBillsCount(selectedBillIds.size);
-    }, [selectedBillIds, bills]);
+    }, [selectedBillIds, bills, propertyPayments]);
 
     const toggleBillSelection = (billId: string) => {
         const newSelected = new Set(selectedBillIds);
@@ -311,36 +321,36 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         <div className="mb-2 flex justify-between items-center">
                             <div className="flex gap-4">
                                 {/* Utilize Credit */}
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
                                     <input
                                         type="checkbox"
                                         id="utilizeCreditCheckbox"
                                         checked={isUtilizeCreditChecked}
                                         onChange={(e) => setIsUtilizeCreditChecked(e.target.checked)}
                                         disabled={!selectedPropertyId || availableCredit === 0}
-                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="w-3.5 h-3.5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     />
                                     <label
                                         htmlFor="utilizeCreditCheckbox"
-                                        className={`text-sm ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
+                                        className={`text-xs ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
                                     >
                                         Utilize Credit: <span className="font-medium">${availableCredit.toFixed(2)}</span>
                                     </label>
                                 </div>
 
                                 {/* Add to Credit */}
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
                                     <input
                                         type="checkbox"
                                         id="addToCreditCheckbox"
                                         checked={isAddToCreditChecked}
                                         onChange={(e) => setIsAddToCreditChecked(e.target.checked)}
                                         disabled={!selectedPropertyId}
-                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="w-3.5 h-3.5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     />
                                     <label
                                         htmlFor="addToCreditCheckbox"
-                                        className={`text-sm ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
+                                        className={`text-xs ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
                                     >
                                         Add to Credit:
                                     </label>
@@ -372,13 +382,13 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                     <div className="flex items-center justify-center h-[144px] text-sm text-gray-400">
                                         Select a property to view bills
                                     </div>
-                                ) : bills.length === 0 ? (
+                                ) : bills.filter(bill => getRemainingBalance(bill.id, bill.balance) > 0).length === 0 ? (
                                     <div className="flex items-center justify-center h-[144px] text-sm text-gray-500">
-                                        No bills available for this property
+                                        No unpaid bills available for this property
                                     </div>
                                 ) : (
                                     <div className="space-y-2">
-                                        {bills.map((bill) => (
+                                        {bills.filter(bill => getRemainingBalance(bill.id, bill.balance) > 0).map((bill) => (
                                             <div
                                                 key={bill.id}
                                                 onClick={() => toggleBillSelection(bill.id)}
@@ -394,7 +404,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-0.5">
                                                         <span className="text-xs font-medium text-gray-900">{bill.type}</span>
-                                                        <span className="text-xs font-semibold text-gray-900">${bill.balance.toFixed(2)}</span>
+                                                        <span className="text-xs font-semibold text-gray-900">${getRemainingBalance(bill.id, bill.balance).toFixed(2)}</span>
                                                         <div className="flex items-center gap-1">
                                                             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                                                 bill.status === 'Paid'
