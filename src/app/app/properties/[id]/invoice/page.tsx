@@ -1,8 +1,8 @@
 'use client';
 
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useProperties } from '@/contexts/PropertyContext';
-import { useState } from 'react';
 
 export default function InvoicePage() {
     const params = useParams();
@@ -16,6 +16,31 @@ export default function InvoicePage() {
 
     // Track which bills are expanded
     const [expandedBills, setExpandedBills] = useState<Set<string>>(new Set());
+
+    // Track which dropdown is open (for both bills and payments)
+    const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
+    const [dropdownPosition, setDropdownPosition] = useState<{top: number, right: number} | null>(null);
+    const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (openDropdownId && dropdownRefs.current[openDropdownId]) {
+                const dropdownElement = dropdownRefs.current[openDropdownId];
+                if (dropdownElement && !dropdownElement.contains(event.target as Node)) {
+                    setOpenDropdownId(null);
+                }
+            }
+        };
+
+        if (openDropdownId) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [openDropdownId]);
 
     const toggleBillExpansion = (billId: string) => {
         const newExpanded = new Set(expandedBills);
@@ -162,10 +187,9 @@ export default function InvoicePage() {
                                 const isPaid = remainingBalance <= 0;
 
                                 return (
-                                    <>
+                                    <React.Fragment key={bill.id}>
                                         {/* Bill Row */}
                                         <tr
-                                            key={bill.id}
                                             className={`group border-b border-gray-200 transition-colors ${
                                                 isPaid ? 'bg-gray-50 hover:bg-gray-100' : 'hover:bg-gray-50'
                                             }`}
@@ -224,13 +248,59 @@ export default function InvoicePage() {
                                                 {bill.description || '—'}
                                             </td>
                                             <td className="px-4 py-1 text-right">
-                                                <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
-                                                    <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
-                                                        <circle cx="8" cy="3" r="1.5"/>
-                                                        <circle cx="8" cy="8" r="1.5"/>
-                                                        <circle cx="8" cy="13" r="1.5"/>
-                                                    </svg>
-                                                </button>
+                                                <div
+                                                    className="relative inline-block"
+                                                    ref={(el) => { dropdownRefs.current[bill.id] = el; }}
+                                                >
+                                                    <button
+                                                        onClick={(e) => {
+                                                            const button = e.currentTarget;
+                                                            const rect = button.getBoundingClientRect();
+                                                            setDropdownPosition({
+                                                                top: rect.bottom + 2,
+                                                                right: window.innerWidth - rect.right
+                                                            });
+                                                            setOpenDropdownId(openDropdownId === bill.id ? null : bill.id);
+                                                        }}
+                                                        className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors"
+                                                    >
+                                                        <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                                            <circle cx="8" cy="3" r="1.5"/>
+                                                            <circle cx="8" cy="8" r="1.5"/>
+                                                            <circle cx="8" cy="13" r="1.5"/>
+                                                        </svg>
+                                                    </button>
+
+                                                    {/* Dropdown Menu */}
+                                                    {openDropdownId === bill.id && dropdownPosition && (
+                                                        <div
+                                                            className="fixed w-22 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[200] animate-in fade-in slide-in-from-top-2 duration-200"
+                                                            style={{
+                                                                top: `${dropdownPosition.top}px`,
+                                                                right: `${dropdownPosition.right}px`
+                                                            }}
+                                                        >
+                                                            <button
+                                                                onClick={() => {
+                                                                    setOpenDropdownId(null);
+                                                                    // TODO: Implement edit bill
+                                                                }}
+                                                                className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setOpenDropdownId(null);
+                                                                    // TODO: Implement delete bill
+                                                                }}
+                                                                className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-gray-100 transition-colors rounded-md"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </td>
                                         </tr>
 
@@ -265,18 +335,64 @@ export default function InvoicePage() {
                                                         {payment.description || '—'}
                                                     </td>
                                                     <td className="px-4 py-1 text-right">
-                                                        <button className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors">
-                                                            <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
-                                                                <circle cx="8" cy="3" r="1.5"/>
-                                                                <circle cx="8" cy="8" r="1.5"/>
-                                                                <circle cx="8" cy="13" r="1.5"/>
-                                                            </svg>
-                                                        </button>
+                                                        <div
+                                                            className="relative inline-block"
+                                                            ref={(el) => { dropdownRefs.current[payment.id] = el; }}
+                                                        >
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    const button = e.currentTarget;
+                                                                    const rect = button.getBoundingClientRect();
+                                                                    setDropdownPosition({
+                                                                        top: rect.bottom + 2,
+                                                                        right: window.innerWidth - rect.right
+                                                                    });
+                                                                    setOpenDropdownId(openDropdownId === payment.id ? null : payment.id);
+                                                                }}
+                                                                className="p-1.5 hover:bg-gray-100 rounded-md border border-gray-300 transition-colors"
+                                                            >
+                                                                <svg className="w-4 h-4 text-gray-700" fill="currentColor" viewBox="0 0 16 16">
+                                                                    <circle cx="8" cy="3" r="1.5"/>
+                                                                    <circle cx="8" cy="8" r="1.5"/>
+                                                                    <circle cx="8" cy="13" r="1.5"/>
+                                                                </svg>
+                                                            </button>
+
+                                                            {/* Dropdown Menu */}
+                                                            {openDropdownId === payment.id && dropdownPosition && (
+                                                                <div
+                                                                    className="fixed w-22 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[200] animate-in fade-in slide-in-from-top-2 duration-200"
+                                                                    style={{
+                                                                        top: `${dropdownPosition.top}px`,
+                                                                        right: `${dropdownPosition.right}px`
+                                                                    }}
+                                                                >
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setOpenDropdownId(null);
+                                                                            // TODO: Implement edit payment
+                                                                        }}
+                                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
+                                                                    >
+                                                                        Edit
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            setOpenDropdownId(null);
+                                                                            // TODO: Implement delete payment
+                                                                        }}
+                                                                        className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-gray-100 transition-colors rounded-md"
+                                                                    >
+                                                                        Delete
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             );
                                         })}
-                                    </>
+                                    </React.Fragment>
                                 );
                             })
                         )}
