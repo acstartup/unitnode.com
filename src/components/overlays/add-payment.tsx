@@ -29,17 +29,18 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         setMounted(true);
     }, []);
 
-    // This would come from the property's credit balance in the future
-    const availableCredit = 0; // Placeholder for available credit amount
-
-    const { properties, getBillsByProperty, addPayment, payments, getPaymentsByProperty } = useProperties();
+    const { properties, getBillsByProperty, addPayment, getPaymentsByProperty, getPropertyCredit, updatePropertyCredit } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
     const [selectedBillIds, setSelectedBillIds] = useState<Set<string>>(new Set());
 
+    // Get available credit for the selected property
+    const availableCredit = selectedPropertyId ? getPropertyCredit(selectedPropertyId) : 0;
+
     useEffect(() => {
         if (isOpen) {
+            // Reset for new payment
             setPropertyAddress('');
             setSelectedPropertyId('');
             setFilteredProperties([]);
@@ -151,8 +152,16 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
 
     const handleAddPayment = async (creditRemainingAmount = false) => {
         try {
+            let paymentAmountValue = parseFloat(balance);
+
+            // Handle utilize credit - reduce from available credit
+            if (isUtilizeCreditChecked && availableCredit > 0) {
+                const creditToUse = Math.min(availableCredit, paymentAmountValue);
+                updatePropertyCredit(selectedPropertyId, -creditToUse);
+                paymentAmountValue = paymentAmountValue; // Keep original payment amount
+            }
+
             // Calculate how to distribute the payment across selected bills
-            const paymentAmountValue = parseFloat(balance);
             const selectedBills = bills.filter(bill => selectedBillIds.has(bill.id));
 
             const appliedToBills = selectedBills.map(bill => ({
@@ -170,6 +179,17 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                     const billRemainingBalance = getRemainingBalance(bill.id, bill.balance);
                     applied.amount = (billRemainingBalance / totalBillAmount) * paymentToDistribute;
                 });
+            }
+
+            // Handle add to credit - add remaining balance to credit
+            const totalApplied = appliedToBills.reduce((sum, applied) => sum + applied.amount, 0);
+            const remainingBalance = paymentAmountValue - totalApplied;
+
+            if (creditRemainingAmount || (isAddToCreditChecked && parseFloat(addToCreditAmount) > 0)) {
+                const creditAmount = creditRemainingAmount ? remainingBalance : parseFloat(addToCreditAmount);
+                if (creditAmount > 0) {
+                    updatePropertyCredit(selectedPropertyId, creditAmount);
+                }
             }
 
             await addPayment({
@@ -457,7 +477,9 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                                 <div className="flex-1 min-w-0">
                                                     <div className="flex items-center gap-2 mb-0.5">
                                                         <span className="text-xs font-medium text-gray-900">{bill.type}</span>
-                                                        <span className="text-xs font-semibold text-red-600">-${getRemainingBalance(bill.id, bill.balance).toFixed(2)}</span>
+                                                        <span className="text-xs font-semibold text-red-600">
+                                                            -${getRemainingBalance(bill.id, bill.balance).toFixed(2)}
+                                                        </span>
                                                         <div className="flex items-center gap-1">
                                                             <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
                                                                 bill.status === 'Paid'

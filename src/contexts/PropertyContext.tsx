@@ -42,12 +42,15 @@ export interface Property {
     ownerName?: string;
     ownerEmail?: string;
     ownerPhone?: string;
+    credit?: number;
     createdAt: Date;
 }
 
 interface PropertyContextType {
     properties: Property[];
     addProperty: (property: Omit<Property, 'id' | 'createdAt'>) => Promise<void>;
+    updatePropertyCredit: (propertyId: string, creditChange: number) => void;
+    getPropertyCredit: (propertyId: string) => number;
     bills: Bill[];
     addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'status'>) => Promise<void>;
     getBillsByProperty: (propertyId: string) => Bill[];
@@ -189,8 +192,37 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const updatePropertyCredit = (propertyId: string, creditChange: number) => {
+        setProperties(prevProperties => {
+            const updatedProperties = prevProperties.map(p => {
+                if (p.id === propertyId) {
+                    return { ...p, credit: (p.credit || 0) + creditChange };
+                }
+                return p;
+            });
+            return updatedProperties;
+        });
+    };
+
+    const getPropertyCredit = (propertyId: string): number => {
+        const property = properties.find(p => p.id === propertyId);
+        return property?.credit || 0;
+    };
+
     return (
-        <PropertyContext.Provider value={{ properties, addProperty, bills, addBill, getBillsByProperty, payments, addPayment, getPaymentsByProperty, isLoading }}>
+        <PropertyContext.Provider value={{
+            properties,
+            addProperty,
+            updatePropertyCredit,
+            getPropertyCredit,
+            bills,
+            addBill,
+            getBillsByProperty,
+            payments,
+            addPayment,
+            getPaymentsByProperty,
+            isLoading
+        }}>
             {children}
         </PropertyContext.Provider>
     );

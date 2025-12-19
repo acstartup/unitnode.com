@@ -283,15 +283,6 @@ export default function InvoicePage() {
                                                             <button
                                                                 onClick={() => {
                                                                     setOpenDropdownId(null);
-                                                                    // TODO: Implement edit bill
-                                                                }}
-                                                                className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
-                                                            >
-                                                                Edit
-                                                            </button>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setOpenDropdownId(null);
                                                                     // TODO: Implement delete bill
                                                                 }}
                                                                 className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-gray-100 transition-colors rounded-md"
@@ -367,15 +358,6 @@ export default function InvoicePage() {
                                                                         right: `${dropdownPosition.right}px`
                                                                     }}
                                                                 >
-                                                                    <button
-                                                                        onClick={() => {
-                                                                            setOpenDropdownId(null);
-                                                                            // TODO: Implement edit payment
-                                                                        }}
-                                                                        className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors rounded-md"
-                                                                    >
-                                                                        Edit
-                                                                    </button>
                                                                     <button
                                                                         onClick={() => {
                                                                             setOpenDropdownId(null);
