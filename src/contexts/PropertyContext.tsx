@@ -53,9 +53,11 @@ interface PropertyContextType {
     getPropertyCredit: (propertyId: string) => number;
     bills: Bill[];
     addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'status'>) => Promise<void>;
+    deleteBill: (billId: string) => Promise<void>;
     getBillsByProperty: (propertyId: string) => Bill[];
     payments: Payment[];
     addPayment: (payment: Omit<Payment, 'id' | 'createdAt'>) => Promise<void>;
+    deletePayment: (paymentId: string) => Promise<void>;
     getPaymentsByProperty: (propertyId: string) => Payment[];
     isLoading: boolean;
 }
@@ -144,6 +146,36 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('bills', JSON.stringify(billsArray));
     };
 
+    const deleteBill = async (billId: string) => {
+        // Remove from state
+        setBills(prev => prev.filter(bill => bill.id !== billId));
+
+        // Remove from localStorage
+        const storedBills = localStorage.getItem('bills');
+        if (storedBills) {
+            const billsArray = JSON.parse(storedBills);
+            const updatedBills = billsArray.filter((bill: Bill) => bill.id !== billId);
+            localStorage.setItem('bills', JSON.stringify(updatedBills));
+        }
+
+        // Also remove any payment associations with this bill
+        const storedPayments = localStorage.getItem('payments');
+        if (storedPayments) {
+            const paymentsArray = JSON.parse(storedPayments);
+            const updatedPayments = paymentsArray.map((payment: Payment) => ({
+                ...payment,
+                appliedToBills: payment.appliedToBills.filter(applied => applied.billId !== billId)
+            }));
+            localStorage.setItem('payments', JSON.stringify(updatedPayments));
+
+            // Update state
+            setPayments(updatedPayments.map((p: Payment) => ({
+                ...p,
+                createdAt: new Date(p.createdAt),
+            })));
+        }
+    };
+
     const getBillsByProperty = (propertyId: string) => {
         return bills.filter(bill => bill.propertyId === propertyId);
     };
@@ -162,6 +194,19 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         const paymentsArray = storedPayments ? JSON.parse(storedPayments) : [];
         paymentsArray.push(newPayment);
         localStorage.setItem('payments', JSON.stringify(paymentsArray));
+    };
+
+    const deletePayment = async (paymentId: string) => {
+        // Remove from state
+        setPayments(prev => prev.filter(payment => payment.id !== paymentId));
+
+        // Remove from localStorage
+        const storedPayments = localStorage.getItem('payments');
+        if (storedPayments) {
+            const paymentsArray = JSON.parse(storedPayments);
+            const updatedPayments = paymentsArray.filter((payment: Payment) => payment.id !== paymentId);
+            localStorage.setItem('payments', JSON.stringify(updatedPayments));
+        }
     };
 
     const getPaymentsByProperty = (propertyId: string) => {
@@ -217,9 +262,11 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
             getPropertyCredit,
             bills,
             addBill,
+            deleteBill,
             getBillsByProperty,
             payments,
             addPayment,
+            deletePayment,
             getPaymentsByProperty,
             isLoading
         }}>

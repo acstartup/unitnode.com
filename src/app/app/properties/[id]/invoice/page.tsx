@@ -3,11 +3,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useProperties } from '@/contexts/PropertyContext';
+import { useToast } from '@/contexts/ToastContext';
+import ConfirmDeleteBill from '@/components/overlays/confirm-delete-bill';
+import ConfirmDeletePayment from '@/components/overlays/confirm-delete-payment';
 
 export default function InvoicePage() {
     const params = useParams();
     const router = useRouter();
-    const { properties, getBillsByProperty, getPaymentsByProperty } = useProperties();
+    const { properties, getBillsByProperty, getPaymentsByProperty, deleteBill, deletePayment } = useProperties();
+    const { showToast } = useToast();
     const propertyId = params.id as string;
 
     const property = properties.find(p => p.id === propertyId);
@@ -21,6 +25,12 @@ export default function InvoicePage() {
     const [openDropdownId, setOpenDropdownId] = useState<string | null>(null);
     const [dropdownPosition, setDropdownPosition] = useState<{top: number, right: number} | null>(null);
     const dropdownRefs = useRef<{[key: string]: HTMLDivElement | null}>({});
+
+    // Confirmation overlays
+    const [isDeleteBillOpen, setIsDeleteBillOpen] = useState(false);
+    const [isDeletePaymentOpen, setIsDeletePaymentOpen] = useState(false);
+    const [deletingBillId, setDeletingBillId] = useState<string | null>(null);
+    const [deletingPaymentId, setDeletingPaymentId] = useState<string | null>(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -104,6 +114,34 @@ export default function InvoicePage() {
         if (remaining <= 0) return 'Paid';
         if (remaining < billBalance) return 'Partial Paid';
         return 'Unpaid';
+    };
+
+    const handleDeleteBill = async () => {
+        if (!deletingBillId) return;
+
+        try {
+            await deleteBill(deletingBillId);
+            showToast('Bill deleted successfully', 'success');
+            setIsDeleteBillOpen(false);
+            setDeletingBillId(null);
+        } catch (error) {
+            console.error('Error deleting bill:', error);
+            showToast('Failed to delete bill', 'error');
+        }
+    };
+
+    const handleDeletePayment = async () => {
+        if (!deletingPaymentId) return;
+
+        try {
+            await deletePayment(deletingPaymentId);
+            showToast('Payment deleted successfully', 'success');
+            setIsDeletePaymentOpen(false);
+            setDeletingPaymentId(null);
+        } catch (error) {
+            console.error('Error deleting payment:', error);
+            showToast('Failed to delete payment', 'error');
+        }
     };
 
     return (
@@ -283,7 +321,8 @@ export default function InvoicePage() {
                                                             <button
                                                                 onClick={() => {
                                                                     setOpenDropdownId(null);
-                                                                    // TODO: Implement delete bill
+                                                                    setDeletingBillId(bill.id);
+                                                                    setIsDeleteBillOpen(true);
                                                                 }}
                                                                 className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-gray-100 transition-colors rounded-md"
                                                             >
@@ -361,7 +400,8 @@ export default function InvoicePage() {
                                                                     <button
                                                                         onClick={() => {
                                                                             setOpenDropdownId(null);
-                                                                            // TODO: Implement delete payment
+                                                                            setDeletingPaymentId(payment.id);
+                                                                            setIsDeletePaymentOpen(true);
                                                                         }}
                                                                         className="w-full px-2 py-1 text-left text-sm text-red-600 hover:bg-gray-100 transition-colors rounded-md"
                                                                     >
@@ -382,6 +422,29 @@ export default function InvoicePage() {
                 </table>
             </div>
         </div>
+
+        {/* Confirmation Overlays */}
+        <ConfirmDeleteBill
+            isOpen={isDeleteBillOpen}
+            onClose={() => {
+                setIsDeleteBillOpen(false);
+                setDeletingBillId(null);
+            }}
+            onConfirm={handleDeleteBill}
+            billType={deletingBillId ? bills.find(b => b.id === deletingBillId)?.type : undefined}
+            billBalance={deletingBillId ? bills.find(b => b.id === deletingBillId)?.balance : undefined}
+        />
+
+        <ConfirmDeletePayment
+            isOpen={isDeletePaymentOpen}
+            onClose={() => {
+                setIsDeletePaymentOpen(false);
+                setDeletingPaymentId(null);
+            }}
+            onConfirm={handleDeletePayment}
+            paymentType={deletingPaymentId ? payments.find(p => p.id === deletingPaymentId)?.type : undefined}
+            paymentBalance={deletingPaymentId ? payments.find(p => p.id === deletingPaymentId)?.balance : undefined}
+        />
     </div>
     )
 }
