@@ -32,6 +32,10 @@ export default function InvoicePage() {
     const [deletingBillId, setDeletingBillId] = useState<string | null>(null);
     const [deletingPaymentId, setDeletingPaymentId] = useState<string | null>(null);
 
+    // Sorting state
+    const [dueBySortOrder, setDueBySortOrder] = useState<'asc' | 'desc' | null>(null);
+    const [dateCreatedSortOrder, setDateCreatedSortOrder] = useState<'asc' | 'desc' | null>(null);
+
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -144,6 +148,44 @@ export default function InvoicePage() {
         }
     };
 
+    const toggleDueBySort = () => {
+        if (dueBySortOrder === null) {
+            setDueBySortOrder('desc');
+            setDateCreatedSortOrder(null); // Clear other sort
+        } else if (dueBySortOrder === 'desc') {
+            setDueBySortOrder('asc');
+        } else {
+            setDueBySortOrder(null);
+        }
+    };
+
+    const toggleDateCreatedSort = () => {
+        if (dateCreatedSortOrder === null) {
+            setDateCreatedSortOrder('desc');
+            setDueBySortOrder(null); // Clear other sort
+        } else if (dateCreatedSortOrder === 'desc') {
+            setDateCreatedSortOrder('asc');
+        } else {
+            setDateCreatedSortOrder(null);
+        }
+    };
+
+    // Sort bills based on active sort order
+    let sortedBills = [...bills];
+    if (dueBySortOrder) {
+        sortedBills.sort((a, b) => {
+            const dateA = new Date(a.dueBy + 'T00:00:00').getTime();
+            const dateB = new Date(b.dueBy + 'T00:00:00').getTime();
+            return dueBySortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+    } else if (dateCreatedSortOrder) {
+        sortedBills.sort((a, b) => {
+            const dateA = a.createdAt.getTime();
+            const dateB = b.createdAt.getTime();
+            return dateCreatedSortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+    }
+
     return (
     <div className="w-full bg-white">
         {/* Breadcrumbs */}
@@ -186,10 +228,52 @@ export default function InvoicePage() {
                             <th className="pl-4 pr-4 py-2 w-[3%]">
                             </th>
                             <th className="pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
-                                Due By
+                                <button
+                                    onClick={toggleDueBySort}
+                                    className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors"
+                                >
+                                    Due By
+                                    <div className="flex flex-col -space-y-2 -mx-0.5">
+                                        <svg
+                                            className={`w-3 h-3 ${dueBySortOrder === 'asc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z" />
+                                        </svg>
+                                        <svg
+                                            className={`w-3 h-3 ${dueBySortOrder === 'desc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z" />
+                                        </svg>
+                                    </div>
+                                </button>
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
-                                Date Created
+                                <button
+                                    onClick={toggleDateCreatedSort}
+                                    className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors"
+                                >
+                                    Date Created
+                                    <div className="flex flex-col -space-y-2 -mx-0.5">
+                                        <svg
+                                            className={`w-3 h-3 ${dateCreatedSortOrder === 'asc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z" />
+                                        </svg>
+                                        <svg
+                                            className={`w-3 h-3 ${dateCreatedSortOrder === 'desc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z" />
+                                        </svg>
+                                    </div>
+                                </button>
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
                                 Type
@@ -210,14 +294,14 @@ export default function InvoicePage() {
                         </tr>
                     </thead>
                     <tbody className="bg-white">
-                        {bills.length === 0 ? (
+                        {sortedBills.length === 0 ? (
                             <tr>
                                 <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-500">
                                     No transactions found for this property
                                 </td>
                             </tr>
                         ) : (
-                            bills.map((bill) => {
+                            sortedBills.map((bill) => {
                                 const billPayments = getBillPayments(bill.id);
                                 const remainingBalance = getRemainingBalance(bill.id, bill.balance);
                                 const status = getBillStatus(bill.id, bill.balance);
