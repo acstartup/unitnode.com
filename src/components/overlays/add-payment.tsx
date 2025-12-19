@@ -34,6 +34,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
     const [selectedBillIds, setSelectedBillIds] = useState<Set<string>>(new Set());
+    const [billAllocations, setBillAllocations] = useState<Map<string, string>>(new Map());
 
     // Get available credit for the selected property
     const availableCredit = selectedPropertyId ? getPropertyCredit(selectedPropertyId) : 0;
@@ -55,6 +56,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setIsAddToCreditChecked(false);
             setAddToCreditAmount('');
             setSelectedBillIds(new Set());
+            setBillAllocations(new Map());
         }
     }, [isOpen]);
 
@@ -71,35 +73,64 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         return billBalance - totalPaid;
     };
 
-    // Update selected bills total when bill selection changes
+    // Update selected bills total when bill allocations change
     useEffect(() => {
-        const total = bills
-            .filter(bill => selectedBillIds.has(bill.id))
-            .reduce((sum, bill) => sum + getRemainingBalance(bill.id, bill.balance), 0);
+        const total = Array.from(selectedBillIds).reduce((sum, billId) => {
+            const allocation = parseFloat(billAllocations.get(billId) || '0') || 0;
+            return sum + allocation;
+        }, 0);
         setSelectedBillsTotal(total);
         setSelectedBillsCount(selectedBillIds.size);
-    }, [selectedBillIds, bills, propertyPayments]);
+    }, [selectedBillIds, billAllocations]);
 
     const toggleBillSelection = (billId: string) => {
         const newSelected = new Set(selectedBillIds);
+        const newAllocations = new Map(billAllocations);
+
         if (newSelected.has(billId)) {
             newSelected.delete(billId);
+            newAllocations.delete(billId);
         } else {
-            // Check if adding this bill would exceed the available balance
+            newSelected.add(billId);
+            // Calculate available balance (payment amount + credit - already allocated)
+            const paymentAmount = parseFloat(balance) || 0;
+            const currentlyAllocated = Array.from(selectedBillIds).reduce((sum, id) => {
+                return sum + (parseFloat(billAllocations.get(id) || '0') || 0);
+            }, 0);
+            const availableBalance = paymentAmount + (isUtilizeCreditChecked ? availableCredit : 0) - currentlyAllocated;
+
+            // Set default allocation to the minimum of remaining bill balance or available balance
             const bill = bills.find(b => b.id === billId);
             if (bill) {
-                const billRemainingBalance = getRemainingBalance(bill.id, bill.balance);
-                const newTotal = selectedBillsTotal + billRemainingBalance;
-                const availableBalance = paymentAmount + (isUtilizeCreditChecked ? availableCredit : 0);
-
-                if (newTotal > availableBalance) {
-                    showToast('Cannot select bill: total would exceed payment balance', 'error');
-                    return; // Don't select the bill if it would exceed available balance
-                }
+                const billRemainingBalance = getRemainingBalance(billId, bill.balance);
+                const allocation = Math.min(billRemainingBalance, Math.max(0, availableBalance));
+                newAllocations.set(billId, allocation.toFixed(2));
             }
-            newSelected.add(billId);
         }
         setSelectedBillIds(newSelected);
+        setBillAllocations(newAllocations);
+    };
+
+    const handleAllocationChange = (billId: string, value: string) => {
+        // Allow empty string or valid number input
+        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+            const newAllocations = new Map(billAllocations);
+            newAllocations.set(billId, value);
+
+            // Check if total allocations exceed available balance
+            const paymentAmount = parseFloat(balance) || 0;
+            const totalAllocated = Array.from(selectedBillIds).reduce((sum, id) => {
+                const allocation = id === billId ? (parseFloat(value) || 0) : (parseFloat(billAllocations.get(id) || '0') || 0);
+                return sum + allocation;
+            }, 0);
+            const availableBalance = paymentAmount + (isUtilizeCreditChecked ? availableCredit : 0);
+
+            if (totalAllocated > availableBalance) {
+                showToast('Total allocations exceed available balance', 'error');
+            }
+
+            setBillAllocations(newAllocations);
+        }
     };
 
     const formatDate = (dateString: string) => {
@@ -161,25 +192,11 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                 paymentAmountValue = paymentAmountValue; // Keep original payment amount
             }
 
-            // Calculate how to distribute the payment across selected bills
-            const selectedBills = bills.filter(bill => selectedBillIds.has(bill.id));
-
-            const appliedToBills = selectedBills.map(bill => ({
-                billId: bill.id,
-                amount: getRemainingBalance(bill.id, bill.balance)
+            // Use the user-specified allocations for each bill
+            const appliedToBills = Array.from(selectedBillIds).map(billId => ({
+                billId: billId,
+                amount: parseFloat(billAllocations.get(billId) || '0') || 0
             }));
-
-            // If payment is split across bills, distribute proportionally
-            if (selectedBills.length > 0) {
-                const totalBillAmount = selectedBills.reduce((sum, bill) => sum + getRemainingBalance(bill.id, bill.balance), 0);
-                const paymentToDistribute = Math.min(paymentAmountValue, totalBillAmount);
-
-                appliedToBills.forEach((applied, index) => {
-                    const bill = selectedBills[index];
-                    const billRemainingBalance = getRemainingBalance(bill.id, bill.balance);
-                    applied.amount = (billRemainingBalance / totalBillAmount) * paymentToDistribute;
-                });
-            }
 
             // Handle add to credit - add remaining balance to credit
             const totalApplied = appliedToBills.reduce((sum, applied) => sum + applied.amount, 0);
@@ -461,54 +478,69 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                     </div>
                                 ) : (
                                     <div className="space-y-2">
-                                        {bills.filter(bill => getRemainingBalance(bill.id, bill.balance) > 0).map((bill) => (
-                                            <div
-                                                key={bill.id}
-                                                onClick={() => toggleBillSelection(bill.id)}
-                                                className="flex items-start gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer transition-colors"
-                                            >
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedBillIds.has(bill.id)}
-                                                    onChange={() => toggleBillSelection(bill.id)}
-                                                    className="mt-0.5 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                />
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-0.5">
-                                                        <span className="text-xs font-medium text-gray-900">{bill.type}</span>
-                                                        <span className="text-xs font-semibold text-red-600">
-                                                            -${getRemainingBalance(bill.id, bill.balance).toFixed(2)}
-                                                        </span>
-                                                        <div className="flex items-center gap-1">
-                                                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                                                                bill.status === 'Paid'
-                                                                    ? 'bg-green-100 text-green-800'
-                                                                    : bill.status === 'Partial Paid'
-                                                                    ? 'bg-yellow-100 text-yellow-800'
-                                                                    : 'bg-gray-100 text-gray-800'
-                                                            }`}>
-                                                                {bill.status}
+                                        {bills.filter(bill => getRemainingBalance(bill.id, bill.balance) > 0).map((bill) => {
+                                            const remainingBalance = getRemainingBalance(bill.id, bill.balance);
+                                            const isSelected = selectedBillIds.has(bill.id);
+
+                                            return (
+                                                <div
+                                                    key={bill.id}
+                                                    className="flex items-start gap-2 p-2 rounded hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleBillSelection(bill.id)}
+                                                        className="mt-0.5 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 mb-0.5">
+                                                            <span className="text-xs font-medium text-gray-900">{bill.type}</span>
+                                                            <span className="text-xs font-semibold text-red-600">
+                                                                -${remainingBalance.toFixed(2)}
                                                             </span>
-                                                            {isLate(bill.dueBy, bill.status) && (
-                                                                <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800">
-                                                                    Late
+                                                            <div className="flex items-center gap-1">
+                                                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                                                    bill.status === 'Paid'
+                                                                        ? 'bg-green-100 text-green-800'
+                                                                        : bill.status === 'Partial Paid'
+                                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                                        : 'bg-gray-100 text-gray-800'
+                                                                }`}>
+                                                                    {bill.status}
                                                                 </span>
+                                                                {isLate(bill.dueBy, bill.status) && (
+                                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800">
+                                                                        Late
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-1">
+                                                            <span>Due: {formatDate(bill.dueBy)}</span>
+                                                            {bill.description && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span className="truncate">{bill.description}</span>
+                                                                </>
                                                             )}
                                                         </div>
-                                                    </div>
-                                                    <div className="flex items-center gap-2 text-[11px] text-gray-500">
-                                                        <span>Due: {formatDate(bill.dueBy)}</span>
-                                                        {bill.description && (
-                                                            <>
-                                                                <span>•</span>
-                                                                <span className="truncate">{bill.description}</span>
-                                                            </>
-                                                        )}
+                                                        <div className="flex items-center gap-2 mt-1">
+                                                            <span className="text-xs text-gray-600">Pay:</span>
+                                                            <input
+                                                                type="text"
+                                                                value={billAllocations.get(bill.id) || ''}
+                                                                onChange={(e) => handleAllocationChange(bill.id, e.target.value)}
+                                                                disabled={!isSelected}
+                                                                placeholder="0.00"
+                                                                className="w-24 px-2 py-1 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                                                onClick={(e) => e.stopPropagation()}
+                                                            />
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>

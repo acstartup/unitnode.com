@@ -279,7 +279,7 @@ export default function InvoicePage() {
                                             <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
                                             <td className="px-4 py-1 text-sm whitespace-nowrap">
                                                 <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-red-600'}`}>
-                                                    -${bill.balance.toFixed(2)}
+                                                    -${remainingBalance.toFixed(2)}
                                                 </span>
                                             </td>
                                             <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
