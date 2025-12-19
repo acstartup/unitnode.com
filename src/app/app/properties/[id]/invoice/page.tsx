@@ -36,6 +36,12 @@ export default function InvoicePage() {
     const [dueBySortOrder, setDueBySortOrder] = useState<'asc' | 'desc' | null>(null);
     const [dateCreatedSortOrder, setDateCreatedSortOrder] = useState<'asc' | 'desc' | null>(null);
 
+    // Filter state
+    const [showDescriptionFilter, setShowDescriptionFilter] = useState(false);
+    const [selectedDescriptions, setSelectedDescriptions] = useState<string[]>([]);
+    const [descriptionFilterInput, setDescriptionFilterInput] = useState('');
+    const descriptionFilterRef = useRef<HTMLDivElement>(null);
+
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -45,16 +51,19 @@ export default function InvoicePage() {
                     setOpenDropdownId(null);
                 }
             }
+            if (descriptionFilterRef.current && !descriptionFilterRef.current.contains(event.target as Node)) {
+                setShowDescriptionFilter(false);
+            }
         };
 
-        if (openDropdownId) {
+        if (openDropdownId || showDescriptionFilter) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [openDropdownId]);
+    }, [openDropdownId, showDescriptionFilter]);
 
     const toggleBillExpansion = (billId: string) => {
         const newExpanded = new Set(expandedBills);
@@ -170,8 +179,37 @@ export default function InvoicePage() {
         }
     };
 
+    const applyDescriptionFilter = () => {
+        const trimmedInput = descriptionFilterInput.trim();
+        if (trimmedInput && !selectedDescriptions.includes(trimmedInput)) {
+            setSelectedDescriptions([...selectedDescriptions, trimmedInput]);
+        }
+        setDescriptionFilterInput('');
+        setShowDescriptionFilter(false);
+    };
+
+    const removeDescriptionFilter = (description: string) => {
+        setSelectedDescriptions(prev => prev.filter(d => d !== description));
+    };
+
+    const clearFilters = () => {
+        setSelectedDescriptions([]);
+        setDescriptionFilterInput('');
+    };
+
+    // Filter bills based on selected descriptions
+    let filteredBills = bills;
+    if (selectedDescriptions.length > 0) {
+        filteredBills = filteredBills.filter(bill => {
+            if (!bill.description) return false;
+            return selectedDescriptions.some(description =>
+                bill.description.toLowerCase().includes(description.toLowerCase())
+            );
+        });
+    }
+
     // Sort bills based on active sort order
-    let sortedBills = [...bills];
+    let sortedBills = [...filteredBills];
     if (dueBySortOrder) {
         sortedBills.sort((a, b) => {
             const dateA = new Date(a.dueBy + 'T00:00:00').getTime();
@@ -214,8 +252,99 @@ export default function InvoicePage() {
         </div>
 
         {/* Header */}
-        <div className="mb-8">
-            <h1 className="text-3xl font-semibold text-gray-900 px-8">Invoice</h1>
+        <div className="mb-1">
+            <h1 className="text-3xl font-semibold text-gray-900 px-8 py-6">Invoice</h1>
+        </div>
+
+        {/* Filter Bar */}
+        <div className="px-8 mb-2 min-h-[32px] flex items-center gap-2 flex-wrap">
+            <div className="relative" ref={descriptionFilterRef}>
+                <button
+                    onClick={() => setShowDescriptionFilter(!showDescriptionFilter)}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        selectedDescriptions.length > 0
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Description
+                </button>
+
+                {/* Dropdown */}
+                {showDescriptionFilter && (
+                    <div className="absolute top-full mt-1 w-64 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3">
+                        <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                            Filter by: Description
+                        </label>
+                        <input
+                            type="text"
+                            value={descriptionFilterInput}
+                            onChange={(e) => setDescriptionFilterInput(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    applyDescriptionFilter();
+                                }
+                            }}
+                            placeholder=""
+                            className="w-full px-3 py-1 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent mb-2"
+                        />
+                        <div className="flex justify-center">
+                            <button
+                                onClick={applyDescriptionFilter}
+                                disabled={!descriptionFilterInput.trim()}
+                                className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                    descriptionFilterInput.trim()
+                                        ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Active Filter Chips */}
+            {selectedDescriptions.map((description) => (
+                <div
+                    key={description}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300"
+                >
+                    <span>{description}</span>
+                    <button
+                        onClick={() => removeDescriptionFilter(description)}
+                        className="hover:text-gray-900 transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            ))}
+
+            {/* Clear All Filters */}
+            {selectedDescriptions.length > 0 && (
+                <button
+                    onClick={clearFilters}
+                    className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                >
+                    Clear all
+                </button>
+            )}
         </div>
 
         {/* Table Container */}
@@ -251,7 +380,7 @@ export default function InvoicePage() {
                                     </div>
                                 </button>
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[12%]">
                                 <button
                                     onClick={toggleDateCreatedSort}
                                     className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors"
