@@ -116,19 +116,6 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         if (value === '' || /^\d*\.?\d*$/.test(value)) {
             const newAllocations = new Map(billAllocations);
             newAllocations.set(billId, value);
-
-            // Check if total allocations exceed available balance
-            const paymentAmount = parseFloat(balance) || 0;
-            const totalAllocated = Array.from(selectedBillIds).reduce((sum, id) => {
-                const allocation = id === billId ? (parseFloat(value) || 0) : (parseFloat(billAllocations.get(id) || '0') || 0);
-                return sum + allocation;
-            }, 0);
-            const availableBalance = paymentAmount + (isUtilizeCreditChecked ? availableCredit : 0);
-
-            if (totalAllocated > availableBalance) {
-                showToast('Total allocations exceed available balance', 'error');
-            }
-
             setBillAllocations(newAllocations);
         }
     };
@@ -563,8 +550,15 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                     return;
                                 }
 
-                                if (!balance) {
+                                // Only require balance if not using credit exclusively
+                                if (!balance && !isUtilizeCreditChecked) {
                                     showToast('Please enter a payment amount', 'error');
+                                    return;
+                                }
+
+                                // Check if allocations exceed available balance
+                                if (undistributedBalance < 0) {
+                                    showToast('Total allocations exceed available balance', 'error');
                                     return;
                                 }
 
