@@ -115,6 +115,20 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         // Allow empty string or valid number input
         if (value === '' || /^\d*\.?\d*$/.test(value)) {
             const newAllocations = new Map(billAllocations);
+
+            // Get the bill's remaining balance
+            const bill = bills.find(b => b.id === billId);
+            if (bill) {
+                const billRemainingBalance = getRemainingBalance(billId, bill.balance);
+                const inputValue = parseFloat(value) || 0;
+
+                // Prevent allocation from exceeding bill's remaining balance
+                if (inputValue > billRemainingBalance) {
+                    showToast(`Cannot allocate more than $${billRemainingBalance.toFixed(2)} to this bill`, 'error');
+                    return;
+                }
+            }
+
             newAllocations.set(billId, value);
             setBillAllocations(newAllocations);
         }
