@@ -472,13 +472,13 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                             return (
                                                 <div
                                                     key={bill.id}
-                                                    className="flex items-start gap-2 p-2 rounded hover:bg-gray-50 transition-colors"
+                                                    className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 transition-colors"
                                                 >
                                                     <input
                                                         type="checkbox"
                                                         checked={isSelected}
                                                         onChange={() => toggleBillSelection(bill.id)}
-                                                        className="mt-0.5 w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                                                     />
                                                     <div className="flex-1 min-w-0">
                                                         <div className="flex items-center gap-2 mb-0.5">
@@ -503,7 +503,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                                                 )}
                                                             </div>
                                                         </div>
-                                                        <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-1">
+                                                        <div className="flex items-center gap-2 text-[11px] text-gray-500">
                                                             <span>Due: {formatDate(bill.dueBy)}</span>
                                                             {bill.description && (
                                                                 <>
@@ -512,18 +512,18 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                                                 </>
                                                             )}
                                                         </div>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <span className="text-xs text-gray-600">Pay:</span>
-                                                            <input
-                                                                type="text"
-                                                                value={billAllocations.get(bill.id) || ''}
-                                                                onChange={(e) => handleAllocationChange(bill.id, e.target.value)}
-                                                                disabled={!isSelected}
-                                                                placeholder="0.00"
-                                                                className="w-24 px-2 py-1 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-                                                                onClick={(e) => e.stopPropagation()}
-                                                            />
-                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 ml-2">
+                                                        <span className="text-xs text-gray-600">Pay:</span>
+                                                        <input
+                                                            type="text"
+                                                            value={billAllocations.get(bill.id) || ''}
+                                                            onChange={(e) => handleAllocationChange(bill.id, e.target.value)}
+                                                            disabled={!isSelected}
+                                                            placeholder="0.00"
+                                                            className="w-24 px-2 py-1 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        />
                                                     </div>
                                                 </div>
                                             );
