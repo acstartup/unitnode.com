@@ -41,6 +41,9 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         { id: '1', name: '', phone: '', relation: 'Main' }
     ]);
     const [utilityType, setUtilityType] = useState('Rent');
+    const [startDate, setStartDate] = useState('');
+    const [showCalendar, setShowCalendar] = useState(false);
+    const [currentMonth, setCurrentMonth] = useState(new Date());
     const [utilityRecurrence, setUtilityRecurrence] = useState('Monthly');
     const [utilityCost, setUtilityCost] = useState('');
     const [mounted, setMounted] = useState(false);
@@ -66,6 +69,13 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
             setSelectedPropertyId('');
             setTenants([{ id: '1', name: '', phone: '', relation: 'Main'}]);
             setUtilityType('Rent');
+
+            // Set default start date to first day of next month
+            const today = new Date();
+            const firstOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            const formattedDate = firstOfNextMonth.toISOString().split('T')[0];
+            setStartDate(formattedDate);
+
             setUtilityRecurrence('Monthly');
             setUtilityCost('');
             setFilteredProperties([]);
@@ -94,6 +104,57 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         'Friend',
         'Other'
     ];
+
+    // Calendar helper functions
+    const getDaysInMonth = (date: Date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const daysInMonth = lastDay.getDate();
+        const startingDayOfWeek = firstDay.getDay();
+
+        return { daysInMonth, startingDayOfWeek };
+    };
+
+    const formatDateForInput = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
+
+    const formatDateForDisplay = (dateString: string) => {
+        if (!dateString) return '';
+        const date = new Date(dateString + 'T00:00:00');
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+    };
+
+    const handleDateSelect = (day: number) => {
+        const selectedDate = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day);
+        setStartDate(formatDateForInput(selectedDate));
+        setShowCalendar(false);
+    };
+
+    const changeMonth = (direction: number) => {
+        setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + direction, 1));
+    };
+
+    const isSelectedDate = (day: number) => {
+        if (!startDate) return false;
+        const selected = new Date(startDate + 'T00:00:00');
+        return selected.getDate() === day &&
+               selected.getMonth() === currentMonth.getMonth() &&
+               selected.getFullYear() === currentMonth.getFullYear();
+    };
+
+    const isToday = (day: number) => {
+        const today = new Date();
+        return today.getDate() === day &&
+               today.getMonth() === currentMonth.getMonth() &&
+               today.getFullYear() === currentMonth.getFullYear();
+    };
 
     const addTenant = () => {
         const newId = Math.max(...tenants.map(t => parseInt(t.id)), 0) + 1;
@@ -354,7 +415,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     </div>
 
                                     {/* Relation Dropdown */}
-                                    <div className="flex-[0.6]">
+                                    <div className="flex-[1.3]">
                                         {index === 0 && (
                                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                                 Relation
@@ -456,7 +517,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                         
                         <div className="flex gap-3">
                             {/* Type Dropdown */}
-                            <div className="flex-[1.3]">
+                            <div className="flex-[0.6]">
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
                                     Type
                                 </label>
@@ -483,6 +544,117 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                         />
                                     </svg>
                                 </div>
+                            </div>
+
+                            {/* Start Date */}
+                            <div className="flex-[0.6] relative">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Start date
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={formatDateForDisplay(startDate)}
+                                        onFocus={() => selectedPropertyId && setShowCalendar(true)}
+                                        readOnly
+                                        disabled={!selectedPropertyId}
+                                        className="w-full px-3 py-1.5 pr-10 bg-white border border-gray-300 rounded-md text-sm focus:outline-none disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed cursor-pointer"
+                                        placeholder="Select date"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => selectedPropertyId && setShowCalendar(!showCalendar)}
+                                        disabled={!selectedPropertyId}
+                                        className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </button>
+                                </div>
+
+                                {/* Calendar Dropdown */}
+                                {showCalendar && selectedPropertyId && (
+                                    <>
+                                        <div
+                                            className="fixed inset-0 z-[10000]"
+                                            onClick={() => setShowCalendar(false)}
+                                        />
+                                        <div className="absolute z-[10001] mt-1 w-50 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                                            {/* Calendar Header */}
+                                            <div className="flex items-center justify-between mb-1 -mt-0.5">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => changeMonth(-1)}
+                                                    className=" hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                                    </svg>
+                                                </button>
+                                                <div className="text-xs font-semibold">
+                                                    {currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => changeMonth(1)}
+                                                    className="hover:bg-gray-100 rounded transition-colors"
+                                                >
+                                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+
+                                            {/* Day Labels */}
+                                            <div className="grid grid-cols-7 gap-0 -mb-0">
+                                                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                                                    <div key={day} className="text-center text-[10px] font-medium text-gray-600 py-0.25">
+                                                        {day}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* Calendar Days */}
+                                            <div className="grid grid-cols-7 gap-0 -mb-2">
+                                                {(() => {
+                                                    const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentMonth);
+                                                    const days = [];
+
+                                                    // Empty cells before first day
+                                                    for (let i = 0; i < startingDayOfWeek; i++) {
+                                                        days.push(<div key={`empty-${i}`} className="h-6" />);
+                                                    }
+
+                                                    // Days of month
+                                                    for (let day = 1; day <= daysInMonth; day++) {
+                                                        const selected = isSelectedDate(day);
+                                                        const today = isToday(day);
+
+                                                        days.push(
+                                                            <button
+                                                                key={day}
+                                                                type="button"
+                                                                onClick={() => handleDateSelect(day)}
+                                                                className={`h-6 text-xs rounded transition-colors ${
+                                                                    selected
+                                                                        ? 'bg-black text-white font-semibold'
+                                                                        : today
+                                                                        ? 'bg-gray-200 font-semibold hover:bg-gray-300'
+                                                                        : 'hover:bg-gray-100'
+                                                                }`}
+                                                            >
+                                                                {day}
+                                                            </button>
+                                                        );
+                                                    }
+
+                                                    return days;
+                                                })()}
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                             </div>
 
                             {/* Recurrence Dropdown */}
