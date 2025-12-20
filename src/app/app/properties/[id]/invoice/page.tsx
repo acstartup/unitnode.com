@@ -42,6 +42,16 @@ export default function InvoicePage() {
     const [descriptionFilterInput, setDescriptionFilterInput] = useState('');
     const descriptionFilterRef = useRef<HTMLDivElement>(null);
 
+    const [showBalanceFilter, setShowBalanceFilter] = useState(false);
+    const [balanceMin, setBalanceMin] = useState('');
+    const [balanceMax, setBalanceMax] = useState('');
+    const [activeBalanceRange, setActiveBalanceRange] = useState<{min: number | null, max: number | null} | null>(null);
+    const balanceFilterRef = useRef<HTMLDivElement>(null);
+
+    const [showMethodFilter, setShowMethodFilter] = useState(false);
+    const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
+    const methodFilterRef = useRef<HTMLDivElement>(null);
+
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -54,16 +64,22 @@ export default function InvoicePage() {
             if (descriptionFilterRef.current && !descriptionFilterRef.current.contains(event.target as Node)) {
                 setShowDescriptionFilter(false);
             }
+            if (balanceFilterRef.current && !balanceFilterRef.current.contains(event.target as Node)) {
+                setShowBalanceFilter(false);
+            }
+            if (methodFilterRef.current && !methodFilterRef.current.contains(event.target as Node)) {
+                setShowMethodFilter(false);
+            }
         };
 
-        if (openDropdownId || showDescriptionFilter) {
+        if (openDropdownId || showDescriptionFilter || showBalanceFilter || showMethodFilter) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [openDropdownId, showDescriptionFilter]);
+    }, [openDropdownId, showDescriptionFilter, showBalanceFilter, showMethodFilter]);
 
     const toggleBillExpansion = (billId: string) => {
         const newExpanded = new Set(expandedBills);
@@ -192,9 +208,45 @@ export default function InvoicePage() {
         setSelectedDescriptions(prev => prev.filter(d => d !== description));
     };
 
+    const applyBalanceFilter = () => {
+        const min = balanceMin ? parseFloat(balanceMin) : null;
+        const max = balanceMax ? parseFloat(balanceMax) : null;
+
+        if (min !== null || max !== null) {
+            setActiveBalanceRange({ min, max });
+        }
+        setBalanceMin('');
+        setBalanceMax('');
+        setShowBalanceFilter(false);
+    };
+
+    const removeBalanceFilter = () => {
+        setActiveBalanceRange(null);
+        setBalanceMin('');
+        setBalanceMax('');
+    };
+
+    const applyMethodFilter = () => {
+        setShowMethodFilter(false);
+    };
+
+    const toggleMethodSelection = (method: string) => {
+        setSelectedMethods(prev => {
+            if (prev.includes(method)) {
+                return prev.filter(m => m !== method);
+            } else {
+                return [...prev, method];
+            }
+        });
+    };
+
     const clearFilters = () => {
         setSelectedDescriptions([]);
         setDescriptionFilterInput('');
+        setActiveBalanceRange(null);
+        setBalanceMin('');
+        setBalanceMax('');
+        setSelectedMethods([]);
     };
 
     // Filter bills based on selected descriptions
@@ -205,6 +257,23 @@ export default function InvoicePage() {
             return selectedDescriptions.some(description =>
                 bill.description.toLowerCase().includes(description.toLowerCase())
             );
+        });
+    }
+
+    // Filter by balance range
+    if (activeBalanceRange) {
+        filteredBills = filteredBills.filter(bill => {
+            const balance = bill.balance || 0;
+            if (activeBalanceRange.min !== null && balance < activeBalanceRange.min) return false;
+            if (activeBalanceRange.max !== null && balance > activeBalanceRange.max) return false;
+            return true;
+        });
+    }
+
+    // Filter by selected methods (payment types)
+    if (selectedMethods.length > 0) {
+        filteredBills = filteredBills.filter(bill => {
+            return selectedMethods.includes(bill.type);
         });
     }
 
@@ -336,8 +405,181 @@ export default function InvoicePage() {
                 </div>
             ))}
 
+            {/* Balance Range Filter */}
+            <div className="relative" ref={balanceFilterRef}>
+                <button
+                    onClick={() => setShowBalanceFilter(!showBalanceFilter)}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        activeBalanceRange
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Balance
+                </button>
+
+                {/* Dropdown */}
+                {showBalanceFilter && (
+                    <div className="absolute top-full mt-1 w-61.5 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3">
+                        <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                            Filter by: Balance Range
+                        </label>
+                        <div className="flex gap-2 mb-2 -mx-1">
+                            <input
+                                type="number"
+                                value={balanceMin}
+                                onChange={(e) => setBalanceMin(e.target.value)}
+                                placeholder="Min"
+                                className="w-27.5 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                            />
+                            <input
+                                type="number"
+                                value={balanceMax}
+                                onChange={(e) => setBalanceMax(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        applyBalanceFilter();
+                                    }
+                                }}
+                                placeholder="Max"
+                                className="w-27.5 px-2 py-1 text-xs border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+                            />
+                        </div>
+                        <div className="flex justify-center">
+                            <button
+                                onClick={applyBalanceFilter}
+                                disabled={!balanceMin.trim() && !balanceMax.trim()}
+                                className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                    balanceMin.trim() || balanceMax.trim()
+                                        ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Active Balance Range Chip */}
+            {activeBalanceRange && (
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300">
+                    <span>
+                        ${activeBalanceRange.min ?? 0} - ${activeBalanceRange.max ?? '∞'}
+                    </span>
+                    <button
+                        onClick={removeBalanceFilter}
+                        className="hover:text-gray-900 transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            )}
+
+            {/* Method Filter */}
+            <div className="relative" ref={methodFilterRef}>
+                <button
+                    onClick={() => setShowMethodFilter(!showMethodFilter)}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        selectedMethods.length > 0
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Method
+                </button>
+
+                {/* Dropdown */}
+                {showMethodFilter && (
+                    <div className="absolute top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3">
+                        <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                            Filter by: Method
+                        </label>
+                        <div className="space-y-1.5 mb-2">
+                            {['Cash', 'Check', 'Credit', 'Money Order', 'Other'].map((method) => (
+                                <div key={method} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id={`method-${method}`}
+                                        checked={selectedMethods.includes(method)}
+                                        onChange={() => toggleMethodSelection(method)}
+                                        className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
+                                    />
+                                    <label
+                                        htmlFor={`method-${method}`}
+                                        className="ml-2 text-xs text-gray-700 cursor-pointer"
+                                    >
+                                        {method}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-center">
+                            <button
+                                onClick={applyMethodFilter}
+                                disabled={selectedMethods.length === 0}
+                                className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                    selectedMethods.length > 0
+                                        ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Active Method Filter Chips */}
+            {selectedMethods.map((method) => (
+                <div
+                    key={method}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300"
+                >
+                    <span>{method}</span>
+                    <button
+                        onClick={() => toggleMethodSelection(method)}
+                        className="hover:text-gray-900 transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            ))}
+
             {/* Clear All Filters */}
-            {selectedDescriptions.length > 0 && (
+            {(selectedDescriptions.length > 0 || activeBalanceRange || selectedMethods.length > 0) && (
                 <button
                     onClick={clearFilters}
                     className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
