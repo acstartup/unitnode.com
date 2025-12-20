@@ -20,6 +20,17 @@ export interface Bill {
     createdAt: Date;
 }
 
+export interface Payment {
+    id: string;
+    propertyId: string;
+    type: string;
+    referenceNumber: string;
+    balance: number;
+    description: string;
+    appliedToBills: { billId: string; amount: number }[];
+    createdAt: Date;
+}
+
 export interface Property {
     id: string;
     address: string;
@@ -31,15 +42,23 @@ export interface Property {
     ownerName?: string;
     ownerEmail?: string;
     ownerPhone?: string;
+    credit?: number;
     createdAt: Date;
 }
 
 interface PropertyContextType {
     properties: Property[];
     addProperty: (property: Omit<Property, 'id' | 'createdAt'>) => Promise<void>;
+    updatePropertyCredit: (propertyId: string, creditChange: number) => void;
+    getPropertyCredit: (propertyId: string) => number;
     bills: Bill[];
     addBill: (bill: Omit<Bill, 'id' | 'createdAt' | 'status'>) => Promise<void>;
+    deleteBill: (billId: string) => Promise<void>;
     getBillsByProperty: (propertyId: string) => Bill[];
+    payments: Payment[];
+    addPayment: (payment: Omit<Payment, 'id' | 'createdAt'>) => Promise<void>;
+    deletePayment: (paymentId: string) => Promise<void>;
+    getPaymentsByProperty: (propertyId: string) => Payment[];
     isLoading: boolean;
 }
 
@@ -56,6 +75,7 @@ export function useProperties() {
 export function PropertyProvider({ children }: { children: ReactNode }) {
     const [properties, setProperties] = useState<Property[]>([]);
     const [bills, setBills] = useState<Bill[]>([]);
+    const [payments, setPayments] = useState<Payment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Fetch properties on mount
@@ -126,8 +146,71 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         localStorage.setItem('bills', JSON.stringify(billsArray));
     };
 
+    const deleteBill = async (billId: string) => {
+        // Remove from state
+        setBills(prev => prev.filter(bill => bill.id !== billId));
+
+        // Remove from localStorage
+        const storedBills = localStorage.getItem('bills');
+        if (storedBills) {
+            const billsArray = JSON.parse(storedBills);
+            const updatedBills = billsArray.filter((bill: Bill) => bill.id !== billId);
+            localStorage.setItem('bills', JSON.stringify(updatedBills));
+        }
+
+        // Also remove any payment associations with this bill
+        const storedPayments = localStorage.getItem('payments');
+        if (storedPayments) {
+            const paymentsArray = JSON.parse(storedPayments);
+            const updatedPayments = paymentsArray.map((payment: Payment) => ({
+                ...payment,
+                appliedToBills: payment.appliedToBills.filter(applied => applied.billId !== billId)
+            }));
+            localStorage.setItem('payments', JSON.stringify(updatedPayments));
+
+            // Update state
+            setPayments(updatedPayments.map((p: Payment) => ({
+                ...p,
+                createdAt: new Date(p.createdAt),
+            })));
+        }
+    };
+
     const getBillsByProperty = (propertyId: string) => {
         return bills.filter(bill => bill.propertyId === propertyId);
+    };
+
+    const addPayment = async (payment: Omit<Payment, 'id' | 'createdAt'>) => {
+        const newPayment: Payment = {
+            ...payment,
+            id: Date.now().toString(),
+            createdAt: new Date(),
+        };
+
+        setPayments(prev => [newPayment, ...prev]);
+
+        // Store in localStorage
+        const storedPayments = localStorage.getItem('payments');
+        const paymentsArray = storedPayments ? JSON.parse(storedPayments) : [];
+        paymentsArray.push(newPayment);
+        localStorage.setItem('payments', JSON.stringify(paymentsArray));
+    };
+
+    const deletePayment = async (paymentId: string) => {
+        // Remove from state
+        setPayments(prev => prev.filter(payment => payment.id !== paymentId));
+
+        // Remove from localStorage
+        const storedPayments = localStorage.getItem('payments');
+        if (storedPayments) {
+            const paymentsArray = JSON.parse(storedPayments);
+            const updatedPayments = paymentsArray.filter((payment: Payment) => payment.id !== paymentId);
+            localStorage.setItem('payments', JSON.stringify(updatedPayments));
+        }
+    };
+
+    const getPaymentsByProperty = (propertyId: string) => {
+        return payments.filter(payment => payment.propertyId === propertyId);
     };
 
     // Load bills from localStorage on mount
@@ -142,8 +225,51 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    // Load payments from localStorage on mount
+    useEffect(() => {
+        const storedPayments = localStorage.getItem('payments');
+        if (storedPayments) {
+            const paymentsArray = JSON.parse(storedPayments);
+            setPayments(paymentsArray.map((p: Payment) => ({
+                ...p,
+                createdAt: new Date(p.createdAt),
+            })));
+        }
+    }, []);
+
+    const updatePropertyCredit = (propertyId: string, creditChange: number) => {
+        setProperties(prevProperties => {
+            const updatedProperties = prevProperties.map(p => {
+                if (p.id === propertyId) {
+                    return { ...p, credit: (p.credit || 0) + creditChange };
+                }
+                return p;
+            });
+            return updatedProperties;
+        });
+    };
+
+    const getPropertyCredit = (propertyId: string): number => {
+        const property = properties.find(p => p.id === propertyId);
+        return property?.credit || 0;
+    };
+
     return (
-        <PropertyContext.Provider value={{ properties, addProperty, bills, addBill, getBillsByProperty, isLoading }}>
+        <PropertyContext.Provider value={{
+            properties,
+            addProperty,
+            updatePropertyCredit,
+            getPropertyCredit,
+            bills,
+            addBill,
+            deleteBill,
+            getBillsByProperty,
+            payments,
+            addPayment,
+            deletePayment,
+            getPaymentsByProperty,
+            isLoading
+        }}>
             {children}
         </PropertyContext.Provider>
     );

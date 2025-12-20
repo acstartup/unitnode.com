@@ -7,19 +7,20 @@ interface ToastProps {
     type: 'success' | 'error';
     onClose: () => void;
     duration?: number;
+    index?: number;
 }
 
 export default function Toast ({ message, type, onClose, duration = 3000 }: ToastProps) {
     useEffect(() => {
         const timer = setTimeout(() => {
-            onClose();  
+            onClose();
         }, duration);
 
         return () => clearTimeout(timer);
     }, [duration, onClose]);
 
     return (
-        <div className="fixed top-4 right-4 z-50 animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="animate-in fade-in slide-in-from-top-2 duration-300">
             <div className={`flex items-center gap-3 px-4 py-3 rounded-lg ${
                 type === 'success'
                     ? 'bg-green-50 border border-green-200'

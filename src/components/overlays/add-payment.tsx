@@ -12,7 +12,7 @@ interface AddPaymentOverlayProps {
 
 export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlayProps) {
     const [propertyAddress, setPropertyAddress] = useState('');
-    const [type, setType] = useState('Rent');
+    const [type, setType] = useState('Cash');
     const [referenceNumber, setReferenceNumber] = useState('');
     const [balance, setBalance] = useState('');
     const [description, setDescription] = useState('');
@@ -22,27 +22,31 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
     const [isAddToCreditChecked, setIsAddToCreditChecked] = useState(false);
     const [addToCreditAmount, setAddToCreditAmount] = useState('');
     const [mounted, setMounted] = useState(false);
+    const [showCreditConfirmation, setShowCreditConfirmation] = useState(false);
     const { showToast } = useToast();
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    // This would come from the property's credit balance in the future
-    const availableCredit = 0; // Placeholder for available credit amount
-
-    const { properties } = useProperties();
+    const { properties, getBillsByProperty, addPayment, getPaymentsByProperty, getPropertyCredit, updatePropertyCredit } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
+    const [selectedBillIds, setSelectedBillIds] = useState<Set<string>>(new Set());
+    const [billAllocations, setBillAllocations] = useState<Map<string, string>>(new Map());
+
+    // Get available credit for the selected property
+    const availableCredit = selectedPropertyId ? getPropertyCredit(selectedPropertyId) : 0;
 
     useEffect(() => {
         if (isOpen) {
+            // Reset for new payment
             setPropertyAddress('');
             setSelectedPropertyId('');
             setFilteredProperties([]);
             setShowPropertyDropdown(false);
-            setType('Rent');
+            setType('Cash');
             setReferenceNumber('');
             setBalance('');
             setDescription('');
@@ -51,8 +55,100 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setIsUtilizeCreditChecked(false);
             setIsAddToCreditChecked(false);
             setAddToCreditAmount('');
+            setSelectedBillIds(new Set());
+            setBillAllocations(new Map());
         }
     }, [isOpen]);
+
+    // Get bills and payments for selected property
+    const bills = selectedPropertyId ? getBillsByProperty(selectedPropertyId) : [];
+    const propertyPayments = selectedPropertyId ? getPaymentsByProperty(selectedPropertyId) : [];
+
+    // Calculate remaining balance for a bill
+    const getRemainingBalance = (billId: string, billBalance: number) => {
+        const totalPaid = propertyPayments.reduce((total, payment) => {
+            const applied = payment.appliedToBills?.find(a => a.billId === billId);
+            return total + (applied?.amount || 0);
+        }, 0);
+        return billBalance - totalPaid;
+    };
+
+    // Update selected bills total when bill allocations change
+    useEffect(() => {
+        const total = Array.from(selectedBillIds).reduce((sum, billId) => {
+            const allocation = parseFloat(billAllocations.get(billId) || '0') || 0;
+            return sum + allocation;
+        }, 0);
+        setSelectedBillsTotal(total);
+        setSelectedBillsCount(selectedBillIds.size);
+    }, [selectedBillIds, billAllocations]);
+
+    const toggleBillSelection = (billId: string) => {
+        const newSelected = new Set(selectedBillIds);
+        const newAllocations = new Map(billAllocations);
+
+        if (newSelected.has(billId)) {
+            newSelected.delete(billId);
+            newAllocations.delete(billId);
+        } else {
+            newSelected.add(billId);
+            // Calculate available balance (payment amount + credit - already allocated)
+            const paymentAmount = parseFloat(balance) || 0;
+            const currentlyAllocated = Array.from(selectedBillIds).reduce((sum, id) => {
+                return sum + (parseFloat(billAllocations.get(id) || '0') || 0);
+            }, 0);
+            const availableBalance = paymentAmount + (isUtilizeCreditChecked ? availableCredit : 0) - currentlyAllocated;
+
+            // Set default allocation to the minimum of remaining bill balance or available balance
+            const bill = bills.find(b => b.id === billId);
+            if (bill) {
+                const billRemainingBalance = getRemainingBalance(billId, bill.balance);
+                const allocation = Math.min(billRemainingBalance, Math.max(0, availableBalance));
+                newAllocations.set(billId, allocation.toFixed(2));
+            }
+        }
+        setSelectedBillIds(newSelected);
+        setBillAllocations(newAllocations);
+    };
+
+    const handleAllocationChange = (billId: string, value: string) => {
+        // Allow empty string or valid number input
+        if (value === '' || /^\d*\.?\d*$/.test(value)) {
+            const newAllocations = new Map(billAllocations);
+
+            // Get the bill's remaining balance
+            const bill = bills.find(b => b.id === billId);
+            if (bill) {
+                const billRemainingBalance = getRemainingBalance(billId, bill.balance);
+                const inputValue = parseFloat(value) || 0;
+
+                // Prevent allocation from exceeding bill's remaining balance
+                if (inputValue > billRemainingBalance) {
+                    showToast(`Cannot allocate more than $${billRemainingBalance.toFixed(2)} to this bill`, 'error');
+                    return;
+                }
+            }
+
+            newAllocations.set(billId, value);
+            setBillAllocations(newAllocations);
+        }
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString + 'T00:00:00');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${month}/${day}/${year}`;
+    };
+
+    const isLate = (dueBy: string, status: string) => {
+        if (status === 'Paid') return false;
+        const dueDate = new Date(dueBy + 'T00:00:00');
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return dueDate < today;
+    };
 
     // Calculate undistributed balance
     const paymentAmount = parseFloat(balance) || 0;
@@ -85,6 +181,51 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
     }
+
+    const handleAddPayment = async (creditRemainingAmount = false) => {
+        try {
+            let paymentAmountValue = parseFloat(balance);
+
+            // Handle utilize credit - reduce from available credit
+            if (isUtilizeCreditChecked && availableCredit > 0) {
+                const creditToUse = Math.min(availableCredit, paymentAmountValue);
+                updatePropertyCredit(selectedPropertyId, -creditToUse);
+                paymentAmountValue = paymentAmountValue; // Keep original payment amount
+            }
+
+            // Use the user-specified allocations for each bill
+            const appliedToBills = Array.from(selectedBillIds).map(billId => ({
+                billId: billId,
+                amount: parseFloat(billAllocations.get(billId) || '0') || 0
+            }));
+
+            // Handle add to credit - add remaining balance to credit
+            const totalApplied = appliedToBills.reduce((sum, applied) => sum + applied.amount, 0);
+            const remainingBalance = paymentAmountValue - totalApplied;
+
+            if (creditRemainingAmount || (isAddToCreditChecked && parseFloat(addToCreditAmount) > 0)) {
+                const creditAmount = creditRemainingAmount ? remainingBalance : parseFloat(addToCreditAmount);
+                if (creditAmount > 0) {
+                    updatePropertyCredit(selectedPropertyId, creditAmount);
+                }
+            }
+
+            await addPayment({
+                propertyId: selectedPropertyId,
+                type,
+                referenceNumber,
+                balance: paymentAmountValue,
+                description,
+                appliedToBills: appliedToBills,
+            });
+
+            showToast('Payment added successfully', 'success');
+            onClose();
+        } catch (error) {
+            console.error('Error adding payment:', error);
+            showToast('Failed to add payment', 'error');
+        }
+    };
 
     if (!isOpen || !mounted) return null;
 
@@ -180,7 +321,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         {/* Payment Section */}
-                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Payment information</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-400'}`}>Payment information</h2>
 
                         {/* First Row: Type, Reference #, Balance */}
                         <div className="flex gap-3 mb-3">
@@ -196,10 +337,10 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                         disabled={!selectedPropertyId}
                                         className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
                                     >
-                                        <option value="Rent">Cash</option>
-                                        <option value="Utilities">Check</option>
-                                        <option value="Maintenance">Credit</option>
-                                        <option value="Maintenance">Money Order</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Check">Check</option>
+                                        <option value="Credit">Credit</option>
+                                        <option value="Money Order">Money Order</option>
                                         <option value="Other">Other</option>
                                     </select>
                                     <svg
@@ -265,42 +406,42 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         {/* Bill Selection Section */}
-                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Bill selection</h2>
+                        <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-400'}`}>Bill selection</h2>
 
                         {/* Credit Checkboxes and Summary - Same Row */}
                         <div className="mb-2 flex justify-between items-center">
                             <div className="flex gap-4">
                                 {/* Utilize Credit */}
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
                                     <input
                                         type="checkbox"
                                         id="utilizeCreditCheckbox"
                                         checked={isUtilizeCreditChecked}
                                         onChange={(e) => setIsUtilizeCreditChecked(e.target.checked)}
                                         disabled={!selectedPropertyId || availableCredit === 0}
-                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="w-3.5 h-3.5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     />
                                     <label
                                         htmlFor="utilizeCreditCheckbox"
-                                        className={`text-sm ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
+                                        className={`text-xs ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
                                     >
                                         Utilize Credit: <span className="font-medium">${availableCredit.toFixed(2)}</span>
                                     </label>
                                 </div>
 
                                 {/* Add to Credit */}
-                                <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5">
                                     <input
                                         type="checkbox"
                                         id="addToCreditCheckbox"
                                         checked={isAddToCreditChecked}
                                         onChange={(e) => setIsAddToCreditChecked(e.target.checked)}
                                         disabled={!selectedPropertyId}
-                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                        className="w-3.5 h-3.5 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     />
                                     <label
                                         htmlFor="addToCreditCheckbox"
-                                        className={`text-sm ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
+                                        className={`text-xs ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-700'}`}
                                     >
                                         Add to Credit:
                                     </label>
@@ -327,14 +468,80 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                         </div>
 
                         <div className="-mb-1">
-                            <div className={`min-h-[150px] px-3 py-3 bg-white border border-gray-300 rounded-md ${!selectedPropertyId ? 'bg-gray-100' : ''}`}>
+                            <div className={`min-h-[150px] max-h-[200px] overflow-y-auto px-3 py-3 border border-gray-300 rounded-md ${!selectedPropertyId ? 'bg-gray-100' : 'bg-white'}`}>
                                 {!selectedPropertyId ? (
                                     <div className="flex items-center justify-center h-[144px] text-sm text-gray-400">
                                         Select a property to view bills
                                     </div>
-                                ) : (
+                                ) : bills.filter(bill => getRemainingBalance(bill.id, bill.balance) > 0).length === 0 ? (
                                     <div className="flex items-center justify-center h-[144px] text-sm text-gray-500">
-                                        No bills available for this property
+                                        No unpaid bills available for this property
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {bills.filter(bill => getRemainingBalance(bill.id, bill.balance) > 0).map((bill) => {
+                                            const remainingBalance = getRemainingBalance(bill.id, bill.balance);
+                                            const isSelected = selectedBillIds.has(bill.id);
+
+                                            return (
+                                                <div
+                                                    key={bill.id}
+                                                    className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 transition-colors"
+                                                >
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isSelected}
+                                                        onChange={() => toggleBillSelection(bill.id)}
+                                                        className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                                                    />
+                                                    <div className="flex-1 min-w-0">
+                                                        <div className="flex items-center gap-2 mb-0.5">
+                                                            <span className="text-xs font-medium text-gray-900">{bill.type}</span>
+                                                            <span className="text-xs font-semibold text-red-600">
+                                                                -${remainingBalance.toFixed(2)}
+                                                            </span>
+                                                            <div className="flex items-center gap-1">
+                                                                <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium ${
+                                                                    bill.status === 'Paid'
+                                                                        ? 'bg-green-100 text-green-800'
+                                                                        : bill.status === 'Partial Paid'
+                                                                        ? 'bg-yellow-100 text-yellow-800'
+                                                                        : 'bg-gray-100 text-gray-800'
+                                                                }`}>
+                                                                    {bill.status}
+                                                                </span>
+                                                                {isLate(bill.dueBy, bill.status) && (
+                                                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800">
+                                                                        Late
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[11px] text-gray-500">
+                                                            <span>Due: {formatDate(bill.dueBy)}</span>
+                                                            {bill.description && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span className="truncate">{bill.description}</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1.5 ml-2">
+                                                        <span className="text-xs text-gray-600">Pay:</span>
+                                                        <input
+                                                            type="text"
+                                                            value={billAllocations.get(bill.id) || ''}
+                                                            onChange={(e) => handleAllocationChange(bill.id, e.target.value)}
+                                                            disabled={!isSelected}
+                                                            placeholder="0.00"
+                                                            className="w-24 px-2 py-1 text-xs bg-white border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
+                                                            onClick={(e) => e.stopPropagation()}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>
@@ -357,7 +564,26 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                                     return;
                                 }
 
-                                // TODO: Add payment submission logic
+                                // Only require balance if not using credit exclusively
+                                if (!balance && !isUtilizeCreditChecked) {
+                                    showToast('Please enter a payment amount', 'error');
+                                    return;
+                                }
+
+                                // Check if allocations exceed available balance
+                                if (undistributedBalance < 0) {
+                                    showToast('Total allocations exceed available balance', 'error');
+                                    return;
+                                }
+
+                                // Check if there's unallocated balance
+                                if (undistributedBalance > 0 && !isAddToCreditChecked) {
+                                    setShowCreditConfirmation(true);
+                                    return;
+                                }
+
+                                // Proceed with payment
+                                handleAddPayment();
                             }}
                             disabled={!selectedPropertyId}
                             className="px-3 py-1 bg-black text-white text-sm font-small rounded-md hover:bg-gray-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
@@ -367,6 +593,58 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                     </div>
                 </div>
             </div>
+
+            {/* Credit Confirmation Overlay */}
+            {showCreditConfirmation && (
+                <div
+                    className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/20 overflow-y-auto"
+                    onClick={() => setShowCreditConfirmation(false)}
+                >
+                    <div
+                        className="relative w-[95%] max-w-[400px] rounded-lg border border-white/20 shadow-xl bg-white backdrop-blur-md animate-in fade-in duration-300 p-4"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="px-0 mb-3 border-gray-200 -my-1">
+                            <h2 className="text-md font-semibold text-gray-900">Remaining balance</h2>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex flex-col items-center text-center">
+                            {/* Description */}
+                            <p className="text-sm text-gray-600 mb-2 font-medium">
+                                You have <span className="font-semibold text-gray-900">${undistributedBalance.toFixed(2)}</span> remaining unallocated.
+                            </p>
+                            <p className="text-sm text-gray-600 mb-4 font-medium">
+                                Would you like to add this to credit?
+                            </p>
+
+                            {/* Buttons */}
+                            <div className="flex justify-end gap-3 w-full">
+                                <button
+                                    onClick={() => {
+                                        setShowCreditConfirmation(false);
+                                    }}
+                                    className="px-3 py-1 bg-white border border-gray-300 text-gray-700 text-sm font-small rounded-md hover:bg-gray-50 transition-colors"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowCreditConfirmation(false);
+                                        setIsAddToCreditChecked(true);
+                                        setAddToCreditAmount(undistributedBalance.toFixed(2));
+                                        handleAddPayment(true);
+                                    }}
+                                    className="px-4 py-1 bg-black text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+                                >
+                                    Add to credit
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>,
         document.body
     )
