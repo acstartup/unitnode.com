@@ -35,6 +35,8 @@ export default function InvoicePage() {
     // Sorting state
     const [dueBySortOrder, setDueBySortOrder] = useState<'asc' | 'desc' | null>(null);
     const [dateCreatedSortOrder, setDateCreatedSortOrder] = useState<'asc' | 'desc' | null>(null);
+    const [initialBalanceSortOrder, setInitialBalanceSortOrder] = useState<'asc' | 'desc' | null>(null);
+    const [remainingBalanceSortOrder, setRemainingBalanceSortOrder] = useState<'asc' | 'desc' | null>(null);
 
     // Filter state
     const [showDescriptionFilter, setShowDescriptionFilter] = useState(false);
@@ -191,7 +193,9 @@ export default function InvoicePage() {
     const toggleDueBySort = () => {
         if (dueBySortOrder === null) {
             setDueBySortOrder('desc');
-            setDateCreatedSortOrder(null); // Clear other sort
+            setDateCreatedSortOrder(null); // Clear other sorts
+            setInitialBalanceSortOrder(null);
+            setRemainingBalanceSortOrder(null);
         } else if (dueBySortOrder === 'desc') {
             setDueBySortOrder('asc');
         } else {
@@ -202,11 +206,39 @@ export default function InvoicePage() {
     const toggleDateCreatedSort = () => {
         if (dateCreatedSortOrder === null) {
             setDateCreatedSortOrder('desc');
-            setDueBySortOrder(null); // Clear other sort
+            setDueBySortOrder(null); // Clear other sorts
+            setInitialBalanceSortOrder(null);
+            setRemainingBalanceSortOrder(null);
         } else if (dateCreatedSortOrder === 'desc') {
             setDateCreatedSortOrder('asc');
         } else {
             setDateCreatedSortOrder(null);
+        }
+    };
+
+    const toggleInitialBalanceSort = () => {
+        if (initialBalanceSortOrder === null) {
+            setInitialBalanceSortOrder('desc');
+            setDueBySortOrder(null); // Clear other sorts
+            setDateCreatedSortOrder(null);
+            setRemainingBalanceSortOrder(null);
+        } else if (initialBalanceSortOrder === 'desc') {
+            setInitialBalanceSortOrder('asc');
+        } else {
+            setInitialBalanceSortOrder(null);
+        }
+    };
+
+    const toggleRemainingBalanceSort = () => {
+        if (remainingBalanceSortOrder === null) {
+            setRemainingBalanceSortOrder('desc');
+            setDueBySortOrder(null); // Clear other sorts
+            setDateCreatedSortOrder(null);
+            setInitialBalanceSortOrder(null);
+        } else if (remainingBalanceSortOrder === 'desc') {
+            setRemainingBalanceSortOrder('asc');
+        } else {
+            setRemainingBalanceSortOrder(null);
         }
     };
 
@@ -356,6 +388,18 @@ export default function InvoicePage() {
             const dateA = a.createdAt.getTime();
             const dateB = b.createdAt.getTime();
             return dateCreatedSortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        });
+    } else if (initialBalanceSortOrder) {
+        sortedBills.sort((a, b) => {
+            const balanceA = a.balance;
+            const balanceB = b.balance;
+            return initialBalanceSortOrder === 'asc' ? balanceA - balanceB : balanceB - balanceA;
+        });
+    } else if (remainingBalanceSortOrder) {
+        sortedBills.sort((a, b) => {
+            const remainingA = getRemainingBalance(a.id, a.balance);
+            const remainingB = getRemainingBalance(b.id, b.balance);
+            return remainingBalanceSortOrder === 'asc' ? remainingA - remainingB : remainingB - remainingA;
         });
     }
 
@@ -897,9 +941,54 @@ export default function InvoicePage() {
                                 Method
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
-                                Balance
+                                <button
+                                    onClick={toggleInitialBalanceSort}
+                                    className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors whitespace-nowrap"
+                                >
+                                    Initial Balance
+                                    <div className="flex flex-col -space-y-2 -mx-0.5">
+                                        <svg
+                                            className={`w-3 h-3 ${initialBalanceSortOrder === 'asc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z" />
+                                        </svg>
+                                        <svg
+                                            className={`w-3 h-3 ${initialBalanceSortOrder === 'desc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z" />
+                                        </svg>
+                                    </div>
+                                </button>
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[26%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
+                                <button
+                                    onClick={toggleRemainingBalanceSort}
+                                    className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors whitespace-nowrap"
+                                >
+                                    Remaining Balance
+                                    <div className="flex flex-col -space-y-2 -mx-0.5">
+                                        <svg
+                                            className={`w-3 h-3 ${remainingBalanceSortOrder === 'asc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z" />
+                                        </svg>
+                                        <svg
+                                            className={`w-3 h-3 ${remainingBalanceSortOrder === 'desc' ? 'text-gray-900' : 'text-gray-400'}`}
+                                            fill="currentColor"
+                                            viewBox="0 0 20 20"
+                                        >
+                                            <path d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L10 13.586l3.293-3.293a1 1 0 011.414 0z" />
+                                        </svg>
+                                    </div>
+                                </button>
+                            </th>
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[20%]">
                                 Description
                             </th>
                             <th className="w-[5%]"></th>
@@ -908,7 +997,7 @@ export default function InvoicePage() {
                     <tbody className="bg-white">
                         {sortedBills.length === 0 ? (
                             <tr>
-                                <td colSpan={9} className="px-4 py-8 text-center text-sm text-gray-500">
+                                <td colSpan={10} className="px-4 py-8 text-center text-sm text-gray-500">
                                     No transactions found for this property
                                 </td>
                             </tr>
@@ -974,6 +1063,11 @@ export default function InvoicePage() {
                                             </td>
                                             <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
                                             <td className="px-4 py-1 text-sm whitespace-nowrap">
+                                                <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-gray-900'}`}>
+                                                    ${bill.balance.toFixed(2)}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-1 text-sm whitespace-nowrap">
                                                 <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-red-600'}`}>
                                                     -${remainingBalance.toFixed(2)}
                                                 </span>
@@ -1008,7 +1102,7 @@ export default function InvoicePage() {
                                                     {/* Dropdown Menu */}
                                                     {openDropdownId === bill.id && dropdownPosition && (
                                                         <div
-                                                            className="fixed w-22 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[200] animate-in fade-in slide-in-from-top-2 duration-200"
+                                                            className="fixed w-18 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-[200] animate-in fade-in slide-in-from-top-2 duration-200"
                                                             style={{
                                                                 top: `${dropdownPosition.top}px`,
                                                                 right: `${dropdownPosition.right}px`
@@ -1052,6 +1146,7 @@ export default function InvoicePage() {
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {payment.referenceNumber || ''}
                                                     </td>
+                                                    <td className="px-4 py-1 text-sm whitespace-nowrap"></td>
                                                     <td className="px-4 py-1 text-sm whitespace-nowrap">
                                                         <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-green-600'}`}>
                                                             +${paymentAmount.toFixed(2)}
