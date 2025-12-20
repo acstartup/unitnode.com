@@ -50,7 +50,16 @@ export default function InvoicePage() {
 
     const [showMethodFilter, setShowMethodFilter] = useState(false);
     const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
+    const [tempSelectedMethods, setTempSelectedMethods] = useState<string[]>([]);
     const methodFilterRef = useRef<HTMLDivElement>(null);
+
+    const [showStatusFilter, setShowStatusFilter] = useState(false);
+    const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+    const statusFilterRef = useRef<HTMLDivElement>(null);
+
+    const [showTypeFilter, setShowTypeFilter] = useState(false);
+    const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+    const typeFilterRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -70,16 +79,22 @@ export default function InvoicePage() {
             if (methodFilterRef.current && !methodFilterRef.current.contains(event.target as Node)) {
                 setShowMethodFilter(false);
             }
+            if (statusFilterRef.current && !statusFilterRef.current.contains(event.target as Node)) {
+                setShowStatusFilter(false);
+            }
+            if (typeFilterRef.current && !typeFilterRef.current.contains(event.target as Node)) {
+                setShowTypeFilter(false);
+            }
         };
 
-        if (openDropdownId || showDescriptionFilter || showBalanceFilter || showMethodFilter) {
+        if (openDropdownId || showDescriptionFilter || showBalanceFilter || showMethodFilter || showStatusFilter || showTypeFilter) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [openDropdownId, showDescriptionFilter, showBalanceFilter, showMethodFilter]);
+    }, [openDropdownId, showDescriptionFilter, showBalanceFilter, showMethodFilter, showStatusFilter, showTypeFilter]);
 
     const toggleBillExpansion = (billId: string) => {
         const newExpanded = new Set(expandedBills);
@@ -227,15 +242,44 @@ export default function InvoicePage() {
     };
 
     const applyMethodFilter = () => {
+        setSelectedMethods(tempSelectedMethods);
         setShowMethodFilter(false);
     };
 
     const toggleMethodSelection = (method: string) => {
-        setSelectedMethods(prev => {
+        setTempSelectedMethods(prev => {
             if (prev.includes(method)) {
                 return prev.filter(m => m !== method);
             } else {
                 return [...prev, method];
+            }
+        });
+    };
+
+    const applyStatusFilter = () => {
+        setShowStatusFilter(false);
+    };
+
+    const toggleStatusSelection = (status: string) => {
+        setSelectedStatuses(prev => {
+            if (prev.includes(status)) {
+                return prev.filter(s => s !== status);
+            } else {
+                return [...prev, status];
+            }
+        });
+    };
+
+    const applyTypeFilter = () => {
+        setShowTypeFilter(false);
+    };
+
+    const toggleTypeSelection = (type: string) => {
+        setSelectedTypes(prev => {
+            if (prev.includes(type)) {
+                return prev.filter(t => t !== type);
+            } else {
+                return [...prev, type];
             }
         });
     };
@@ -247,6 +291,8 @@ export default function InvoicePage() {
         setBalanceMin('');
         setBalanceMax('');
         setSelectedMethods([]);
+        setSelectedStatuses([]);
+        setSelectedTypes([]);
     };
 
     // Filter bills based on selected descriptions
@@ -273,7 +319,27 @@ export default function InvoicePage() {
     // Filter by selected methods (payment types)
     if (selectedMethods.length > 0) {
         filteredBills = filteredBills.filter(bill => {
-            return selectedMethods.includes(bill.type);
+            // Get all payments for this bill
+            const billPayments = payments.filter(payment =>
+                payment.appliedToBills?.some(applied => applied.billId === bill.id)
+            );
+            // Check if any payment has a matching method
+            return billPayments.some(payment => selectedMethods.includes(payment.type));
+        });
+    }
+
+    // Filter by selected statuses
+    if (selectedStatuses.length > 0) {
+        filteredBills = filteredBills.filter(bill => {
+            const status = getBillStatus(bill.id, bill.balance);
+            return selectedStatuses.includes(status);
+        });
+    }
+
+    // Filter by selected types
+    if (selectedTypes.length > 0) {
+        filteredBills = filteredBills.filter(bill => {
+            return selectedTypes.includes(bill.type);
         });
     }
 
@@ -495,7 +561,10 @@ export default function InvoicePage() {
             {/* Method Filter */}
             <div className="relative" ref={methodFilterRef}>
                 <button
-                    onClick={() => setShowMethodFilter(!showMethodFilter)}
+                    onClick={() => {
+                        setTempSelectedMethods(selectedMethods);
+                        setShowMethodFilter(!showMethodFilter);
+                    }}
                     className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
                         selectedMethods.length > 0
                             ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
@@ -525,7 +594,7 @@ export default function InvoicePage() {
                                     <input
                                         type="checkbox"
                                         id={`method-${method}`}
-                                        checked={selectedMethods.includes(method)}
+                                        checked={tempSelectedMethods.includes(method)}
                                         onChange={() => toggleMethodSelection(method)}
                                         className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
                                     />
@@ -541,9 +610,9 @@ export default function InvoicePage() {
                         <div className="flex justify-center">
                             <button
                                 onClick={applyMethodFilter}
-                                disabled={selectedMethods.length === 0}
+                                disabled={tempSelectedMethods.length === 0}
                                 className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
-                                    selectedMethods.length > 0
+                                    tempSelectedMethods.length > 0
                                         ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
                                         : 'bg-gray-400 cursor-not-allowed'
                                 }`}
@@ -578,8 +647,180 @@ export default function InvoicePage() {
                 </div>
             ))}
 
+            {/* Status Filter */}
+            <div className="relative" ref={statusFilterRef}>
+                <button
+                    onClick={() => setShowStatusFilter(!showStatusFilter)}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        selectedStatuses.length > 0
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Status
+                </button>
+
+                {/* Dropdown */}
+                {showStatusFilter && (
+                    <div className="absolute top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3">
+                        <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                            Filter by: Status
+                        </label>
+                        <div className="space-y-1.5 mb-2">
+                            {['Paid', 'Partial Paid', 'Unpaid'].map((status) => (
+                                <div key={status} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id={`status-${status}`}
+                                        checked={selectedStatuses.includes(status)}
+                                        onChange={() => toggleStatusSelection(status)}
+                                        className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
+                                    />
+                                    <label
+                                        htmlFor={`status-${status}`}
+                                        className="ml-2 text-xs text-gray-700 cursor-pointer"
+                                    >
+                                        {status}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-center">
+                            <button
+                                onClick={applyStatusFilter}
+                                disabled={selectedStatuses.length === 0}
+                                className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                    selectedStatuses.length > 0
+                                        ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Active Status Filter Chips */}
+            {selectedStatuses.map((status) => (
+                <div
+                    key={status}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300"
+                >
+                    <span>{status}</span>
+                    <button
+                        onClick={() => toggleStatusSelection(status)}
+                        className="hover:text-gray-900 transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            ))}
+
+            {/* Type Filter */}
+            <div className="relative" ref={typeFilterRef}>
+                <button
+                    onClick={() => setShowTypeFilter(!showTypeFilter)}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        selectedTypes.length > 0
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Type
+                </button>
+
+                {/* Dropdown */}
+                {showTypeFilter && (
+                    <div className="absolute top-full mt-1 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3">
+                        <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                            Filter by: Type
+                        </label>
+                        <div className="space-y-1.5 mb-2">
+                            {['Rent', 'Utilities', 'Maintenance', 'Insurance', 'Other'].map((type) => (
+                                <div key={type} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id={`type-${type}`}
+                                        checked={selectedTypes.includes(type)}
+                                        onChange={() => toggleTypeSelection(type)}
+                                        className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
+                                    />
+                                    <label
+                                        htmlFor={`type-${type}`}
+                                        className="ml-2 text-xs text-gray-700 cursor-pointer"
+                                    >
+                                        {type}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-center">
+                            <button
+                                onClick={applyTypeFilter}
+                                disabled={selectedTypes.length === 0}
+                                className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                    selectedTypes.length > 0
+                                        ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Active Type Filter Chips */}
+            {selectedTypes.map((type) => (
+                <div
+                    key={type}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300"
+                >
+                    <span>{type}</span>
+                    <button
+                        onClick={() => toggleTypeSelection(type)}
+                        className="hover:text-gray-900 transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            ))}
+
             {/* Clear All Filters */}
-            {(selectedDescriptions.length > 0 || activeBalanceRange || selectedMethods.length > 0) && (
+            {(selectedDescriptions.length > 0 || activeBalanceRange || selectedMethods.length > 0 || selectedStatuses.length > 0 || selectedTypes.length > 0) && (
                 <button
                     onClick={clearFilters}
                     className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
