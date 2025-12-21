@@ -432,7 +432,7 @@ export default function InvoicePage() {
 
         {/* Header */}
         <div className="mb-1">
-            <h1 className="text-3xl font-semibold text-gray-900 px-8 py-6">Invoice</h1>
+            <h1 className="text-3xl font-semibold text-gray-900 px-8 mb-8">Invoice</h1>
         </div>
 
         {/* Filter Bar */}
