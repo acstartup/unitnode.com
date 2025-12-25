@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
 
 export default function Properties(){
-    const { properties, bills } = useProperties();
+    const { properties, bills, deleteProperty } = useProperties();
     const router = useRouter();
     const [showOwnerFilter, setShowOwnerFilter] = useState(false);
     const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
@@ -175,9 +175,20 @@ export default function Properties(){
 
     const handleDeleteProperties = async () => {
         try {
-            // Delete all selected properties
-            await Promise.all(
-                selectedProperties.map(propertyId =>
+            // Store the IDs we're deleting
+            const propertiesToDelete = [...selectedProperties];
+
+            // Optimistically delete from UI immediately
+            propertiesToDelete.forEach(propertyId => {
+                deleteProperty(propertyId);
+            });
+
+            // Clear selection immediately
+            setSelectedProperties([]);
+
+            // Delete from API in background
+            const results = await Promise.all(
+                propertiesToDelete.map(propertyId =>
                     fetch(`/api/properties/${propertyId}`, {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json' },
@@ -185,14 +196,18 @@ export default function Properties(){
                 )
             );
 
-            // Clear selection after successful deletion
-            setSelectedProperties([]);
-
-            // Refresh the page to show updated list
-            router.refresh();
+            // Check if any failed
+            const failedCount = results.filter(r => !r.ok).length;
+            if (failedCount > 0) {
+                alert(`Failed to delete ${failedCount} property(ies)`);
+                // Revert by refreshing
+                router.refresh();
+            }
         } catch (error) {
             console.error('Error deleting properties:', error);
             alert('Failed to delete properties');
+            // Revert by refreshing
+            router.refresh();
         }
     };
 

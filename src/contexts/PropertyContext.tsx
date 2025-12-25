@@ -49,6 +49,8 @@ export interface Property {
 interface PropertyContextType {
     properties: Property[];
     addProperty: (property: Omit<Property, 'id' | 'createdAt'>) => Promise<void>;
+    updateProperty: (propertyId: string, updates: Partial<Property>) => void;
+    deleteProperty: (propertyId: string) => void;
     updatePropertyCredit: (propertyId: string, creditChange: number) => void;
     getPropertyCredit: (propertyId: string) => number;
     bills: Bill[];
@@ -237,6 +239,23 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const updateProperty = (propertyId: string, updates: Partial<Property>) => {
+        setProperties(prevProperties => {
+            return prevProperties.map(p => {
+                if (p.id === propertyId) {
+                    return { ...p, ...updates };
+                }
+                return p;
+            });
+        });
+    };
+
+    const deleteProperty = (propertyId: string) => {
+        setProperties(prevProperties => {
+            return prevProperties.filter(p => p.id !== propertyId);
+        });
+    };
+
     const updatePropertyCredit = (propertyId: string, creditChange: number) => {
         setProperties(prevProperties => {
             const updatedProperties = prevProperties.map(p => {
@@ -258,6 +277,8 @@ export function PropertyProvider({ children }: { children: ReactNode }) {
         <PropertyContext.Provider value={{
             properties,
             addProperty,
+            updateProperty,
+            deleteProperty,
             updatePropertyCredit,
             getPropertyCredit,
             bills,

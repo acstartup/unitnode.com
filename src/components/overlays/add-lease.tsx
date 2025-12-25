@@ -53,7 +53,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         setMounted(true);
     }, []);
 
-    const { properties } = useProperties();
+    const { properties, updateProperty } = useProperties();
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>('');
     const [filteredProperties, setFilteredProperties] = useState<typeof properties>([]);
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
@@ -747,30 +747,35 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 // Make API call
                                 const addLease = async () => {
                                     try {
+                                        const apiData = {
+                                            mainTenant: tenants[0].name,
+                                            mainTenantPhone: tenants[0].phone,
+                                            rent: parseFloat(utilityCost) || 0,
+                                            occupied: true,
+                                            tenants: tenants.map(({ id, ...tenant }) => tenant),
+                                        };
+
+                                        const uiData = {
+                                            mainTenant: tenants[0].name,
+                                            mainTenantPhone: tenants[0].phone,
+                                            rent: parseFloat(utilityCost) || 0,
+                                            occupied: true,
+                                            tenants: tenants,
+                                        };
+
+                                        // Optimistically update the UI immediately
+                                        updateProperty(selectedPropertyId, uiData);
+                                        onClose();
+                                        showToast(isEditingLease ? 'Lease updated successfully' : 'Lease added successfully', 'success');
+
                                         const response = await fetch(`/api/properties/${selectedPropertyId}`, {
                                             method: 'PATCH',
                                             headers: { 'Content-Type': 'application/json' },
-                                            body: JSON.stringify({
-                                                mainTenant: tenants[0].name,
-                                                mainTenantPhone: tenants[0].phone,
-                                                rent: parseFloat(utilityCost) || 0,
-                                                occupied: true,
-                                                tenants: tenants.map(({ id, ...tenant }) => tenant),
-                                            }),
+                                            body: JSON.stringify(apiData),
                                         })
 
                                         if (!response.ok) {
                                             throw new Error('Failed to add lease');
-                                        }
-
-                                        const data = await response.json();
-                                        if (data.success) {
-                                            showToast(isEditingLease ? 'Lease updated successfully' : 'Lease added successfully', 'success');
-                                            // 2000 mili (2 second) delay before page refresh
-                                            setTimeout(() => {
-                                                window.location.reload();
-                                            }, 2000);
-                                            onClose();
                                         }
                                     } catch (error) {
                                         console.error('Error adding lease:', error);
