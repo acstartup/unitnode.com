@@ -25,6 +25,7 @@ export interface Payment {
     id: string;
     propertyId: string;
     type: string;
+    payer?: string;
     referenceNumber: string;
     balance: number;
     description: string;

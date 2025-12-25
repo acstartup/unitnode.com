@@ -13,6 +13,8 @@ interface AddPaymentOverlayProps {
 export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlayProps) {
     const [propertyAddress, setPropertyAddress] = useState('');
     const [type, setType] = useState('Cash');
+    const [payer, setPayer] = useState('');
+    const [otherPayer, setOtherPayer] = useState('');
     const [referenceNumber, setReferenceNumber] = useState('');
     const [balance, setBalance] = useState('');
     const [description, setDescription] = useState('');
@@ -47,6 +49,8 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             setFilteredProperties([]);
             setShowPropertyDropdown(false);
             setType('Cash');
+            setPayer('');
+            setOtherPayer('');
             setReferenceNumber('');
             setBalance('');
             setDescription('');
@@ -180,7 +184,43 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
         setPropertyAddress(address);
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
+
+        // Set default payer to property address
+        setPayer(address);
     }
+
+    // Get payer options based on selected property
+    const getPayerOptions = () => {
+        if (!selectedPropertyId) return [];
+
+        const selectedProperty = properties.find(p => p.id === selectedPropertyId);
+        if (!selectedProperty) return [];
+
+        const options = [
+            { value: selectedProperty.address, label: selectedProperty.address }
+        ];
+
+        // Add tenants if they exist
+        if (selectedProperty.tenants && selectedProperty.tenants.length > 0) {
+            selectedProperty.tenants.forEach(tenant => {
+                options.push({
+                    value: tenant.name,
+                    label: tenant.name
+                });
+            });
+        } else if (selectedProperty.mainTenant && selectedProperty.mainTenant !== 'N/A') {
+            // Fallback to mainTenant for backward compatibility
+            options.push({
+                value: selectedProperty.mainTenant,
+                label: selectedProperty.mainTenant
+            });
+        }
+
+        // Add "Other" option at the end
+        options.push({ value: 'Other', label: 'Other' });
+
+        return options;
+    };
 
     const handleAddPayment = async (creditRemainingAmount = false) => {
         try {
@@ -213,6 +253,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
             await addPayment({
                 propertyId: selectedPropertyId,
                 type,
+                payer: payer === 'Other' ? otherPayer : payer,
                 referenceNumber,
                 balance: paymentAmountValue,
                 description,
@@ -390,7 +431,66 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                             </div>
                         </div>
 
-                        {/* Second Row: Description */}
+                        {/* Second Row: Payer */}
+                        <div className="mb-3">
+                            <div className={`flex gap-3 ${payer === 'Other' ? '' : ''}`}>
+                                <div className={payer === 'Other' ? 'flex-1' : 'w-full'}>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        Payer
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={payer}
+                                            onChange={(e) => {
+                                                setPayer(e.target.value);
+                                                if (e.target.value !== 'Other') {
+                                                    setOtherPayer('');
+                                                }
+                                            }}
+                                            disabled={!selectedPropertyId}
+                                            className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
+                                        >
+                                            {getPayerOptions().map(option => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <svg
+                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600 pointer-events-none"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M6 9l6 6 6-6"
+                                            />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {/* Other Payer Input - shown when "Other" is selected */}
+                                {payer === 'Other' && (
+                                    <div className="flex-1">
+                                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                                            Other Payer
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={otherPayer}
+                                            onChange={(e) => setOtherPayer(e.target.value)}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Enter payer name"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Third Row: Description */}
                         <div className="">
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Description
