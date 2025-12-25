@@ -642,6 +642,8 @@ export default function Properties(){
 
                             // Calculate overdue balance
                             const today = new Date();
+                            const propertyBills = bills.filter(bill => bill.propertyId === property.id);
+                            const hasBills = propertyBills.length > 0;
                             const overdueBalance = bills
                                 .filter(bill =>
                                     bill.propertyId === property.id &&
@@ -649,7 +651,7 @@ export default function Properties(){
                                     new Date(bill.dueBy) < today
                                 )
                                 .reduce((sum, bill) => sum + bill.balance, 0);
-                            const overdueDisplay = overdueBalance === 0 ? '—' : `$${overdueBalance.toFixed(2)}`;
+                            const overdueDisplay = !hasBills ? '—' : `$${overdueBalance.toFixed(2)}`;
 
                             return (
                                 <tr key={property.id} className="group hover:bg-gray-50 transition-colors">
