@@ -195,7 +195,7 @@ export function LoginModal({ isOpen, onClose, prefill = false, prefillEmail = ""
                       // Store user data in localStorage
                       localStorage.setItem('unitnode_user', JSON.stringify(result.user));
                       // Redirect to dashboard or main app
-                      router.push('/app/dashboard');
+                      router.push('/app/properties');
                       onClose();
                     } else {
                       setVerificationError(result.message || "Invalid verification code");
