@@ -369,7 +369,7 @@ export default function AddPaymentOverlay({ isOpen, onClose }: AddPaymentOverlay
                             {/* Type Dropdown */}
                             <div className="flex-1">
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
-                                    Type
+                                    Method
                                 </label>
                                 <div className="relative">
                                     <select

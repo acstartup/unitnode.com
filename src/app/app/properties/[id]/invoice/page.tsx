@@ -1427,8 +1427,8 @@ export default function InvoicePage() {
                                                     </td>
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
                                                     <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                        <div className="max-w-[150px] truncate" title={payment.payer || property?.address?.split(',')[0].trim() || '—'}>
-                                                            {payment.payer || property?.address?.split(',')[0].trim() || '—'}
+                                                        <div className="max-w-[150px] truncate" title={payment.payer?.split(',')[0].trim() || property?.address?.split(',')[0].trim() || '—'}>
+                                                            {payment.payer?.split(',')[0].trim() || property?.address?.split(',')[0].trim() || '—'}
                                                         </div>
                                                     </td>
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
