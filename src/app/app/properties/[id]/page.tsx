@@ -3,6 +3,7 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
+import { useToast } from '@/contexts/ToastContext';
 import ConfirmRemoveLease from '@/components/overlays/confirm-remove-lease';
 import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
 
@@ -10,6 +11,7 @@ export default function PropertyDetailsPage() {
     const params = useParams();
     const router = useRouter();
     const { properties } = useProperties();
+    const { showToast } = useToast();
     const propertyId = params.id as string;
 
     const [isEditing, setIsEditing] = useState(false);
@@ -112,13 +114,14 @@ export default function PropertyDetailsPage() {
             });
 
             if (response.ok) {
+                showToast('Lease removed successfully', 'success');
                 window.location.reload();
             } else {
-                alert('Failed to remove lease');
+                showToast('Failed to remove lease', 'error');
             }
         } catch (error) {
             console.error('Error removing lease:', error);
-            alert('Failed to remove lease');
+            showToast('Failed to remove lease', 'error');
         }
     }
 
@@ -130,13 +133,14 @@ export default function PropertyDetailsPage() {
             });
 
             if (response.ok) {
+                showToast('Property deleted successfully', 'success')
                 router.push('/app/properties');
             } else {
-                alert('Failed to delete property');
+                showToast('Failed to delete property', 'error');
             }
         } catch (error) {
             console.error('Error deleting property:', error);
-            alert('Failed to delete property');
+            showToast('Failed to delete property', 'error');
         }
     }
 
