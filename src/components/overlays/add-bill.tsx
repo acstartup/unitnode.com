@@ -522,6 +522,7 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                                         propertyId: selectedPropertyId,
                                         dueBy,
                                         type,
+                                        payee: payee === 'Other' ? otherPayee : payee,
                                         balance: parseFloat(balance),
                                         description,
                                     });

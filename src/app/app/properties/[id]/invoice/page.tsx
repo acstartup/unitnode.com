@@ -935,6 +935,9 @@ export default function InvoicePage() {
                                 Type
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
+                                Payee/Payer
+                            </th>
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
                                 Status
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
@@ -997,7 +1000,7 @@ export default function InvoicePage() {
                     <tbody className="bg-white">
                         {sortedBills.length === 0 ? (
                             <tr>
-                                <td colSpan={10} className="px-4 py-8 text-center text-sm text-gray-500">
+                                <td colSpan={11} className="px-4 py-8 text-center text-sm text-gray-500">
                                     No transactions found for this property
                                 </td>
                             </tr>
@@ -1042,6 +1045,11 @@ export default function InvoicePage() {
                                             </td>
                                             <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                 {bill.type}
+                                            </td>
+                                            <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                <div className="max-w-[150px] truncate" title={bill.payee || property?.address?.split(',')[0].trim() || '—'}>
+                                                    {bill.payee || property?.address?.split(',')[0].trim() || '—'}
+                                                </div>
                                             </td>
                                             <td className="px-4 py-1 text-sm whitespace-nowrap">
                                                 <div className="flex items-center gap-2">

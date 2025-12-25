@@ -14,6 +14,7 @@ export interface Bill {
     propertyId: string;
     dueBy: string;
     type: string;
+    payee?: string;
     balance: number;
     description: string;
     status: 'Unpaid' | 'Partial Paid' | 'Paid';
