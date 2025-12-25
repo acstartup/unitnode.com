@@ -575,12 +575,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                 {/* Calendar Dropdown */}
                                 {showCalendar && selectedPropertyId && (
-                                    <>
-                                        <div
-                                            className="fixed inset-0 z-[10000]"
-                                            onClick={() => setShowCalendar(false)}
-                                        />
-                                        <div className="absolute z-[10001] mt-1 w-50 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                                    <div className="absolute z-[10001] mt-1 w-50 bg-white border border-gray-300 rounded-md shadow-lg p-3">
                                             {/* Calendar Header */}
                                             <div className="flex items-center justify-between mb-1 -mt-0.5">
                                                 <button
@@ -653,7 +648,6 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                                 })()}
                                             </div>
                                         </div>
-                                    </>
                                 )}
                             </div>
 
