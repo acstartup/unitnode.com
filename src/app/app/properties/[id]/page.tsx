@@ -6,6 +6,7 @@ import { useProperties } from '@/contexts/PropertyContext';
 import { useToast } from '@/contexts/ToastContext';
 import ConfirmRemoveLease from '@/components/overlays/confirm-remove-lease';
 import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
+import AddLeaseOverlay from '@/components/overlays/add-lease';
 
 export default function PropertyDetailsPage() {
     const params = useParams();
@@ -21,6 +22,7 @@ export default function PropertyDetailsPage() {
     const [showLeaseMenu, setShowLeaseMenu] = useState(false);
     const [showRemoveLeaseConfirm, setShowRemoveLeaseConfirm] = useState(false);
     const [showDeletePropertyConfirm, setShowDeletePropertyConfirm] = useState(false);
+    const [showEditLeaseOverlay, setShowEditLeaseOverlay] = useState(false);
     const leaseMenuRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
@@ -224,6 +226,28 @@ export default function PropertyDetailsPage() {
                         {/* Dropdown Menu */}
                         {showLeaseMenu && (
                             <div className="absolute right-0 mt-0.5 w-40 bg-white rounded-lg shadow-lg border border-gray-200 p-1 z-10 animate-in fade-in slide-in-from-top-2 duration-200">
+                                <button
+                                    onClick={() => {
+                                        setShowLeaseMenu(false);
+                                        setShowEditLeaseOverlay(true);
+                                    }}
+                                    className="w-full px-2 py-1 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center rounded-md gap-3"
+                                >
+                                    <svg
+                                        className="w-4.5 h-4.5"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                        />
+                                    </svg>
+                                    Edit
+                                </button>
                                 <button
                                     onClick={() => {
                                         setShowLeaseMenu(false);
@@ -456,6 +480,13 @@ export default function PropertyDetailsPage() {
                     handleDeleteProperty();
                 }}
                 propertyAddress={property?.address}
+            />
+
+            {/* Edit Lease Overlay */}
+            <AddLeaseOverlay
+                isOpen={showEditLeaseOverlay}
+                onClose={() => setShowEditLeaseOverlay(false)}
+                editPropertyId={propertyId}
             />
         </div>
     )
