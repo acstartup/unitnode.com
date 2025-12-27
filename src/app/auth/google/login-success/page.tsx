@@ -7,7 +7,7 @@ export default function GoogleLoginSuccess() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('app/properties');
+    router.replace('/app/properties');
   }, [router]);
 
   return null;

@@ -3,13 +3,15 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useProperties } from '@/contexts/PropertyContext';
+import { useToast } from '@/contexts/ToastContext';
 import ConfirmRemoveLease from '@/components/overlays/confirm-remove-lease';
 import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
 
 export default function PropertyDetailsPage() {
     const params = useParams();
     const router = useRouter();
-    const { properties } = useProperties();
+    const { properties, updateProperty, deleteProperty } = useProperties();
+    const { showToast } = useToast();
     const propertyId = params.id as string;
 
     const [isEditing, setIsEditing] = useState(false);
@@ -69,24 +71,33 @@ export default function PropertyDetailsPage() {
 
     const handleSave = async () => {
         try {
+            // Optimistically update the UI immediately
+            const updates = {
+                ownerName: editedOwnerName.trim() || undefined,
+                ownerEmail: editedOwnerEmail.trim() || undefined,
+                ownerPhone: editedOwnerPhone.trim() || undefined,
+            };
+            updateProperty(propertyId, updates);
+            setIsEditing(false);
+
             const response = await fetch(`/api/properties/${propertyId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ownerName: editedOwnerName.trim() || undefined,
-                    ownerEmail: editedOwnerEmail.trim() || undefined,
-                    ownerPhone: editedOwnerPhone.trim() || undefined,
-                }),
+                body: JSON.stringify(updates),
             })
 
             if (response.ok) {
-                window.location.reload();
+                showToast('Owner information updated successfully', 'success');
             } else {
-                alert('Failed to update owner information');
+                showToast('Failed to update owner information', 'error');
+                // Revert the optimistic update on failure
+                router.refresh();
             }
         } catch (error) {
             console.error('Error updating owner:', error);
-            alert('Failed to update owner information');
+            showToast('Failed to update owner information', 'error');
+            // Revert the optimistic update on error
+            router.refresh();
         }
     }
 
@@ -100,6 +111,14 @@ export default function PropertyDetailsPage() {
 
     const handleRemoveLease = async () => {
         try {
+            // Optimistically update the UI immediately
+            updateProperty(propertyId, {
+                tenants: [],
+                mainTenant: 'N/A',
+                mainTenantPhone: '',
+                rent: 0,
+            });
+
             const response = await fetch(`/api/properties/${propertyId}`, {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
@@ -112,31 +131,44 @@ export default function PropertyDetailsPage() {
             });
 
             if (response.ok) {
-                window.location.reload();
+                showToast('Lease removed successfully', 'success');
             } else {
-                alert('Failed to remove lease');
+                showToast('Failed to remove lease', 'error');
+                // Revert the optimistic update on failure
+                router.refresh();
             }
         } catch (error) {
             console.error('Error removing lease:', error);
-            alert('Failed to remove lease');
+            showToast('Failed to remove lease', 'error');
+            // Revert the optimistic update on error
+            router.refresh();
         }
     }
 
     const handleDeleteProperty = async () => {
         try {
+            // Navigate immediately and show toast
+            router.push('/app/properties');
+            showToast('Property deleted successfully', 'success');
+
+            // Optimistically delete from state
+            deleteProperty(propertyId);
+
+            // Delete from API in background
             const response = await fetch(`/api/properties/${propertyId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
             });
 
-            if (response.ok) {
-                router.push('/app/properties');
-            } else {
-                alert('Failed to delete property');
+            if (!response.ok) {
+                showToast('Failed to delete property', 'error');
+                // Revert by refreshing
+                router.refresh();
             }
         } catch (error) {
             console.error('Error deleting property:', error);
-            alert('Failed to delete property');
+            showToast('Failed to delete property', 'error');
+            router.refresh();
         }
     }
 

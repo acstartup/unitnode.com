@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import ConfirmDeleteProperty from '@/components/overlays/confirm-delete-property';
 
 export default function Properties(){
-    const { properties } = useProperties();
+    const { properties, bills, deleteProperty } = useProperties();
     const router = useRouter();
     const [showOwnerFilter, setShowOwnerFilter] = useState(false);
     const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
@@ -175,9 +175,20 @@ export default function Properties(){
 
     const handleDeleteProperties = async () => {
         try {
-            // Delete all selected properties
-            await Promise.all(
-                selectedProperties.map(propertyId =>
+            // Store the IDs we're deleting
+            const propertiesToDelete = [...selectedProperties];
+
+            // Optimistically delete from UI immediately
+            propertiesToDelete.forEach(propertyId => {
+                deleteProperty(propertyId);
+            });
+
+            // Clear selection immediately
+            setSelectedProperties([]);
+
+            // Delete from API in background
+            const results = await Promise.all(
+                propertiesToDelete.map(propertyId =>
                     fetch(`/api/properties/${propertyId}`, {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json' },
@@ -185,14 +196,18 @@ export default function Properties(){
                 )
             );
 
-            // Clear selection after successful deletion
-            setSelectedProperties([]);
-
-            // Refresh the page to show updated list
-            router.refresh();
+            // Check if any failed
+            const failedCount = results.filter(r => !r.ok).length;
+            if (failedCount > 0) {
+                alert(`Failed to delete ${failedCount} property(ies)`);
+                // Revert by refreshing
+                router.refresh();
+            }
         } catch (error) {
             console.error('Error deleting properties:', error);
             alert('Failed to delete properties');
+            // Revert by refreshing
+            router.refresh();
         }
     };
 
@@ -627,6 +642,9 @@ export default function Properties(){
                                     </div>
                                 </button>
                             </th>
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[12%]">
+                                Overdue Balance
+                            </th>
                             <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-[100]"></th>
                         </tr>
                     </thead>
@@ -636,6 +654,19 @@ export default function Properties(){
                                 ? property.tenants.map(t => t.name).join(', ')
                                 : (property.mainTenant && property.mainTenant !== 'N/A' ? property.mainTenant : '—');
                             const rentDisplay = property.rent === 0 ? '—' : `$${property.rent}`;
+
+                            // Calculate overdue balance
+                            const today = new Date();
+                            const propertyBills = bills.filter(bill => bill.propertyId === property.id);
+                            const hasBills = propertyBills.length > 0;
+                            const overdueBalance = bills
+                                .filter(bill =>
+                                    bill.propertyId === property.id &&
+                                    (bill.status === 'Unpaid' || bill.status === 'Partial Paid') &&
+                                    new Date(bill.dueBy) < today
+                                )
+                                .reduce((sum, bill) => sum + bill.balance, 0);
+                            const overdueDisplay = !hasBills ? '—' : `$${overdueBalance.toFixed(2)}`;
 
                             return (
                                 <tr key={property.id} className="group hover:bg-gray-50 transition-colors">
@@ -658,6 +689,7 @@ export default function Properties(){
                                         </div>
                                     </td>
                                     <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{rentDisplay}</td>
+                                    <td className="px-4 py-1 text-sm text-gray-500 whitespace-nowrap">{overdueDisplay}</td>
                                     <td className={`px-4 py-1 text-right sticky right-0 bg-white group-hover:bg-gray-50 transition-colors ${openDropdownId === property.id ? 'z-[200]' : 'z-[100]'}`}>
                                         <div
                                             className="relative inline-block"

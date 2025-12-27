@@ -16,6 +16,8 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
     const [type, setType] = useState('Rent');
     const [balance, setBalance] = useState('');
     const [description, setDescription] = useState('');
+    const [payee, setPayee] = useState('');
+    const [otherPayee, setOtherPayee] = useState('');
     const [showCalendar, setShowCalendar] = useState(false);
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const { showToast } = useToast();
@@ -42,6 +44,8 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
             setType('Rent');
             setBalance('');
             setDescription('');
+            setPayee('');
+            setOtherPayee('');
         }
     }, [isOpen]);
 
@@ -65,7 +69,43 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
         setPropertyAddress(address);
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
+
+        // Set default payee to property address
+        setPayee(address);
     }
+
+    // Get payee options based on selected property
+    const getPayeeOptions = () => {
+        if (!selectedPropertyId) return [];
+
+        const selectedProperty = properties.find(p => p.id === selectedPropertyId);
+        if (!selectedProperty) return [];
+
+        const options = [
+            { value: selectedProperty.address, label: selectedProperty.address }
+        ];
+
+        // Add tenants if they exist
+        if (selectedProperty.tenants && selectedProperty.tenants.length > 0) {
+            selectedProperty.tenants.forEach(tenant => {
+                options.push({
+                    value: tenant.name,
+                    label: tenant.name
+                });
+            });
+        } else if (selectedProperty.mainTenant && selectedProperty.mainTenant !== 'N/A') {
+            // Fallback to mainTenant for backward compatibility
+            options.push({
+                value: selectedProperty.mainTenant,
+                label: selectedProperty.mainTenant
+            });
+        }
+
+        // Add "Other" option at the end
+        options.push({ value: 'Other', label: 'Other' });
+
+        return options;
+    };
 
     // Calendar helper functions
     const getDaysInMonth = (date: Date) => {
@@ -215,7 +255,7 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                         <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-400'}`}>Bill information</h2>
 
                         {/* First Row: Due By, Type, Balance */}
-                        <div className="flex gap-3 mb-3">
+                        <div className="flex gap-3">
                             {/* Due By */}
                             <div className="flex-1 relative">
                                 <label className="block text-sm font-medium text-gray-900 mb-2">
@@ -382,8 +422,67 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                             </div>
                         </div>
 
-                        {/* Second Row: Description */}
-                        <div className="-mb-1">
+                        {/* Second Row: Payee */}
+                        <div className="mt-3">
+                            <div className={`flex gap-3 ${payee === 'Other' ? '' : ''}`}>
+                                <div className={payee === 'Other' ? 'flex-1' : 'w-full'}>
+                                    <label className="block text-sm font-medium text-gray-900 mb-2">
+                                        Payee
+                                    </label>
+                                    <div className="relative">
+                                        <select
+                                            value={payee}
+                                            onChange={(e) => {
+                                                setPayee(e.target.value);
+                                                if (e.target.value !== 'Other') {
+                                                    setOtherPayee('');
+                                                }
+                                            }}
+                                            disabled={!selectedPropertyId}
+                                            className="w-full px-2 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600 disabled:cursor-not-allowed appearance-none"
+                                        >
+                                            {getPayeeOptions().map(option => (
+                                                <option key={option.value} value={option.value}>
+                                                    {option.label}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        <svg
+                                            className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-600 pointer-events-none"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth={2}
+                                                d="M6 9l6 6 6-6"
+                                            />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                {/* Other Payee Input - shown when "Other" is selected */}
+                                {payee === 'Other' && (
+                                    <div className="flex-1">
+                                        <label className="block text-sm font-medium text-gray-900 mb-2">
+                                            Other Payee
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={otherPayee}
+                                            onChange={(e) => setOtherPayee(e.target.value)}
+                                            className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            placeholder="Enter payee name"
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Third Row: Description */}
+                        <div className="mt-3 -mb-1">
                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                 Description
                             </label>
@@ -423,6 +522,7 @@ export default function AddBillOverlay({ isOpen, onClose }: AddBillOverlayProps)
                                         propertyId: selectedPropertyId,
                                         dueBy,
                                         type,
+                                        payee: payee === 'Other' ? otherPayee : payee,
                                         balance: parseFloat(balance),
                                         description,
                                     });

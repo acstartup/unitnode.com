@@ -57,11 +57,23 @@ export default function InvoicePage() {
 
     const [showStatusFilter, setShowStatusFilter] = useState(false);
     const [selectedStatuses, setSelectedStatuses] = useState<string[]>([]);
+    const [tempSelectedStatuses, setTempSelectedStatuses] = useState<string[]>([]);
     const statusFilterRef = useRef<HTMLDivElement>(null);
 
     const [showTypeFilter, setShowTypeFilter] = useState(false);
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+    const [tempSelectedTypes, setTempSelectedTypes] = useState<string[]>([]);
     const typeFilterRef = useRef<HTMLDivElement>(null);
+
+    const [showPayeeFilter, setShowPayeeFilter] = useState(false);
+    const [selectedPayees, setSelectedPayees] = useState<string[]>([]);
+    const [tempSelectedPayees, setTempSelectedPayees] = useState<string[]>([]);
+    const payeeFilterRef = useRef<HTMLDivElement>(null);
+
+    const [showPayerFilter, setShowPayerFilter] = useState(false);
+    const [selectedPayers, setSelectedPayers] = useState<string[]>([]);
+    const [tempSelectedPayers, setTempSelectedPayers] = useState<string[]>([]);
+    const payerFilterRef = useRef<HTMLDivElement>(null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -87,16 +99,22 @@ export default function InvoicePage() {
             if (typeFilterRef.current && !typeFilterRef.current.contains(event.target as Node)) {
                 setShowTypeFilter(false);
             }
+            if (payeeFilterRef.current && !payeeFilterRef.current.contains(event.target as Node)) {
+                setShowPayeeFilter(false);
+            }
+            if (payerFilterRef.current && !payerFilterRef.current.contains(event.target as Node)) {
+                setShowPayerFilter(false);
+            }
         };
 
-        if (openDropdownId || showDescriptionFilter || showBalanceFilter || showMethodFilter || showStatusFilter || showTypeFilter) {
+        if (openDropdownId || showDescriptionFilter || showBalanceFilter || showMethodFilter || showStatusFilter || showTypeFilter || showPayeeFilter || showPayerFilter) {
             document.addEventListener('mousedown', handleClickOutside);
         }
 
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [openDropdownId, showDescriptionFilter, showBalanceFilter, showMethodFilter, showStatusFilter, showTypeFilter]);
+    }, [openDropdownId, showDescriptionFilter, showBalanceFilter, showMethodFilter, showStatusFilter, showTypeFilter, showPayeeFilter, showPayerFilter]);
 
     const toggleBillExpansion = (billId: string) => {
         const newExpanded = new Set(expandedBills);
@@ -289,11 +307,12 @@ export default function InvoicePage() {
     };
 
     const applyStatusFilter = () => {
+        setSelectedStatuses(tempSelectedStatuses);
         setShowStatusFilter(false);
     };
 
     const toggleStatusSelection = (status: string) => {
-        setSelectedStatuses(prev => {
+        setTempSelectedStatuses(prev => {
             if (prev.includes(status)) {
                 return prev.filter(s => s !== status);
             } else {
@@ -303,15 +322,46 @@ export default function InvoicePage() {
     };
 
     const applyTypeFilter = () => {
+        setSelectedTypes(tempSelectedTypes);
         setShowTypeFilter(false);
     };
 
     const toggleTypeSelection = (type: string) => {
-        setSelectedTypes(prev => {
+        setTempSelectedTypes(prev => {
             if (prev.includes(type)) {
                 return prev.filter(t => t !== type);
             } else {
                 return [...prev, type];
+            }
+        });
+    };
+
+    const applyPayeeFilter = () => {
+        setSelectedPayees(tempSelectedPayees);
+        setShowPayeeFilter(false);
+    };
+
+    const togglePayeeSelection = (payee: string) => {
+        setTempSelectedPayees(prev => {
+            if (prev.includes(payee)) {
+                return prev.filter(p => p !== payee);
+            } else {
+                return [...prev, payee];
+            }
+        });
+    };
+
+    const applyPayerFilter = () => {
+        setSelectedPayers(tempSelectedPayers);
+        setShowPayerFilter(false);
+    };
+
+    const togglePayerSelection = (payer: string) => {
+        setTempSelectedPayers(prev => {
+            if (prev.includes(payer)) {
+                return prev.filter(p => p !== payer);
+            } else {
+                return [...prev, payer];
             }
         });
     };
@@ -325,6 +375,8 @@ export default function InvoicePage() {
         setSelectedMethods([]);
         setSelectedStatuses([]);
         setSelectedTypes([]);
+        setSelectedPayees([]);
+        setSelectedPayers([]);
     };
 
     // Filter bills based on selected descriptions
@@ -374,6 +426,42 @@ export default function InvoicePage() {
             return selectedTypes.includes(bill.type);
         });
     }
+
+    // Filter by selected payees (bills only)
+    if (selectedPayees.length > 0) {
+        filteredBills = filteredBills.filter(bill => {
+            const billPayee = bill.payee || property?.address?.split(',')[0].trim() || '';
+            return selectedPayees.includes(billPayee);
+        });
+    }
+
+    // Filter by selected payers (payments only)
+    if (selectedPayers.length > 0) {
+        filteredBills = filteredBills.filter(bill => {
+            // Check if any payment for this bill has a matching payer
+            const billPayments = payments.filter(payment =>
+                payment.appliedToBills?.some(applied => applied.billId === bill.id)
+            );
+            return billPayments.some(payment => {
+                const paymentPayer = payment.payer || property?.address?.split(',')[0].trim() || '';
+                return selectedPayers.includes(paymentPayer);
+            });
+        });
+    }
+
+    // Get all unique payees from bills only
+    const uniquePayees = Array.from(new Set(
+        bills.map(bill => bill.payee || property?.address?.split(',')[0].trim() || '')
+    ))
+        .filter(payee => payee !== '')
+        .sort();
+
+    // Get all unique payers from payments only
+    const uniquePayers = Array.from(new Set(
+        payments.map(payment => payment.payer || property?.address?.split(',')[0].trim() || '')
+    ))
+        .filter(payer => payer !== '')
+        .sort();
 
     // Sort bills based on active sort order
     let sortedBills = [...filteredBills];
@@ -431,8 +519,8 @@ export default function InvoicePage() {
         </div>
 
         {/* Header */}
-        <div className="mb-1">
-            <h1 className="text-3xl font-semibold text-gray-900 px-8 py-6">Invoice</h1>
+        <div className="mb-8">
+            <h1 className="text-3xl font-semibold text-gray-900 px-8">Invoice</h1>
         </div>
 
         {/* Filter Bar */}
@@ -676,7 +764,7 @@ export default function InvoicePage() {
                 >
                     <span>{method}</span>
                     <button
-                        onClick={() => toggleMethodSelection(method)}
+                        onClick={() => setSelectedMethods(prev => prev.filter(m => m !== method))}
                         className="hover:text-gray-900 transition-colors"
                     >
                         <svg
@@ -694,7 +782,10 @@ export default function InvoicePage() {
             {/* Status Filter */}
             <div className="relative" ref={statusFilterRef}>
                 <button
-                    onClick={() => setShowStatusFilter(!showStatusFilter)}
+                    onClick={() => {
+                        setTempSelectedStatuses(selectedStatuses);
+                        setShowStatusFilter(!showStatusFilter);
+                    }}
                     className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
                         selectedStatuses.length > 0
                             ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
@@ -724,7 +815,7 @@ export default function InvoicePage() {
                                     <input
                                         type="checkbox"
                                         id={`status-${status}`}
-                                        checked={selectedStatuses.includes(status)}
+                                        checked={tempSelectedStatuses.includes(status)}
                                         onChange={() => toggleStatusSelection(status)}
                                         className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
                                     />
@@ -740,9 +831,9 @@ export default function InvoicePage() {
                         <div className="flex justify-center">
                             <button
                                 onClick={applyStatusFilter}
-                                disabled={selectedStatuses.length === 0}
+                                disabled={tempSelectedStatuses.length === 0}
                                 className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
-                                    selectedStatuses.length > 0
+                                    tempSelectedStatuses.length > 0
                                         ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
                                         : 'bg-gray-400 cursor-not-allowed'
                                 }`}
@@ -762,7 +853,7 @@ export default function InvoicePage() {
                 >
                     <span>{status}</span>
                     <button
-                        onClick={() => toggleStatusSelection(status)}
+                        onClick={() => setSelectedStatuses(prev => prev.filter(s => s !== status))}
                         className="hover:text-gray-900 transition-colors"
                     >
                         <svg
@@ -780,7 +871,10 @@ export default function InvoicePage() {
             {/* Type Filter */}
             <div className="relative" ref={typeFilterRef}>
                 <button
-                    onClick={() => setShowTypeFilter(!showTypeFilter)}
+                    onClick={() => {
+                        setTempSelectedTypes(selectedTypes);
+                        setShowTypeFilter(!showTypeFilter);
+                    }}
                     className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
                         selectedTypes.length > 0
                             ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
@@ -810,7 +904,7 @@ export default function InvoicePage() {
                                     <input
                                         type="checkbox"
                                         id={`type-${type}`}
-                                        checked={selectedTypes.includes(type)}
+                                        checked={tempSelectedTypes.includes(type)}
                                         onChange={() => toggleTypeSelection(type)}
                                         className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
                                     />
@@ -826,9 +920,9 @@ export default function InvoicePage() {
                         <div className="flex justify-center">
                             <button
                                 onClick={applyTypeFilter}
-                                disabled={selectedTypes.length === 0}
+                                disabled={tempSelectedTypes.length === 0}
                                 className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
-                                    selectedTypes.length > 0
+                                    tempSelectedTypes.length > 0
                                         ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
                                         : 'bg-gray-400 cursor-not-allowed'
                                 }`}
@@ -848,7 +942,187 @@ export default function InvoicePage() {
                 >
                     <span>{type}</span>
                     <button
-                        onClick={() => toggleTypeSelection(type)}
+                        onClick={() => setSelectedTypes(prev => prev.filter(t => t !== type))}
+                        className="hover:text-gray-900 transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            ))}
+
+            {/* Payee Filter */}
+            <div className="relative" ref={payeeFilterRef}>
+                <button
+                    onClick={() => {
+                        setTempSelectedPayees(selectedPayees);
+                        setShowPayeeFilter(!showPayeeFilter);
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        selectedPayees.length > 0
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Payee
+                </button>
+
+                {/* Dropdown */}
+                {showPayeeFilter && (
+                    <div className="absolute top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3 max-h-64 overflow-y-auto">
+                        <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                            Filter by: Payee
+                        </label>
+                        <div className="space-y-1.5 mb-2">
+                            {uniquePayees.map((payee) => (
+                                <div key={payee} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id={`payee-${payee}`}
+                                        checked={tempSelectedPayees.includes(payee)}
+                                        onChange={() => togglePayeeSelection(payee)}
+                                        className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
+                                    />
+                                    <label
+                                        htmlFor={`payee-${payee}`}
+                                        className="ml-2 text-xs text-gray-700 cursor-pointer truncate"
+                                        title={payee}
+                                    >
+                                        {payee}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-center">
+                            <button
+                                onClick={applyPayeeFilter}
+                                disabled={tempSelectedPayees.length === 0}
+                                className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                    tempSelectedPayees.length > 0
+                                        ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Active Payee Filter Chips */}
+            {selectedPayees.map((payee) => (
+                <div
+                    key={payee}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300"
+                >
+                    <span className="truncate max-w-[120px]" title={payee}>{payee}</span>
+                    <button
+                        onClick={() => setSelectedPayees(prev => prev.filter(p => p !== payee))}
+                        className="hover:text-gray-900 transition-colors"
+                    >
+                        <svg
+                            className="w-3 h-3"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+            ))}
+
+            {/* Payer Filter */}
+            <div className="relative" ref={payerFilterRef}>
+                <button
+                    onClick={() => {
+                        setTempSelectedPayers(selectedPayers);
+                        setShowPayerFilter(!showPayerFilter);
+                    }}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md border transition-colors ${
+                        selectedPayers.length > 0
+                            ? 'bg-white text-gray-700 border-gray-900 hover:bg-gray-50'
+                            : 'bg-white text-gray-700 border-dashed border-gray-300 hover:bg-gray-50'
+                    }`}
+                >
+                    <svg
+                        className="w-3 h-3"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    Payer
+                </button>
+
+                {/* Dropdown */}
+                {showPayerFilter && (
+                    <div className="absolute top-full mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10 animate-in fade-in slide-in-from-top-1 duration-200 p-3 max-h-64 overflow-y-auto">
+                        <label className="block -mt-1 text-xs font-medium text-gray-700 mb-2">
+                            Filter by: Payer
+                        </label>
+                        <div className="space-y-1.5 mb-2">
+                            {uniquePayers.map((payer) => (
+                                <div key={payer} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id={`payer-${payer}`}
+                                        checked={tempSelectedPayers.includes(payer)}
+                                        onChange={() => togglePayerSelection(payer)}
+                                        className="w-3 h-3 text-gray-900 bg-white border-gray-300 rounded focus:ring-gray-900 focus:ring-2"
+                                    />
+                                    <label
+                                        htmlFor={`payer-${payer}`}
+                                        className="ml-2 text-xs text-gray-700 cursor-pointer truncate"
+                                        title={payer}
+                                    >
+                                        {payer}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-center">
+                            <button
+                                onClick={applyPayerFilter}
+                                disabled={tempSelectedPayers.length === 0}
+                                className={`px-3 py-1 text-white text-xs font-medium rounded-md transition-colors -mb-1 ${
+                                    tempSelectedPayers.length > 0
+                                        ? 'bg-gray-900 hover:bg-gray-800 cursor-pointer'
+                                        : 'bg-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Apply
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Active Payer Filter Chips */}
+            {selectedPayers.map((payer) => (
+                <div
+                    key={payer}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.75 text-xs font-medium rounded-md bg-gray-100 text-gray-700 border border-gray-300"
+                >
+                    <span className="truncate max-w-[120px]" title={payer}>{payer}</span>
+                    <button
+                        onClick={() => setSelectedPayers(prev => prev.filter(p => p !== payer))}
                         className="hover:text-gray-900 transition-colors"
                     >
                         <svg
@@ -864,7 +1138,7 @@ export default function InvoicePage() {
             ))}
 
             {/* Clear All Filters */}
-            {(selectedDescriptions.length > 0 || activeBalanceRange || selectedMethods.length > 0 || selectedStatuses.length > 0 || selectedTypes.length > 0) && (
+            {(selectedDescriptions.length > 0 || activeBalanceRange || selectedMethods.length > 0 || selectedStatuses.length > 0 || selectedTypes.length > 0 || selectedPayees.length > 0 || selectedPayers.length > 0) && (
                 <button
                     onClick={clearFilters}
                     className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
@@ -935,10 +1209,16 @@ export default function InvoicePage() {
                                 Type
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
+                                Payee/Payer
+                            </th>
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
                                 Status
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
                                 Method
+                            </th>
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
+                                Ref#
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
                                 <button
@@ -991,13 +1271,13 @@ export default function InvoicePage() {
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[20%]">
                                 Description
                             </th>
-                            <th className="w-[5%]"></th>
+                            <th className="w-[5%] sticky right-0 bg-white z-[100]"></th>
                         </tr>
                     </thead>
                     <tbody className="bg-white">
                         {sortedBills.length === 0 ? (
                             <tr>
-                                <td colSpan={10} className="px-4 py-8 text-center text-sm text-gray-500">
+                                <td colSpan={12} className="px-4 py-8 text-center text-sm text-gray-500">
                                     No transactions found for this property
                                 </td>
                             </tr>
@@ -1043,6 +1323,11 @@ export default function InvoicePage() {
                                             <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                 {bill.type}
                                             </td>
+                                            <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                <div className="max-w-[150px] truncate" title={bill.payee || property?.address?.split(',')[0].trim() || '—'}>
+                                                    {bill.payee || property?.address?.split(',')[0].trim() || '—'}
+                                                </div>
+                                            </td>
                                             <td className="px-4 py-1 text-sm whitespace-nowrap">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
@@ -1062,6 +1347,7 @@ export default function InvoicePage() {
                                                 </div>
                                             </td>
                                             <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
+                                            <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
                                             <td className="px-4 py-1 text-sm whitespace-nowrap">
                                                 <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-gray-900'}`}>
                                                     ${bill.balance.toFixed(2)}
@@ -1075,7 +1361,7 @@ export default function InvoicePage() {
                                             <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                 {bill.description || '—'}
                                             </td>
-                                            <td className="px-4 py-1 text-right">
+                                            <td className={`px-4 py-1 text-right sticky right-0 ${isPaid ? 'bg-gray-50 group-hover:bg-gray-100' : 'bg-white group-hover:bg-gray-50'} transition-colors ${openDropdownId === bill.id ? 'z-[200]' : 'z-[100]'}`}>
                                                 <div
                                                     className="relative inline-block"
                                                     ref={(el) => { dropdownRefs.current[bill.id] = el; }}
@@ -1139,23 +1425,29 @@ export default function InvoicePage() {
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {formatDateCreated(payment.createdAt)}
                                                     </td>
+                                                    <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
+                                                    <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                        <div className="max-w-[150px] truncate" title={payment.payer?.split(',')[0].trim() || property?.address?.split(',')[0].trim() || '—'}>
+                                                            {payment.payer?.split(',')[0].trim() || property?.address?.split(',')[0].trim() || '—'}
+                                                        </div>
+                                                    </td>
+                                                    <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}></td>
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {payment.type}
                                                     </td>
-                                                    <td className="px-4 py-1 text-sm whitespace-nowrap"></td>
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {payment.referenceNumber || ''}
                                                     </td>
-                                                    <td className="px-4 py-1 text-sm whitespace-nowrap"></td>
                                                     <td className="px-4 py-1 text-sm whitespace-nowrap">
                                                         <span className={`font-medium ${isPaid ? 'text-gray-400' : 'text-green-600'}`}>
                                                             +${paymentAmount.toFixed(2)}
                                                         </span>
                                                     </td>
+                                                    <td className="px-4 py-1 text-sm whitespace-nowrap"></td>
                                                     <td className={`px-4 py-1 text-sm ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {payment.description || '—'}
                                                     </td>
-                                                    <td className="px-4 py-1 text-right">
+                                                    <td className={`px-4 py-1 text-right sticky right-0 ${isPaid ? 'bg-gray-50 group-hover:bg-gray-100' : 'bg-gray-50 hover:bg-gray-100'} transition-colors ${openDropdownId === payment.id ? 'z-[200]' : 'z-[100]'}`}>
                                                         <div
                                                             className="relative inline-block"
                                                             ref={(el) => { dropdownRefs.current[payment.id] = el; }}
