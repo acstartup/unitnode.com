@@ -429,7 +429,7 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
                                     </div>
 
                                     {/* Phone Box */}
-                                    <div className="flex-[0.7]">
+                                    <div className="flex-1">
                                         {index === 0 && (
                                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                                 Phone
@@ -446,7 +446,7 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
                                     </div>
 
                                     {/* Relation Dropdown */}
-                                    <div className="flex-[1.3]">
+                                    <div className="flex-[0.9]">
                                         {index === 0 && (
                                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                                 Relation
