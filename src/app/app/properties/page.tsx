@@ -609,16 +609,16 @@ export default function Properties(){
                                     }}
                                 />
                             </th>
-                            <th className={`pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[42%] sticky left-[40px] bg-white z-[100] transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>
+                            <th className={`pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[38%] sticky left-[40px] bg-white z-[100] transition-shadow duration-200 ${isScrolled ? 'shadow-[4px_0_8px_-2px_rgba(0,0,0,0.25)]' : ''}`}>
                                 Property Address
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[18%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[12%]">
                                 Owner
                             </th>
                             <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[25%]">
                                 Tenant
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[12%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[8%]">
                                 <button
                                     onClick={toggleRentSort}
                                     className="inline-flex items-center gap-1 hover:text-gray-700 uppercase transition-colors"
@@ -642,7 +642,7 @@ export default function Properties(){
                                     </div>
                                 </button>
                             </th>
-                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[12%]">
+                            <th className="px-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[30%]">
                                 Overdue Balance
                             </th>
                             <th className="px-4 py-2 w-[5%] sticky right-0 bg-white z-[100]"></th>
