@@ -60,7 +60,6 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
     const [isEditingLease, setIsEditingLease] = useState(false);
 
-    const [originalTenant, setOriginalTenant] = useState({ name: '', phone: ''});
     const [originalCost, setOriginalCost] = useState('');
     const [originalTenants, setOriginalTenants] = useState<Tenant[]>([]);
 
@@ -84,7 +83,6 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
                         setOriginalTenants(tenantsWithIds);
                     } else if (property.mainTenant && property.mainTenant !== 'N/A') {
                         setTenants([{ id: '1', name: property.mainTenant, phone: property.mainTenantPhone || '', relation: 'Main' }]);
-                        setOriginalTenant({ name: property.mainTenant, phone: property.mainTenantPhone || '' });
                     }
 
                     // Set rent
@@ -97,7 +95,6 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
                 setSelectedPropertyId('');
                 setTenants([{ id: '1', name: '', phone: '', relation: 'Main'}]);
                 setIsEditingLease(false);
-                setOriginalTenant({ name: '', phone: '' });
                 setOriginalTenants([]);
                 setOriginalCost('');
             }
@@ -206,9 +203,18 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
     const handlePropertyAddressChange = (value: string) => {
         setPropertyAddress(value);
         if (value.trim()) {
-            const filtered = properties.filter(p => 
-                p.address.toLowerCase().includes(value.toLowerCase())
-            );
+            // Filter out properties that already have leases (only in command center, not when editing from property details)
+            const filtered = properties.filter(p => {
+                const matchesSearch = p.address.toLowerCase().includes(value.toLowerCase());
+                if (!matchesSearch) return false;
+
+                // If we're editing from property details (editPropertyId exists), show all properties
+                if (editPropertyId) return true;
+
+                // Otherwise, only show properties without leases
+                const hasLease = (p.tenants && p.tenants.length > 0) || (p.mainTenant && p.mainTenant !== 'N/A');
+                return !hasLease;
+            });
             setFilteredProperties(filtered);
             setShowPropertyDropdown(true);
         } else {
@@ -224,56 +230,12 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
 
-        // Find if property already has lease
-        const selectedProperty = properties.find(p => p.id === propertyId);
-        const hasLease = (selectedProperty?.tenants && selectedProperty.tenants.length > 0) ||
-                        (selectedProperty?.mainTenant && selectedProperty.mainTenant !== 'N/A');
-
-        if (hasLease) {
-            // Load existing tenants or mainTenant
-            let loadedTenants: Tenant[];
-
-            if (selectedProperty.tenants && selectedProperty.tenants.length > 0) {
-                // Load from tenants array
-                loadedTenants = selectedProperty.tenants.map((t, index) => ({
-                    id: (index + 1).toString(),
-                    name: t.name,
-                    phone: formatPhoneNumber(t.phone),
-                    relation: t.relation
-                }));
-            } else {
-                // Load from mainTenant (backward compatibility)
-                const formattedPhone = formatPhoneNumber(selectedProperty.mainTenantPhone || '');
-                loadedTenants = [{
-                    id: '1',
-                    name: selectedProperty.mainTenant,
-                    phone: formattedPhone,
-                    relation: 'Main'
-                }];
-            }
-
-            setTenants(loadedTenants);
-            setUtilityCost(selectedProperty.rent.toString());
-            setIsEditingLease(true);
-
-            // Save original values for change detection
-            setOriginalTenants(loadedTenants);
-            setOriginalCost(selectedProperty.rent.toString());
-            // Keep for backward compatibility
-            setOriginalTenant({
-                name: loadedTenants[0].name,
-                phone: loadedTenants[0].phone
-            });
-        } else {
-            setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
-            setUtilityCost('');
-            setIsEditingLease(false);
-
-            // Reset original
-            setOriginalTenants([]);
-            setOriginalTenant({ name: '', phone: ''});
-            setOriginalCost('');
-        }
+        // Reset to empty state for new lease
+        setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
+        setUtilityCost('');
+        setIsEditingLease(false);
+        setOriginalTenants([]);
+        setOriginalCost('');
     }
 
     const hasChanges = () => {
@@ -745,7 +707,7 @@ export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: Add
                                     showToast('Please select a property first', 'error');
                                     return;
                                 }
-                                
+
                                 // Validate that first tenant's name is filled
                                 if (!tenants[0].name.trim()) {
                                     showToast('Please enter the main tenant name', 'error');
