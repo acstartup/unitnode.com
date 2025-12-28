@@ -75,6 +75,9 @@ export default function InvoicePage() {
     const [tempSelectedPayers, setTempSelectedPayers] = useState<string[]>([]);
     const payerFilterRef = useRef<HTMLDivElement>(null);
 
+    // Selection state
+    const [selectedBills, setSelectedBills] = useState<string[]>([]);
+
     // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -124,6 +127,44 @@ export default function InvoicePage() {
             newExpanded.add(billId);
         }
         setExpandedBills(newExpanded);
+    };
+
+    // Selection handlers
+    const toggleSelectBill = (billId: string) => {
+        setSelectedBills(prev => {
+            if (prev.includes(billId)) {
+                return prev.filter(id => id !== billId);
+            } else {
+                return [...prev, billId];
+            }
+        });
+    };
+
+    const selectAll = () => {
+        setSelectedBills(bills.map(bill => bill.id));
+    };
+
+    const deselectAll = () => {
+        setSelectedBills([]);
+    };
+
+    const handleDeleteSelected = async () => {
+        try {
+            // Store the IDs we're deleting
+            const billsToDelete = [...selectedBills];
+
+            // Delete each bill
+            for (const billId of billsToDelete) {
+                await deleteBill(billId);
+            }
+
+            // Clear selection
+            setSelectedBills([]);
+            showToast(`${billsToDelete.length} bill(s) deleted successfully`, 'success');
+        } catch (error) {
+            console.error('Error deleting bills:', error);
+            showToast('Failed to delete bills', 'error');
+        }
     };
 
     // Calculate total paid for each bill
@@ -1146,6 +1187,37 @@ export default function InvoicePage() {
                     Clear all
                 </button>
             )}
+
+            {/* Selection Counter and Deselect */}
+            {selectedBills.length > 0 && (
+                <>
+                    <span className="text-xs text-gray-700 font-medium">
+                        {selectedBills.length} selected
+                    </span>
+                    <button
+                        onClick={deselectAll}
+                        className="text-xs text-gray-500 hover:text-gray-700 font-medium transition-colors"
+                    >
+                        Deselect all
+                    </button>
+                    <div className="ml-auto">
+                        <button
+                            onClick={handleDeleteSelected}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-red-600 hover:bg-red-650 rounded-md transition-colors"
+                        >
+                            <svg
+                                className="w-3.5 h-3.5"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete selected
+                        </button>
+                    </div>
+                </>
+            )}
         </div>
 
         {/* Table Container */}
@@ -1155,7 +1227,15 @@ export default function InvoicePage() {
                     {/* Table Header */}
                     <thead className="bg-white border-b border-gray-200">
                         <tr>
-                            <th className="pl-4 pr-4 py-2 w-[3%]">
+                            <th className="pl-4 pr-2 py-2 w-[3%] sticky left-0 bg-white z-[100]">
+                                <input
+                                    type="checkbox"
+                                    checked={selectedBills.length === bills.length && bills.length > 0}
+                                    onChange={() => selectedBills.length === bills.length ? deselectAll() : selectAll()}
+                                    className="w-3.5 h-3.5 rounded-md border-gray-200 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                />
+                            </th>
+                            <th className="pr-4 py-2 w-[3%]">
                             </th>
                             <th className="pr-4 py-2 text-left text-[10px] font-medium text-black uppercase tracking-wider w-[11%]">
                                 <button
@@ -1297,7 +1377,15 @@ export default function InvoicePage() {
                                                 isPaid ? 'bg-gray-50 hover:bg-gray-100' : 'hover:bg-gray-50'
                                             }`}
                                         >
-                                            <td className="pl-4 py-1">
+                                            <td className="pl-4 py-1 sticky left-0 bg-white group-hover:bg-gray-50 z-[100] transition-colors">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={selectedBills.includes(bill.id)}
+                                                    onChange={() => toggleSelectBill(bill.id)}
+                                                    className="w-3.5 h-3.5 rounded-md border-gray-200 focus:ring-0 focus:ring-offset-0 cursor-pointer transition-all duration-150 ease-in-out hover:border-gray-300"
+                                                />
+                                            </td>
+                                            <td className="py-1">
                                                 {billPayments.length > 0 && (
                                                     <button
                                                         onClick={() => toggleBillExpansion(bill.id)}
@@ -1420,8 +1508,9 @@ export default function InvoicePage() {
                                                         isPaid ? 'bg-gray-50 hover:bg-gray-100' : 'bg-gray-50 hover:bg-gray-100'
                                                     }`}
                                                 >
-                                                    <td className="pl-4 py-4.5"></td>
-                                                    <td className="pr-4 py-1 text-sm text-gray-400 whitespace-nowrap pl-8"></td>
+                                                    <td className="pl-4 py-1 sticky left-0 bg-gray-50 group-hover:bg-gray-100 z-[100] transition-colors"></td>
+                                                    <td className="py-4.5"></td>
+                                                    <td className="pr-4 py-1 text-sm text-gray-400 whitespace-nowrap"></td>
                                                     <td className={`px-4 py-1 text-sm whitespace-nowrap ${isPaid ? 'text-gray-400' : 'text-gray-500'}`}>
                                                         {formatDateCreated(payment.createdAt)}
                                                     </td>

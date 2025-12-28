@@ -3,6 +3,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { GridBackground } from "@/components/grid-background";
 import { ModalProvider } from "@/components/modal-provider";
+import { UserProvider } from "@/contexts/UserContext";
 
 export const metadata: Metadata = {
   title: "UnitNode.com",
@@ -28,9 +29,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <GridBackground />
-          <ModalProvider>
-            {children}
-          </ModalProvider>
+          <UserProvider>
+            <ModalProvider>
+              {children}
+            </ModalProvider>
+          </UserProvider>
         </ThemeProvider>
       </body>
     </html>

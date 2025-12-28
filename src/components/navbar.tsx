@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 {/* import { usePathname } from "next/navigation"; */}
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/modal-provider";
+import { useUser } from "@/contexts/UserContext";
 
 // Navbar component for site navigation
 export function Navbar() {
@@ -16,6 +17,8 @@ export function Navbar() {
     const [hoverTimeout] = useState<number | null>(null);
     // Access modal functions
     const { openSignupModal, openLoginModal } = useModal();
+    // Get user state
+    const { user, loading } = useUser();
     {/* const pathname = usePathname(); */}
 
     // Handle scroll events to change navbar appearance
@@ -184,20 +187,34 @@ export function Navbar() {
 
                     {/* Auth Buttons - reduced left margin */}
                     <div className="hidden md:flex items-center space-x-1 pr-4">
-                        <button
-                            onClick={() => openLoginModal()}
-                            className="text-sm text-black/60 hover:text-black px-1.5 py-1 bg-transparent border-none cursor-pointer"
-                        >
-                            Login
-                        </button>
-                        <Button 
-                            variant="secondary" 
-                            size="sm" 
-                            className="py-1 px-3 font-extrabold text-sm"
-                            onClick={openSignupModal}
-                        >
-                            Sign up
-                        </Button>
+                        {!loading && user ? (
+                            <Link href="/app/properties">
+                                <Button
+                                    variant="default"
+                                    size="sm"
+                                    className="py-1 px-3 font-extrabold text-sm bg-black text-white hover:bg-gray-800"
+                                >
+                                    Dashboard
+                                </Button>
+                            </Link>
+                        ) : (
+                            <>
+                                <button
+                                    onClick={() => openLoginModal()}
+                                    className="text-sm text-black/60 hover:text-black px-1.5 py-1 bg-transparent border-none cursor-pointer"
+                                >
+                                    Login
+                                </button>
+                                <Button
+                                    variant="secondary"
+                                    size="sm"
+                                    className="py-1 px-3 font-extrabold text-sm"
+                                    onClick={openSignupModal}
+                                >
+                                    Sign up
+                                </Button>
+                            </>
+                        )}
                     </div>
 
                     {/* Mobile menu button - hidden on desktop */}

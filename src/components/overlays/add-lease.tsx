@@ -8,6 +8,7 @@ import { useToast } from '@/contexts/ToastContext';
 interface AddLeaseOverlayProps {
     isOpen: boolean;
     onClose: () => void;
+    editPropertyId?: string;
 }
 
 interface Tenant {
@@ -35,7 +36,7 @@ const formatPhoneNumber = (value: string): string => {
     }
 };
 
-export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProps) {
+export default function AddLeaseOverlay({ isOpen, onClose, editPropertyId }: AddLeaseOverlayProps) {
     const [propertyAddress, setPropertyAddress] = useState('');
     const [tenants, setTenants] = useState<Tenant[]>([
         { id: '1', name: '', phone: '', relation: 'Main' }
@@ -59,15 +60,45 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     const [showPropertyDropdown, setShowPropertyDropdown] = useState(false);
     const [isEditingLease, setIsEditingLease] = useState(false);
 
-    const [originalTenant, setOriginalTenant] = useState({ name: '', phone: ''});
     const [originalCost, setOriginalCost] = useState('');
     const [originalTenants, setOriginalTenants] = useState<Tenant[]>([]);
 
     useEffect(() => {
         if (isOpen) {
-            setPropertyAddress('');
-            setSelectedPropertyId('');
-            setTenants([{ id: '1', name: '', phone: '', relation: 'Main'}]);
+            // If editPropertyId is provided, we're in edit mode
+            if (editPropertyId) {
+                const property = properties.find(p => p.id === editPropertyId);
+                if (property) {
+                    setSelectedPropertyId(editPropertyId);
+                    setPropertyAddress(property.address);
+                    setIsEditingLease(true);
+
+                    // Set tenants from property
+                    if (property.tenants && property.tenants.length > 0) {
+                        const tenantsWithIds = property.tenants.map((t, index) => ({
+                            ...t,
+                            id: (index + 1).toString()
+                        }));
+                        setTenants(tenantsWithIds);
+                        setOriginalTenants(tenantsWithIds);
+                    } else if (property.mainTenant && property.mainTenant !== 'N/A') {
+                        setTenants([{ id: '1', name: property.mainTenant, phone: property.mainTenantPhone || '', relation: 'Main' }]);
+                    }
+
+                    // Set rent
+                    setUtilityCost(property.rent ? property.rent.toString() : '');
+                    setOriginalCost(property.rent ? property.rent.toString() : '');
+                }
+            } else {
+                // Adding new lease - reset everything
+                setPropertyAddress('');
+                setSelectedPropertyId('');
+                setTenants([{ id: '1', name: '', phone: '', relation: 'Main'}]);
+                setIsEditingLease(false);
+                setOriginalTenants([]);
+                setOriginalCost('');
+            }
+
             setUtilityType('Rent');
 
             // Set default start date to first day of next month
@@ -77,15 +108,10 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
             setStartDate(formattedDate);
 
             setUtilityRecurrence('Monthly');
-            setUtilityCost('');
             setFilteredProperties([]);
             setShowPropertyDropdown(false);
-            setIsEditingLease(false);
-            setOriginalTenant({ name: '', phone: '' });
-            setOriginalTenants([]);
-            setOriginalCost('');
         }
-    }, [isOpen]);
+    }, [isOpen, editPropertyId, properties]);
 
     const relationOptions = [
         'Main',
@@ -177,9 +203,18 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
     const handlePropertyAddressChange = (value: string) => {
         setPropertyAddress(value);
         if (value.trim()) {
-            const filtered = properties.filter(p => 
-                p.address.toLowerCase().includes(value.toLowerCase())
-            );
+            // Filter out properties that already have leases (only in command center, not when editing from property details)
+            const filtered = properties.filter(p => {
+                const matchesSearch = p.address.toLowerCase().includes(value.toLowerCase());
+                if (!matchesSearch) return false;
+
+                // If we're editing from property details (editPropertyId exists), show all properties
+                if (editPropertyId) return true;
+
+                // Otherwise, only show properties without leases
+                const hasLease = (p.tenants && p.tenants.length > 0) || (p.mainTenant && p.mainTenant !== 'N/A');
+                return !hasLease;
+            });
             setFilteredProperties(filtered);
             setShowPropertyDropdown(true);
         } else {
@@ -195,56 +230,12 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
         setShowPropertyDropdown(false);
         setFilteredProperties([]);
 
-        // Find if property already has lease
-        const selectedProperty = properties.find(p => p.id === propertyId);
-        const hasLease = (selectedProperty?.tenants && selectedProperty.tenants.length > 0) ||
-                        (selectedProperty?.mainTenant && selectedProperty.mainTenant !== 'N/A');
-
-        if (hasLease) {
-            // Load existing tenants or mainTenant
-            let loadedTenants: Tenant[];
-
-            if (selectedProperty.tenants && selectedProperty.tenants.length > 0) {
-                // Load from tenants array
-                loadedTenants = selectedProperty.tenants.map((t, index) => ({
-                    id: (index + 1).toString(),
-                    name: t.name,
-                    phone: formatPhoneNumber(t.phone),
-                    relation: t.relation
-                }));
-            } else {
-                // Load from mainTenant (backward compatibility)
-                const formattedPhone = formatPhoneNumber(selectedProperty.mainTenantPhone || '');
-                loadedTenants = [{
-                    id: '1',
-                    name: selectedProperty.mainTenant,
-                    phone: formattedPhone,
-                    relation: 'Main'
-                }];
-            }
-
-            setTenants(loadedTenants);
-            setUtilityCost(selectedProperty.rent.toString());
-            setIsEditingLease(true);
-
-            // Save original values for change detection
-            setOriginalTenants(loadedTenants);
-            setOriginalCost(selectedProperty.rent.toString());
-            // Keep for backward compatibility
-            setOriginalTenant({
-                name: loadedTenants[0].name,
-                phone: loadedTenants[0].phone
-            });
-        } else {
-            setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
-            setUtilityCost('');
-            setIsEditingLease(false);
-
-            // Reset original
-            setOriginalTenants([]);
-            setOriginalTenant({ name: '', phone: ''});
-            setOriginalCost('');
-        }
+        // Reset to empty state for new lease
+        setTenants([{ id: '1', name: '', phone: '', relation: 'Main' }]);
+        setUtilityCost('');
+        setIsEditingLease(false);
+        setOriginalTenants([]);
+        setOriginalCost('');
     }
 
     const hasChanges = () => {
@@ -326,21 +317,22 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                     {/* Form Content */}
                     <div className="px-4 py-2">
-                        {/* Property Address Search Section */}
-                        <div className="mb-2">
-                            <label className="block text-sm font-medium text-gray-900 mb-2">
-                                Property address
-                            </label>
-                            <div className="relative">
-                                <input
-                                    type="text"
-                                    value={propertyAddress}
-                                    onChange={(e) => handlePropertyAddressChange(e.target.value)}
-                                    onFocus={() => propertyAddress && setShowPropertyDropdown(true)}
-                                    onBlurCapture={() => setTimeout(() => setShowPropertyDropdown(false), 200)}
-                                    className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    placeholder="123 Main Street, Anytown, CA 902310, USA"
-                                />
+                        {/* Property Address Search Section - Hidden when editing */}
+                        {!editPropertyId && (
+                            <div className="mb-2">
+                                <label className="block text-sm font-medium text-gray-900 mb-2">
+                                    Property address
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={propertyAddress}
+                                        onChange={(e) => handlePropertyAddressChange(e.target.value)}
+                                        onFocus={() => propertyAddress && setShowPropertyDropdown(true)}
+                                        onBlurCapture={() => setTimeout(() => setShowPropertyDropdown(false), 200)}
+                                        className="w-full px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="123 Main Street, Anytown, CA 902310, USA"
+                                    />
 
                                 {/* Property Dropdown */}
                                 {showPropertyDropdown && filteredProperties.length > 0 && (
@@ -373,6 +365,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                 )}
                             </div>
                         </div>
+                        )}
 
                         {/* Tenant Section */}
                         <h2 className={`text-sm font-semibold py-2 ${!selectedPropertyId ? 'text-gray-400' : 'text-gray-900'}`}>Tenant information</h2>
@@ -398,7 +391,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     </div>
 
                                     {/* Phone Box */}
-                                    <div className="flex-[0.7]">
+                                    <div className="flex-1">
                                         {index === 0 && (
                                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                                 Phone
@@ -415,7 +408,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     </div>
 
                                     {/* Relation Dropdown */}
-                                    <div className="flex-[1.3]">
+                                    <div className="flex-[0.9]">
                                         {index === 0 && (
                                             <label className="block text-sm font-medium text-gray-900 mb-2">
                                                 Relation
@@ -575,12 +568,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
 
                                 {/* Calendar Dropdown */}
                                 {showCalendar && selectedPropertyId && (
-                                    <>
-                                        <div
-                                            className="fixed inset-0 z-[10000]"
-                                            onClick={() => setShowCalendar(false)}
-                                        />
-                                        <div className="absolute z-[10001] mt-1 w-50 bg-white border border-gray-300 rounded-md shadow-lg p-3">
+                                    <div className="absolute z-[10001] mt-1 w-50 bg-white border border-gray-300 rounded-md shadow-lg p-3">
                                             {/* Calendar Header */}
                                             <div className="flex items-center justify-between mb-1 -mt-0.5">
                                                 <button
@@ -653,7 +641,6 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                                 })()}
                                             </div>
                                         </div>
-                                    </>
                                 )}
                             </div>
 
@@ -720,7 +707,7 @@ export default function AddLeaseOverlay({ isOpen, onClose }: AddLeaseOverlayProp
                                     showToast('Please select a property first', 'error');
                                     return;
                                 }
-                                
+
                                 // Validate that first tenant's name is filled
                                 if (!tenants[0].name.trim()) {
                                     showToast('Please enter the main tenant name', 'error');
