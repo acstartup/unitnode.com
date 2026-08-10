@@ -36,7 +36,7 @@ export default function Home() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
             <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
           </span> {/* Update Launch Date - check with Varun*/}
-          UnitNode V1.0
+          UnitNode V1.3
         </div>
         <TypingAnimation 
           text="Replacing outsourced property management."
